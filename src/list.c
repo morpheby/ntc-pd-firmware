@@ -62,7 +62,7 @@ int _list_validate(_ListHandle list) {
         list->begin.prev = 0;
         list->end = &list->begin;
     }
-
+    return 0;
 }
 
 _ListHandle list_create() {
