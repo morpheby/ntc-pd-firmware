@@ -1,27 +1,32 @@
 #include "cn_inputs.h"
 #include "ipl-config.h"
 
+// 1000 seems to be reasonable to filter
+// out any interference and still to have
+// no display flashes
+#define CNI_THRESHOLD         1000
+
 #define CNI_1_PIN_NUM            5
 #define CNI_1_PIN_TYPE           B
-#define CNI_1                    27
+#define CNI_1                   27
 #define CNI_1_16                 2
 #define CNI_1_NEEDSPU            0
 
 #define CNI_2_PIN_NUM            6
 #define CNI_2_PIN_TYPE           B
-#define CNI_2                    24
+#define CNI_2                   24
 #define CNI_2_16                 2
 #define CNI_2_NEEDSPU            0
 
 #define CNI_3_PIN_NUM            7
 #define CNI_3_PIN_TYPE           B
-#define CNI_3                    23
+#define CNI_3                   23
 #define CNI_3_16                 2
 #define CNI_3_NEEDSPU            0
 
 #define CNI_4_PIN_NUM            8
 #define CNI_4_PIN_TYPE           B
-#define CNI_4                    22
+#define CNI_4                   22
 #define CNI_4_16                 2
 #define CNI_4_NEEDSPU            0
 
@@ -72,9 +77,19 @@ void cni_init() {
 }
 
 void _ISR_NOPSV _CNInterrupt() {
-    _CNI_SIGNAL(1);
-    _CNI_SIGNAL(2);
-    _CNI_SIGNAL(3);
-    _CNI_SIGNAL(4);
+    static _Bool filterActive = 0;
+    int i;
+    
+    // if there were subsequent interrupts, then only the latest will
+    // initiate signalling, whilst every previous will do nothing
+    filterActive = 1;
     IFS1bits.CNIF = 0;
+    for(i = 0; filterActive && i < CNI_THRESHOLD; ++i);
+    if(filterActive) {
+        _CNI_SIGNAL(1);
+        _CNI_SIGNAL(2);
+        _CNI_SIGNAL(3);
+        _CNI_SIGNAL(4);
+        filterActive = 0;
+    }
 }
