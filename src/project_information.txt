@@ -1,0 +1,57 @@
+<Application Description for Project Goes Here>
+
+Project Owner(s): NTP Center
+Author(s): Morphe
+Hardware Platform: dsPIC33FJ32MC204
+Debuggers Used:
+Programmers Used:
+MPLAB Version: MPLAB X IDE v1.20
+C Compiler Version: MPLAB XC16
+Final Checksum:
+
+FILES INCLUDED IN THE PROJECT TREE:
+
+system.h - Defines oscillator parameters, system functions (i.e. system_reset(),
+system.c   high_priority_enter(), close_handle(), garbage_collect_do(), etc) and
+           in fact should be included in every source file.
+           NOTE: Before using, call system_init(), but ensure it is called
+                 EXACTLY once.
+
+configuration_bits.c - Contains device configuration bit macros.  Refer to
+    the comments in configuration_bits.c for instructions on where to get
+    information about device configuration bits and their corresponding macros.
+
+interrupts.c - This file contains example stubs for interrupts.
+
+main.c - Entry point is located here
+
+traps.c - Generally speaking, a user would not modify this file unless
+    they were having problems resulting in traps.  If the code in this file
+    is entered, that means there is a critical hardware problem or software bug.
+    The trap will need evaluated by the user to determine the source
+    of the problem.  www.microchip.com/codeexamples contains trap example code
+    which can be used as a reference to help debug traps.
+
+oscillators.h - Functions for safe and easy oscillator switching. Before use
+oscillators.c   shall be initialized with osc_init()
+
+uart_base.h - Functions for easy and stable UART communication. Before use shall
+uart_base.c   be initialized with uart_init().
+
+wdt.h - Functions to use with watch-dog functionality
+wdt.c
+
+messaging.h - Functions for multi-master communication with time synchronisation
+messaging.c
+
+FILES INCLUDED IN THE PROJECT BUT NOT IN THE PROJECT TREE:
+
+#include <p33-xxxx.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <uart.h>
+#include <reset.h>
+
+These files come with the C30 compiler.  Check the compiler documentation for
+more information on these files.
