@@ -142,10 +142,14 @@ void itoa_s4(char *buf, int val) {
 }
 
 void _disp_update() {
-    dispChngFlag = 1;
     dispShowState = 0;
     dispCounter = 0;
     dispAniActive = 0;
+    dispChngFlag = 1;
+}
+
+void _disp_update_no_ani_reset() {
+    dispChngFlag = 1;
 }
 
 void disp_set_fixed(uint8_t dispNum) {
@@ -163,13 +167,16 @@ void disp_fix_point(uint8_t dispNum, int fp) {
     _disp_update();
 }
 
-void disp_puts(const char *str) {
+void _disp_puts(const char *str) {
     if(dispStr)
         gc_free(dispStr);
     dispStrSz = strlen(str);
     dispStr = gc_malloc(dispStrSz+1);
     strcpy(dispStr, str);
+}
 
+void disp_puts(const char *str) {
+    _disp_puts(str);
     _disp_update();
 }
 
@@ -182,8 +189,9 @@ void disp_puts_ani(const char *str, int ani) {
 //    dispShowState = 0;
 //    dispCounter = 0;
 //    dispChngFlag = 1;
-    disp_puts(str);
+    _disp_puts(str);
     dispAniActive = ani;
+    _disp_update_no_ani_reset();
 }
 
 void disp_cls() {
