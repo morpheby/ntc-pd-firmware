@@ -45,6 +45,8 @@ void disp_draw() {
     if(dispChngFlag) {
         dispChngFlag = 0;
 
+        aniInProgress = 0;
+
         for(i = 0; i < SECTION_COUNT; ++i) {
             if(dispStr) {
                 if(displayState[i].isShareable) {
