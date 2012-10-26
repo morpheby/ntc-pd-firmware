@@ -82,6 +82,9 @@ void disp_draw() {
             display[i] = ' ';
             aniFlag = 0;
         }
+    } else if(aniInProgress) {
+        aniInProgress = 0;
+        aniFlag = 0;
     }
 
     if(dispStr)
@@ -138,19 +141,26 @@ void itoa_s4(char *buf, int val) {
     }
 }
 
+void _disp_update() {
+    dispChngFlag = 1;
+    dispShowState = 0;
+    dispCounter = 0;
+    dispAniActive = 0;
+}
+
 void disp_set_fixed(uint8_t dispNum) {
     displayState[dispNum].isShareable = 0;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_set_shareable(uint8_t dispNum) {
     displayState[dispNum].isShareable = 1;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_fix_point(uint8_t dispNum, int fp) {
     displayState[dispNum].FP = fp;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_puts(const char *str) {
@@ -160,9 +170,7 @@ void disp_puts(const char *str) {
     dispStr = gc_malloc(dispStrSz+1);
     strcpy(dispStr, str);
 
-    dispShowState = 0;
-    dispCounter = 0;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_puts_ani(const char *str, int ani) {
@@ -182,7 +190,7 @@ void disp_cls() {
     gc_free(dispStr);
     dispStr = 0;
     dispStrSz = 0;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_num(uint8_t dispNum, int num, uint8_t point) {
@@ -190,7 +198,7 @@ void disp_num(uint8_t dispNum, int num, uint8_t point) {
         disp_cls();
     displayState[dispNum].num = num;
     displayState[dispNum].pt = point;
-    dispChngFlag = 1;
+    _disp_update();
 }
 
 void disp_puti(uint8_t dispNum, int i) {
