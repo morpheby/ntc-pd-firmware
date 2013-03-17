@@ -33,6 +33,7 @@ void uart_flush_rx();
 void uart_send(uint8_t addr, const unsigned char *data, size_t len);
 
 void uart_set_addr(uint8_t addr);
+uint8_t uart_get_addr();
 
 void uart_sync_transmit();
 void uart_sync_recieve();

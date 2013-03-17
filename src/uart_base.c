@@ -45,6 +45,10 @@ void uart_set_addr(uint8_t addr) {
     deviceID = addr;
 }
 
+uint8_t uart_get_addr() {
+    return deviceID;
+}
+
 _Bool uart_is_my_addr(uint8_t addr) {
     return addr == UART_GLOBAL_ADDR ||
            addr == deviceID;
