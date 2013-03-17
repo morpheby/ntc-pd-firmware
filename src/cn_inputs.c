@@ -77,19 +77,12 @@ void cni_init() {
 }
 
 void _ISR_NOPSV _CNInterrupt() {
-    static _Bool filterActive = 0;
     int i;
-    
-    // if there were subsequent interrupts, then only the latest will
-    // initiate signalling, whilst every previous will do nothing
-    filterActive = 1;
+
+    for(i = 0; i < CNI_THRESHOLD; ++i);
+    _CNI_SIGNAL(1);
+    _CNI_SIGNAL(2);
+    _CNI_SIGNAL(3);
+    _CNI_SIGNAL(4);
     IFS1bits.CNIF = 0;
-    for(i = 0; filterActive && i < CNI_THRESHOLD; ++i);
-    if(filterActive) {
-        _CNI_SIGNAL(1);
-        _CNI_SIGNAL(2);
-        _CNI_SIGNAL(3);
-        _CNI_SIGNAL(4);
-        filterActive = 0;
-    }
 }
