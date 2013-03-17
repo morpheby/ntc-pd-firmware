@@ -10,9 +10,9 @@
  * !!! THIS BUG DAMAGES CODE WHILE EXECUTING IN SIMULATOR !!!
  */
 
-#define FLASH_PAGE_MASK   0xFE00     // Gets 512-instruction aligned offset
-#define FLASH_PAGE        0x0200     // Flash page size
-#define FLASH_OFFSET_MASK 0x01FF
+#define FLASH_PAGE_MASK   0xFC00     // Gets 512-instruction aligned offset (1024)
+#define FLASH_PAGE        0x0400     // Flash page size
+#define FLASH_OFFSET_MASK 0x03FF
 #define FLASH_ROW_MASK    0x007F
 #define FLASH_ROW         0x0080
 
@@ -75,7 +75,7 @@ void SECURE _flash_preconf_row() {
 
 void _flash_preconf_erase() {
     NVMCONbits.WREN = 1;        // Enable write
-    NVMCONbits.ERASE = 1;       // Don't erase
+    NVMCONbits.ERASE = 1;       // Erase
     NVMCONbits.NVMOP = 0b0010;  // Single page erase
 }
 
@@ -111,6 +111,7 @@ int SECURE flash_writerow(unsigned char page, unsigned int offset,
         _Instruction *row) {
     int i;
     TBLPAG = page;
+    
     // Write 64 instructions == 1 row
     for(i = 0; i < 128; i+=2) {
         __builtin_tblwtl(offset + i, row[i/2].lowWord);
@@ -226,7 +227,7 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
             // Apply all operations from that row
             for(k = 0; k < opsSize; ++k)
                 if((ops[k].offset & FLASH_OFFSET_MASK) / 128 == i)
-                    row[ops[k].offset & FLASH_ROW_MASK].lowWord = ops[k].value;
+                    row[(ops[k].offset & FLASH_ROW_MASK) / 2].lowWord = ops[k].value;
 
             // Store row
             if(flash_writerow(op.pageNum, offset+i*128, row)) {
@@ -238,7 +239,7 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
     gc_free(row);
     gc_free(ops);
 
-    return 0;
+    return result;
 }
 
 int flash_write() {
@@ -247,6 +248,7 @@ int flash_write() {
     _FlashOp *op;
     int result = 0;
 
+    led_on();
 
     // Group all queued writes by page
     while(!list_is_empty(flashOps)) {
@@ -277,6 +279,9 @@ int flash_write() {
     }
 
     list_free(group);
+
+    led_off();
+
     return result;
 }
 
