@@ -20,6 +20,8 @@
 #define NM_NAME_T_SETTABLE      0x0020
 #define NM_NAME_T_READABLE      0x0040
 
+#define NM_NAME_T_STREAMED      0x0080
+
 #define NM_NAME_T_RPC           0xFFFF
 
 
