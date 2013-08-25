@@ -11,6 +11,27 @@
 
 /* Consider splitting this file */
 
+/* Implementation status:
+ * - Implemented and not fully tested packet receiving/sending
+ * - Partial implementation of Packet Processing facility
+ *   - Has some stup for various message types
+ *   - Has some not tested callback/waiting facilities
+ * - Packet preparation fully functional
+ * - Packet validity testing fully functional
+ *   - Though needs tranfer to CRC, XORSUM is not reliable enough
+ * - ACK/NACK functionality stub/incomplete
+ * - Higher-level functions planned/stub/not-tested/incomplete
+ *   - Finding and checking names is incomplete
+ *   - Registration is stub/incomplete
+ *   - Data handling, switches, etc planned
+ * - Protocol addressing not tested
+ *   - Flashing tables tested
+ *   - Flashing address tested
+ *   - Iterating/contacting/updating not-tested, stub or planned
+ * - Protocol itself is development version
+ */
+
+
 #define MAGIC 0xA5
 #define MAX_NODES 0x20
 
@@ -799,7 +820,7 @@ void _wait_wait(_MessageType msg) {
 
     _reg_wait(msg);
     do
-        messages_check();
+        ; // messages_check(); // it is handled by timer interrupt
     while(_msgWaitLock);
     _unreg_wait();
 }
