@@ -13,5 +13,8 @@
 
 void menu_err_disp_enter();
 
+void menu_send_dummy_msg(); // XXX
+void menu_send_break(); // XXX
+
 #endif	/* MENU_EXT_H */
 

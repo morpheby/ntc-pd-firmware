@@ -35,8 +35,9 @@ void uart_send(uint8_t addr, const unsigned char *data, size_t len);
 void uart_set_addr(uint8_t addr);
 uint8_t uart_get_addr();
 
-void uart_sync_transmit();
-void uart_sync_recieve();
+typedef void(*_SyncFunction)();
+void uart_sync_transmit(_SyncFunction synchronize);
+void uart_sync_recieve(_SyncFunction synchronize);
 
 void uart_slow_mode(_Bool on);
 

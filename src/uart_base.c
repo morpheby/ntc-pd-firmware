@@ -344,12 +344,12 @@ void uart_init() {
     U1MODEbits.ABAUD = 0;
     U1MODEbits.BRGH = 0;
     U1MODEbits.UEN = 0b01; // U1RX, u1TX and U1RTS are enabled
-    U1MODEbits.URXINV = 1; // XXX
+    U1MODEbits.URXINV = 1; // XXX This value depends on board configuration
     U1MODEbits.RTSMD = 1;
-    U1STAbits.UTXINV = 1; // XXX
-    UART_CTS_LATCH = 0; // XXX
+    U1STAbits.UTXINV = 1; // XXX This value depends on board configuration
+    UART_CTS_LATCH = 0; // XXX Without this send never starts. Maybe
 
-    U1STAbits.ADDEN = 1; // XXX
+    U1STAbits.ADDEN = 1; // XXX Check documentation. IDK what's that for
 
     /* TX interrupt settings */
     U1STAbits.UTXISEL0 = 0; // Set interrupt when there is free space
@@ -411,7 +411,7 @@ void uart_init() {
     system_lock(UART_RATE_CYCLES);
 }
 
-void uart_sync_recieve() {
+void uart_sync_recieve(_SyncFunction synchronize) {
     uint8_t buff;
 
     /* Prepare line */
@@ -431,13 +431,14 @@ void uart_sync_recieve() {
     /* Reset timer */
     U1MODEbits.WAKE = 1;
     while(U1MODEbits.WAKE);
-    // XXX reset the timer
 
+    synchronize();
+    
     U1STAbits.ADDEN = 1;
     uartSyncLock = 0;
 }
 
-void uart_sync_transmit() {
+void uart_sync_transmit(_SyncFunction synch) {
     /* Prepare line */
     while(!U1STAbits.TRMT) // Wait until all transfer operations complete
     uartSyncLock = 1; // Stop normal operation
@@ -452,13 +453,14 @@ void uart_sync_transmit() {
     U1STAbits.UTXBRK = 1;
     U1TXREG = 0x00; // transimt break
     while(U1STAbits.UTXBRK);
-    // XXX reset the timer
+
+    synch();
 
     uartSyncLock = 0;
 }
 
 void _ISR_NOPSV _U1ErrInterrupt() {
-    led_flash(FCY); // XXX
+    led_flash(FCY); // XXX Don't think that may be needed in production
     led_flash(FCY);
     led_flash(FCY);
     IFS4bits.U1EIF = 0; // ignore

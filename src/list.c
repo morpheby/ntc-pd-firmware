@@ -96,7 +96,7 @@ void list_iterator_free(_ListIterator iter) {
 int list_iterate_fwd(_ListIterator iter) {
 	if(!iter->pos)
 		return 0;
-	return iter->pos = iter->pos->next;
+	return (int) (iter->pos = iter->pos->next);
 }
 
 // returns 0 if the end is reached, non-zero otherwise
@@ -104,7 +104,7 @@ int list_iterate_back(_ListIterator iter) {
 	if(!iter->pos || !iter->pos->prev)
 		return 0;
 	iter->pos = iter->pos->prev;
-	return iter->pos->prev; // don't let the head to be accessed
+	return (int) (iter->pos->prev); // don't let the head to be accessed
 }
 
 int list_iterators_equal(_ListIterator iter1, _ListIterator iter2) {
@@ -135,8 +135,8 @@ int list_remove(_ListIterator pos) {
 	_ListElement *old = pos->pos;
 	int res = list_iterate_back(pos);
     pos->list->free_(old->value);
-	if(old == pos->list->end)
-		list_iterate_back(&pos->list->end);
+	if((_ListHead*)old == pos->list->end)
+		list_iterate_back((_ListIterator)&pos->list->end);
 	_list_remove(old);
 	return res;
 }
@@ -156,13 +156,13 @@ void _list_insert(_ListElement *after, _ValueType value) {
 void list_insert(_ListIterator after, _ValueType value) {
 	_list_insert(after->pos, value);
 	list_iterate_fwd(after);
-	if(after->pos == after->list->end)
-		list_iterate_fwd(&after->list->end);
+	if((_ListHead*)after->pos == after->list->end)
+		list_iterate_fwd((_ListIterator)&after->list->end);
 }
 
 _ListIterator list_begin(_ListHandle list) {
 	_ListIterator iter = LIST_MALLOC(sizeof(_ListIter));
-	iter->pos = &list->begin;
+	iter->pos = (_ListElement*) &list->begin;
 	iter->list = list;
 	list_iterate_fwd(iter); // no access to the head is allowed
 	return iter;
@@ -174,20 +174,20 @@ _ListIterator list_end(_ListHandle list) {
 	if(list_is_empty(list))
 		iter->pos = 0;
 	else
-		iter->pos = list->end;
+		iter->pos = (_ListElement*)list->end;
 	return iter;
 }
 
 void list_push_back(_ListHandle list, _ValueType value) {
 	// this way is faster than creating new iterator
-	_list_insert(list->end, value);
-	list_iterate_fwd(&(list->end));
+	_list_insert((_ListElement*)list->end, value);
+	list_iterate_fwd((_ListIterator)&(list->end));
 }
 
 void list_push_front(_ListHandle list, _ValueType value) {
-	_list_insert(&list->begin, value);
+	_list_insert((_ListElement*)&list->begin, value);
 	if(list_is_empty(list))
-		list_iterate_fwd(&list->end);
+		list_iterate_fwd((_ListIterator)&list->end);
 }
 
 // returns 0 if the list is empty
@@ -195,8 +195,8 @@ int list_pop_back(_ListHandle list) {
 	// a faster way
 	if(list_is_empty(list))
 		return 0;
-	_ListElement *oldEnd = list->end;
-	list_iterate_back(&list->end);
+	_ListElement *oldEnd = (_ListElement*)list->end;
+	list_iterate_back((_ListIterator)&list->end);
     list->free_(oldEnd->value);
 	_list_remove(oldEnd);
 	if(list_is_empty(list))

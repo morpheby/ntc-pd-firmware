@@ -28,7 +28,9 @@ void menu_select(const _MenuItem *item);
 #include "menu_ext.h"
 
     const _MenuItem menuDoFail = {"Do fail", 0, 0, 0, system_reset, 0};
-    const _MenuItem menuErrDisp = {"Last fail", &menuDoFail, 0, 0, menu_err_disp_enter, 0};
+    const _MenuItem menuSendBrk = {"Send break", &menuDoFail, 0, 0, menu_send_break, 0};
+    const _MenuItem menuSendMsg = {"Send msg", &menuSendBrk, 0, 0, menu_send_dummy_msg, 0};
+    const _MenuItem menuErrDisp = {"Last fail", &menuSendMsg, 0, 0, menu_err_disp_enter, 0};
         const _MenuItem menuSetSave = {"Save cfg", 0, 0, 0, 0, 0};
             const _MenuItem menuSetCommRegDev  = {"Reg new", 0, 0, 0, 0, 0};
             const _MenuItem menuSetCommRegSelf = {"Reg self", &menuSetCommRegDev, 0, 0, 0, 0};

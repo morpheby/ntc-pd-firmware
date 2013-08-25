@@ -24,9 +24,6 @@
 /* Main Program                                                               */
 /******************************************************************************/
 
-// XXX
-_PERSISTENT _Bool tmp;
-
 int16_t main(void) {
 
     /* Initialize reset parser */

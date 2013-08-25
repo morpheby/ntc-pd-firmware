@@ -16,15 +16,12 @@ typedef struct tagPOOLALLOC {
 _PERSISTENT uint16_t _mPoolAllocCount;
 _PERSISTENT uint16_t _mPoolAllocEnd;
 _PERSISTENT uint8_t _memPool[POOL_SIZE];
-// XXX test workaround for damaged RAM
-//uint8_t *_memPool;
 
 void mempool_init() {
     if(reset_is_cold()) {
         _mPoolAllocCount = 0;
         _mPoolAllocEnd = 0;
     }
-//    _memPool = malloc(POOL_SIZE);
 }
 
 size_t _mp_fix_addr(uint16_t addr) {

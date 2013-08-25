@@ -371,9 +371,16 @@ _Bool check_name(const char *name) {
     return !find_name(name, 0);
 }
 
+
+// XXX
+void sync_funct() {
+
+}
+
 void synchronize() {
     send_sync();
-    uart_sync_transmit();
+    uart_sync_transmit(sync_funct);
+    // XXX
 }
 
 
@@ -676,7 +683,8 @@ void packet_process(const _Packet *packet, const unsigned char *data) {
         send_ready(packet->sourceAddress, 0);
         break;
     case _msgSync:
-        uart_sync_recieve();
+//        uart_sync_recieve();
+        // XXX
         break;
     default:
         // Probably newer protocol version. Ignore

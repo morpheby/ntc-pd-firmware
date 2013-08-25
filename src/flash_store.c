@@ -40,8 +40,8 @@ _FlashOp *_flashop_copy(const _FlashOp *op);
 
 _ListHandle _flashop_list_create() {
     _ListHandle h = list_create();
-    list_set_free(h, _flashop_free);
-    list_set_copy(h, _flashop_copy);
+    list_set_free(h, (void (*)(void *))_flashop_free);
+    list_set_copy(h, (void *(*)(void * const))_flashop_copy);
     return h;
 }
 
