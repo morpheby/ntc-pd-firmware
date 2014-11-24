@@ -344,12 +344,12 @@ void uart_init() {
     U1MODEbits.ABAUD = 0;
     U1MODEbits.BRGH = 0;
     U1MODEbits.UEN = 0b01; // U1RX, u1TX and U1RTS are enabled
-    U1MODEbits.URXINV = 1; // XXX This value depends on board configuration
-    U1MODEbits.RTSMD = 1;
+    U1MODEbits.URXINV = 0; // 1; // XXX This value depends on board configuration
+    U1MODEbits.RTSMD = 1; //1;
     U1STAbits.UTXINV = 1; // XXX This value depends on board configuration
-    UART_CTS_LATCH = 0; // XXX Without this send never starts. Maybe
+//    UART_CTS_LATCH = 0; // XXX Without this send never starts. Maybe
 
-    U1STAbits.ADDEN = 1; // XXX Check documentation. IDK what's that for
+    U1STAbits.ADDEN = 1; // Enable 9th bit block
 
     /* TX interrupt settings */
     U1STAbits.UTXISEL0 = 0; // Set interrupt when there is free space

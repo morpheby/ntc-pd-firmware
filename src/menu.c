@@ -161,7 +161,7 @@ void menu_move(_Bool next) {
     } else if(!menuState.menuActive)
         return;
     else if(next && menuState.sel->nextItem && list_back(menuState.parPrev)) {
-        list_push_back(list_back(menuState.parPrev), menuState.sel);
+        list_push_back(list_back(menuState.parPrev), (_ValueType)menuState.sel);
         menuState.sel = menuState.sel->nextItem;
         disp_puts_ani(menuState.sel->itemName, 1);
     } else if(!next && list_back(menuState.parPrev) && list_back(list_back(menuState.parPrev))) {
