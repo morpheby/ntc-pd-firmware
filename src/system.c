@@ -1,3 +1,4 @@
+
 /******************************************************************************/
 /* Files to Include                                                           */
 /******************************************************************************/
@@ -247,12 +248,15 @@ void __attribute__((noreturn)) system_fail(const char *reason) {
     /* Executed on serious system failure */
     lastFailReason = reason;
 
-    // XXX For debugging hang system
-//    while(1) {
-//        led_flash(7000000L);
-//    }
-    // XXX For production reset system
+#ifdef DEBUG
+    // For debugging hang system
+    while(1) {
+        led_flash(7000000L);
+    }
+#else
+    // For production reset system
     system_reset();
+#endif
 }
 
 const char *last_failure_get() {

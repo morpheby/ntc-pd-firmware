@@ -2,7 +2,7 @@
  * File:   mem_pool.h
  * Author: Morphe
  *
- * Created on 28 ?????? 2012 ?., 15:32
+ * Created on 28 April 2012, 15:32
  */
 
 #ifndef MEM_POOL_H

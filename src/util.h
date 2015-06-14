@@ -2,7 +2,7 @@
  * File:   util.h
  * Author: Morphe
  *
- * Created on 26 ?????? 2012 ?., 10:06
+ * Created on 26 April 2012 ?., 10:06
  */
 
 #ifndef UTIL_H

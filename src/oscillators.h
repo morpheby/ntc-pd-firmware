@@ -2,7 +2,7 @@
  * File:   oscillators.h
  * Author: Morphe
  *
- * Created on 30 ???? 2012 ?., 7:12
+ * Created on 30 June 2012, 7:12
  */
 
 #ifndef OSCILLATORS_H

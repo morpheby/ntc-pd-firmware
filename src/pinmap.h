@@ -2,7 +2,7 @@
  * File:   pinmap.h
  * Author: morpheby
  *
- * Created on א¢עמנאך, 9, קנגוםÿ 2015, 16.01
+ * Created on 9 June 2015, 16.01
  */
 
 #ifndef PINMAP_H

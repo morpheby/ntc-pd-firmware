@@ -1,5 +1,5 @@
+
 #include "D_I_O.h"
-#include <P33FJ32MC204.h>
 #include "system.h"
 #include "pinmap.h"
 #include "cn_inputs_reg.h"
@@ -7,22 +7,16 @@
 extern int D_In;
 extern int count_12_5us;
 
-
-void DI_Init()  //инициализация дискретных входов
-{
+void DI_Init() {
     TRIS_BIT(DI0_PIN_TYPE, DI0_PIN_NUM) = 1;
     TRIS_BIT(DI1_PIN_TYPE, DI1_PIN_NUM) = 1;
     TRIS_BIT(DI2_PIN_TYPE, DI2_PIN_NUM) = 1;
     TRIS_BIT(DI3_PIN_TYPE, DI3_PIN_NUM) = 1;
 }
 
-
-
-unsigned char DI()
-{
+unsigned char DI() {
    return 0;
 }
-
 
 CNI_DECL_PROC_FN(CNI_DI3) {
     static uint32_t value = 0;

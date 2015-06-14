@@ -1,8 +1,8 @@
-/*
- * list.h
+/* 
+ * File:   list.h
+ * Author: Morphe
  *
- *  Created on: 12.4.2012
- *      Author: Morphe
+ * Created on 12 April 2012
  */
 
 #ifndef LIST_H_

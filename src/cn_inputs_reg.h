@@ -2,7 +2,7 @@
  * File:   cn_inputs_reg.h
  * Author: Morphe
  *
- * Created on 27 ?????? 2012 ?., 16:22
+ * Created on 27 April 2012, 16:22
  */
 
 #ifndef CN_INPUTS_REG_H

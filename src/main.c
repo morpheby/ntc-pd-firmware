@@ -13,11 +13,9 @@
 
 #include "modbus.h"
 #include "ADC.h"
-#include "electrical_params_calc.h"
 #include "Timers_Init.h"
 #include "math.h"
 #include "D_I_O.h"
-#include "izmer_V.h"
 
 
 /******************************************************************************/
@@ -27,19 +25,7 @@
 #define RAM_START_ADDRESS               0x900
 #define FLASH_START                     0x0F
 
-
- /*
-#define KEY_1                           PORTCbits.RC1  //UP
-#define KEY_2                           PORTCbits.RC2  //DOWN
-#define KEY_3                           PORTAbits.RA2  //MENU
-#define KEY_4                           PORTAbits.RA3  //BACK
-*/
-#define N1                              2
-#define N2                              2
-#define M                               43
-
-
-// RAM Data
+// Modbus Registers
 int BRG_VAL __attribute__ ((address(RAM_START_ADDRESS+0)));//REG 0
 
 float ADC0 __attribute__  ((address(RAM_START_ADDRESS+2)));//REG 1, REG 2
@@ -142,19 +128,11 @@ int imp_kol_temp = 0;
 int PARAM_SET;
 int ind_off = 0x07;
 
-//ÔÂÂÍÎ˛˜ÂÌËÂ ÔÓÙËÎÂÈ ËÌ‰ËÍ‡ˆËË ÔË ÔÓÏÓ˘Ë:
-#define MODBUS                                  0x00
-#define DISCRETE_INPUTS                         0x01
-#define ADC                                     0x02
-
-int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21]; //ÍÓ˝ÙÙËˆËÂÌÚ˚ Ë ÓÙÙÒÂÚ˚
+// Flash storage for permanent modbus registers
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21];
 
 int PROF=1;
 char MENU_LEVEL = 0;
-
-extern char REG_num_0,REG_num_1,REG_num_2;//,SIZE_0,dot_pos_0;
-extern float PARAM_1,PARAM_2,PARAM_3;
-int* RamData, profile_sel;
 
 int count_12_5us=0;
 int count_1ms=0;
@@ -165,14 +143,16 @@ float* RamData_ADC = &(ADC0);
 
 int _temp_BAUD=0;
 
-static long int arr[7]= {0, 0, 0, 0, 0, 0, 0}; //·ÛÙÂ ¿÷œ
-static unsigned int init[7] = {0, 0, 0, 0, 0, 0, 0}; //·ÛÙÂ ¿÷œ
-char i=0;
+int *RamData;
+
+// Input filtering
+static long int arr[7]= {0, 0, 0, 0, 0, 0, 0};
+static unsigned int init[7] = {0, 0, 0, 0, 0, 0, 0};
 
 #define FILTER_COUNT 1000
 
-unsigned int filter (unsigned int  value,char channel_num) //ÙËÎ¸Ú‡ˆËˇ ÁÌ‡˜ÂÌËÈ ‡ˆÔ
-{
+// Filters ADC input data
+unsigned int filter (unsigned int  value,char channel_num) {
     if (init[channel_num] < FILTER_COUNT) {
         arr[channel_num] += value;
         ++init[channel_num];
@@ -181,42 +161,13 @@ unsigned int filter (unsigned int  value,char channel_num) //ÙËÎ¸Ú‡ˆ�
         arr[channel_num] += (-arr[channel_num]/FILTER_COUNT + value);
         return arr[channel_num]/FILTER_COUNT;
     }
-//   unsigned  int middle=0;
-//   unsigned  int a,b,c=0;
-//
-//    arr[channel_num][i] = value;
-//
-//    if (i == 2)
-//    {
-//        a=arr[channel_num][0];
-//        b=arr[channel_num][1];
-//        c=arr[channel_num][2];
-//
-//        if (((a >= b) && (a <= c)) || (( a >= c) && (a <= b)))       middle = a;
-//        else
-//            if (((b >= a) && (b <= c)) || ((b >= c) && (b <= a)))    middle = b;
-//            else                                                   middle = c;
-//
-//       arr[channel_num][0]=b;
-//       arr[channel_num][1]=c;
-//       arr[channel_num][2]=0;
-//       i=2;
-//
-//    }
-//    else middle = value;
-//
-//    return middle;
 }
 
-void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt()
-{
+void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt() {
      IFS3bits.QEIIF = 0;
 }
 
-void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt()
-{
-   //LATCbits.LATC6=1;//‰Îˇ ÚÂÒÚ‡
-
+void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
    A0=filter(ADC1BUF0,0);
    A1=filter(ADC1BUF1,1);
    A2=filter(ADC1BUF2,2);
@@ -233,42 +184,32 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt()
 //   ADC5=((int)A5 - OFS_ADC5)*K5;   //AN1
 //   ADC6=((int)A6 - OFS_ADC6)*K6;   //AN2
  
-//   if (i < 2) i++;
-   
-//   Data_Calc(ADC4,ADC5,ADC6);
    count_12_5us++;
-
-   //LATCbits.LATC6=0;//‰Îˇ ÚÂÒÚ‡
-
+   
    IFS0bits.AD1IF=0;
 }
 
 //80 kHz
-void __attribute__((interrupt,no_auto_psv)) _T3Interrupt()
-{
-   IFS0bits.T3IF=0;                     //Ò·ÓÒ ÙÎ‡„‡ ÔÂ˚‚‡ÌËˇ
-   TMR3=0;
+void __attribute__((interrupt,no_auto_psv)) _T3Interrupt() {
+   IFS0bits.T3IF = 0;
+   TMR3 = 0;
 }
-unsigned int count_10ms=0;
+
+unsigned int count_10ms = 0;
 //100 Hz PWM
-void __attribute__((interrupt,no_auto_psv)) _T2Interrupt()
-{
+void __attribute__((interrupt,no_auto_psv)) _T2Interrupt() {
     count_10ms++;
     
-    IFS0bits.T2IF=0;                     //Ò·ÓÒ ÙÎ‡„‡ ÔÂ˚‚‡ÌËˇ
-    TMR2=0;
-
+    IFS0bits.T2IF = 0;
+    TMR2 = 0;
 }
 
-float K_v=0;
-int V_temp,V_buf=0;
 //1 kHz
-void __attribute__((interrupt,no_auto_psv)) _T1Interrupt()
-{
+void __attribute__((interrupt,no_auto_psv)) _T1Interrupt() {
     count_1ms++;
     
-    IFS0bits.T1IF = 0;	// Ò·ÓÒ ÙÎ‡„‡ ÔÂ˚‚‡ÌËˇ Ú‡ÈÏÂ‡
-    TMR1= 0;		// Ó·ÌÛÎÂÌËÂ Ú‡ÈÏÂ‡
+    IFS0bits.T1IF = 0;
+    TMR1 = 0;
 }
 
 /******************************************************************************/
@@ -290,6 +231,7 @@ int16_t main() {
     /* Initialize oscillator switcher */
     osc_init();
 
+    // Select Internal FRC with PLL
     osc_select(oscBoosted);
     
     /* Initialize UART */
@@ -298,11 +240,8 @@ int16_t main() {
     /* Initialize RTSP */
     flash_init();
     
-    ADC_Init(1);     //ËÌËˆË‡ÎËÁ‡ˆËˇ ¿÷œ (‚ 12-·ËÚÌÓÏ ÂÊËÏÂ(1))
-    DI_Init();      //ËÌËˆË‡ÎËÁ‡ˆËˇ ‰ËÒÍÂÚÌ˚ı ‚ıÓ‰Ó‚
-    Encoder_Init(); //ËÌËˆË‡ÎËÁ‡ˆËˇ Í‚‡‰‡ÚÛÌÓ„Ó ‰ÂÍÓ‰Â‡
-    
-    RamData = &(BRG_VAL);
+    ADC_Init(1);
+    DI_Init();
     
     FLASH_WR = 0;
     
@@ -310,43 +249,40 @@ int16_t main() {
     N = 4000;
     BRG_VAL = 19200;
    
-    Init_Timer1();  //ËÌËˆË‡ÎËÁ‡ˆËˇ Ú‡ÈÏÂ‡ 1 (‰Îˇ ÔÓ‰Ò‚Â˜Ë‚‡ÌËˇ ËÌ‰ËÍ‡ÚÓÓ‚)
-    Init_Timer2();  //ËÌËˆË‡ÎËÁ‡ˆËˇ Ú‡ÈÏÂ‡ 2 (‰Îˇ Á‡ÔËÒË ÁÌ‡˜ÂÌËÈ ‚ ÔÂÂÏÂÌÌ˚Â)
-    //Init_Timer3();  //ËÌËˆË‡ÎËÁ‡ˆËˇ Ú‡ÈÏÂ‡ 3 ()
-
-    char i=0;
-    char AD_12b_temp=0;
-
-    for (i = 0; i < 21; i++) RamData[FLASH_START+i]=flash_data_buf[i];
-
-    IEC0bits.T1IE = 1; //‡ÁÂ¯ÂÌËÂ ÔÂ˚‚‡ÌËÈ ÓÚ Ú‡ÈÏÂ‡ 1
+    Init_Timer1();
+    Init_Timer2();
     
-    while (1)
-    {
-     
-//    if (imp_kol != imp_kol_temp) //ÔÂÂÒ˜ÂÚ ÍÓ˝ÙÙËˆËÂÌÚ‡ ‚ ÒÎÛ˜‡Â ËÁÏÂÌÂÌËˇ Ô‡‡ÏÂÚ‡ ÍÓ‰Ó‚Ó„Ó ‰ËÒÍ‡
-//    {
-//        K_v=((6.28*4)/(2*imp_kol)); // QEI_mode X2
-//        imp_kol_temp = imp_kol;
-//    }
-//
-//    if (count_12_5us >= N ) { Data_Calc_inc(channel_num_U); count_12_5us = 0;}
+    char i = 0;
+    RamData = &(BRG_VAL);
 
-    if (FLASH_WR == 1)
-    {
-        for (i = 0; i < 21; i++) {
-            if (flash_data_buf[i] != RamData[FLASH_START+i]) {
-                flash_set(FLASH_GETPAGE(flash_data_buf), FLASH_GETAOFFSET(flash_data_buf, i),
-                        RamData[FLASH_START+i]);
+    for (i = 0; i < 21; i++) RamData[FLASH_START+i] = flash_data_buf[i];
+
+    IEC0bits.T1IE = 1;
+    
+    // Main cycle
+    while (1) {
+        // Perform RTSP, if externally requested
+        if (FLASH_WR == 1) {
+            for (i = 0; i < 21; i++) {
+                if (flash_data_buf[i] != RamData[FLASH_START+i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf), FLASH_GETAOFFSET(flash_data_buf, i),
+                            RamData[FLASH_START+i]);
+                }
             }
+            flash_write();
+            system_reset();
+            FLASH_WR = 0;
         }
-        flash_write();
-        system_reset();
-        FLASH_WR = 0;
-    }
-    Modbus_RTU();
-    RS_Update();
-    wdt_clr();
+        
+        // Perform Modbus protocol processing
+        Modbus_RTU();
+        
+        // Internal Modbus function for framing
+        RS_Update();
+        
+        // Clear WDT flag to indicate normal operation
+        wdt_clr();
     }
 }
 

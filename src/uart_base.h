@@ -2,7 +2,7 @@
  * File:   uart_base.h
  * Author: Morphe
  *
- * Created on 2 ???? 2012 ?., 11:02
+ * Created on 2 June 2012, 11:02
  */
 
 #ifndef UART_BASE_H

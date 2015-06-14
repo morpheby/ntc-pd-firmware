@@ -16,6 +16,9 @@
 #define FLASH_ROW_MASK    0x007F
 #define FLASH_ROW         0x0080
 
+// Use special section defined in the custom linker script to store RTSP-relevant
+// functions. Section has to be page-aligned and contain nothing but the code
+// marked for this section.
 #define SECURE __attribute__((section(".fixed")))
 
 typedef struct tagFLASHOP {
@@ -90,14 +93,14 @@ void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
 /* Returns 0 if successful */
 int SECURE _flash_program_row() {
     _flash_preconf_row();   // Configure flashing operation
-    _flash_start();     // Flash
+    _flash_start();         // Flash
     return !_flash_ok();
 }
 
 /* Returns 0 if successful */
 int _flash_erase_page() {
     _flash_preconf_erase();   // Configure flashing operation
-    _flash_start();     // Flash
+    _flash_start();           // Flash
     return !_flash_ok();
 }
 
@@ -160,9 +163,8 @@ _Bool in_same_row(const _FlashOp *op1, const _FlashOp *op2) {
 void flash_readpage(unsigned char page, unsigned int offset) {
     int i;
     SYSHANDLE hp;
-    // Allocate space for storing page in RAM
+    
     _Instruction *progRow = _flash_tmp_instructionHold;
-//    _Instruction *progRow = gc_malloc(64*sizeof(_Instruction));
 
     offset &= FLASH_PAGE_MASK;
 
@@ -176,7 +178,6 @@ void flash_readpage(unsigned char page, unsigned int offset) {
             flash_store_writerow(i, progRow);
         }
     high_priority_exit(hp);
-//    gc_free(progRow);
 }
 
 /* Return 0 on success and 1 if flashing error has occured */
@@ -186,7 +187,7 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
     _FlashOp op = *(_FlashOp*)list_front(pageGroup),
             *ops;
     _Instruction *row = _flash_tmp_instructionHold;
-//    _Instruction *row = gc_malloc(64*sizeof(_Instruction));
+    
     unsigned int offset;
     SYSHANDLE hp;
 
@@ -238,7 +239,6 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
             }
         }
     high_priority_exit(hp);
-//    gc_free(row);
     gc_free(ops);
 
     return result;
@@ -255,38 +255,36 @@ int flash_write() {
     led_on();
 
     // Group all queued writes by page
-    while(!list_is_empty(flashOps)) {
-        
     hp = high_priority_enter();
-        // Add first operation
-        op = _flashop_copy(list_front(flashOps));
-        list_pop_front(flashOps);
-        list_push_back(group, op);
+        while(!list_is_empty(flashOps)) {
+            // Add first operation
+            op = _flashop_copy(list_front(flashOps));
+            list_pop_front(flashOps);
+            list_push_back(group, op);
 
-        // Add all operations from the same page
-        i = list_begin(flashOps);
-        do {
-            if(on_same_page(list_iterator_value(i), list_front(group))) {
-                op = _flashop_copy(list_iterator_value(i));
-                list_remove(i);
-                list_push_back(group, op);
+            // Add all operations from the same page
+            i = list_begin(flashOps);
+            do {
+                if(on_same_page(list_iterator_value(i), list_front(group))) {
+                    op = _flashop_copy(list_iterator_value(i));
+                    list_remove(i);
+                    list_push_back(group, op);
+                }
+            } while(list_iterate_fwd(i));
+            list_iterator_free(i);
+
+
+            op = list_front(group);
+            flash_readpage(op->pageNum, op->offset); // prepare page
+            // Apply all operations from the group and program device
+            if(flash_writepage(group)) {
+                return 1;
             }
-        } while(list_iterate_fwd(i));
-        list_iterator_free(i);
 
-        
-        op = list_front(group);
-        flash_readpage(op->pageNum, op->offset); // prepare page
-        // Apply all operations from the group and program device
-        if(flash_writepage(group)) {
-            return 1;
+            // Release resources
+            list_clear(group);
         }
-
-        // Release resources
-        list_clear(group);
-        
     high_priority_exit(hp);
-    }
 
     list_free(group);
 

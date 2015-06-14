@@ -2,7 +2,7 @@
  * File:   flash_store.h
  * Author: Morphe
  *
- * Created on 9 ???? 2012 ?., 9:46
+ * Created on 9 June 2012, 9:46
  */
 
 #ifndef FLASH_STORE_H

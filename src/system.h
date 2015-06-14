@@ -78,7 +78,7 @@ void interrupts_restore_state(int state);
 uint8_t cpu_ipl_get();
 
 /*
- * Set processotr Interrupt Priority Level.
+ * Set processor Interrupt Priority Level.
  * Returns previous IPL
  */
 uint8_t cpu_ipl_set(int ipl);
@@ -91,7 +91,7 @@ uint8_t cpu_ipl_set(int ipl);
 SYSHANDLE high_priority_enter();
 
 /*
- * void high_priotity_exit(SYSHANDLE hp)
+ * void high_priority_exit(SYSHANDLE hp)
  * Exits high priority section.
  * hp is state stored by high_priority_start.
  * SYSHANDLE is closed internally, no need to call close_handle
@@ -141,4 +141,4 @@ _Bool led_state();
 void led_change();
 void led_flash(uint32_t t);
 
-#endif	/* OSCILLATORS_H */
+#endif	/* SYSTEM_H */

@@ -2,7 +2,7 @@
  * File:   resource.h
  * Author: Morphe
  *
- * Created on 10 ???? 2012 ?., 9:40
+ * Created on 10 June 2012, 9:40
  */
 
 #ifndef RESOURCE_H

@@ -30,5 +30,6 @@ _FOSC(FCKSM_CSECME & OSCIOFNC_ON & POSCMD_NONE);
 /* Turns off JTAG and selects debug channel */
 _FICD(JTAGEN_OFF & ICS_PGD2);
 
+/* Enable and configure WDT */
 _FWDT(FWDTEN_ON & WINDIS_OFF & WDTPRE_PR32 & WDTPOST_PS2048)
 

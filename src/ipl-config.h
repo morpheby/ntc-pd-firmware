@@ -2,7 +2,7 @@
  * File:   ipl-config.h
  * Author: Morphe
  *
- * Created on 25 ?????? 2012 ?., 14:25
+ * Created on 25 April 2012, 14:25
  */
 
 #ifndef IPL_CONFIG_H

@@ -1,19 +1,19 @@
+
 #include "modbus.h"
-#include <P33FJ32MC204.h>
+#include "system.h"
 #include "uart_base.h"
 
-
 #define TIMEOUT		10
-#define TX_BUFFER_SIZE	64  //53-OK
+#define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
-#define Address                         0x03    //адрес SLAVE устройства
+#define Address                     0x03
+
+// Modbus commands
 #define READ_HOLDING_REGISTERS		0x03
 #define PRESET_SINGLE_REGISTER		0x06
 #define PRESET_MULTIPLE_REGISTERS	0x10
 
-//unsigned char _tx_buf[TX_BUFFER_SIZE]  __attribute__ ((address(0x800+86)));
-//unsigned char _rx_buf[TX_BUFFER_SIZE]  __attribute__ ((address(0x800+146)));
 unsigned char _rx_buf[RX_BUFFER_SIZE];
 unsigned char _tx_buf[TX_BUFFER_SIZE];
 unsigned char _tx_len = 0, _rx_len = 0;
@@ -24,7 +24,7 @@ extern int count_1ms;
 
 unsigned char CRC_16_Hi,CRC_16_Lo;
 
-//массив для быстрого расчета кода CRC-16
+// Fast CRC16 table
 const unsigned short Crc16Table[256] = {
     0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
     0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
@@ -60,91 +60,87 @@ const unsigned short Crc16Table[256] = {
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-unsigned short Crc16(unsigned char * pcBlock, unsigned short len)
-{
+unsigned short Crc16(unsigned char *pcBlock, unsigned short len) {
     unsigned short crc = 0xFFFF;
 
-    while (len--)
-    crc = (crc >> 8) ^ Crc16Table[(crc & 0xFF) ^ *pcBlock++];
+    while (len--) {
+        crc = (crc >> 8) ^ Crc16Table[(crc & 0xFF) ^ *pcBlock++];
+    }
 
     return crc;
 }
 
-void RS_Send(int* buf, unsigned char size, unsigned char ADR, char Op_Code)
-{
+void RS_Send(int* buf, unsigned char size, unsigned char ADR, char Op_Code) {
    unsigned int CRC_data_Out;
    unsigned int c,i;
-   i=3;
-   _tx_buf[0]=ADR;
-   _tx_buf[1]=Op_Code;
-   _tx_buf[2]=size*2;
+   i = 3;
+   _tx_buf[0] = ADR;
+   _tx_buf[1] = Op_Code;
+   _tx_buf[2] = size*2;
 
-    for ( c = 0; c < size; c++)
-    {
-        _tx_buf[i]=(*(buf+c)>>8);                 // hi byte of DATA
+    for (c = 0; c < size; c++) {
+        _tx_buf[i] = *(buf+c) >> 8;                 // hi byte of DATA
         i++;
-        _tx_buf[i]=  (*(buf+c) & 0x00FF);         // lo byte of DATA
+        _tx_buf[i] = *(buf+c) & 0x00FF  ;         // lo byte of DATA
         i++;
     }
    
     _tx_len = 2*size + 5;
 
-    CRC_data_Out=Crc16(&(_tx_buf[0]),_tx_len-2);
+    CRC_data_Out = Crc16(_tx_buf[0], _tx_len-2);
 
-    CRC_16_Lo=CRC_data_Out & 0xFF;
-    CRC_16_Hi=(CRC_data_Out & 0xFF00) >> 8;
+    CRC_16_Lo = CRC_data_Out & 0xFF;
+    CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
     _tx_buf[2*size+3]   = CRC_16_Lo;
     _tx_buf[2*size + 4] = CRC_16_Hi;
    
     uart_send(0, _tx_buf, _tx_len);
 }
 
-char RS_CheckCRC()
-{
+char RS_CheckCRC() {
     unsigned int crc;
-    if (_rx_len < 3)
-    {
+    if (_rx_len < 3) {
         return 0;
     }
-    crc=Crc16(&(_rx_buf[0]), _rx_len - 2);
-    CRC_16_Lo=crc & 0xFF;
-    CRC_16_Hi=(crc & 0xFF00) >> 8;
-    return (( CRC_16_Lo == _rx_buf[_rx_len - 2]) && (CRC_16_Hi == _rx_buf[_rx_len-1]));
+    crc = Crc16(_rx_buf, _rx_len - 2);
+    CRC_16_Lo = crc & 0xFF;
+    CRC_16_Hi = (crc & 0xFF00) >> 8;
+    return ((CRC_16_Lo == _rx_buf[_rx_len - 2]) && (CRC_16_Hi == _rx_buf[_rx_len-1]));
 }
 
-void RS_Reset()
-{
+void RS_Reset() {
     uart_flush_rx();
+    
     _rx_frame_incomplete = 0;
     _rx_len = 0;
     _tx_len = 0;
 }
 
-void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi, unsigned char D_Lo)
-{
+void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi, unsigned char D_Lo) {
    unsigned int CRC_PR_Out;
-   _tx_buf[0]=ADR;
-   _tx_buf[1]=Op_Code;
-   _tx_buf[2]=start >> 8;
-   _tx_buf[3]=start & 0x00FF;
-
-   if (size!=0) //ответ для PRESET_MULTIPLE_REGISTERS
-   {
-       _tx_buf[4]=size >> 8;
-       _tx_buf[5]=size & 0x00FF;
-   }
-   else         //ответ для PRESET_SINGLE_REGISTER
-   {
-       _tx_buf[4]=D_Hi;
-       _tx_buf[5]=D_Lo;
-   }
-
-   CRC_PR_Out=Crc16(&(_tx_buf[0]), 6);
-   CRC_16_Lo=CRC_PR_Out & 0xFF;
-   CRC_16_Hi=(CRC_PR_Out & 0xFF00) >> 8;
    
-   _tx_buf[6]=CRC_16_Lo;
-   _tx_buf[7]=CRC_16_Hi;
+   _tx_buf[0] = ADR;
+   _tx_buf[1] = Op_Code;
+   _tx_buf[2] = start >> 8;
+   _tx_buf[3] = start & 0x00FF;
+
+   if (size!=0) {
+       // PRESET_MULTIPLE_REGISTERS
+       _tx_buf[4] = size >> 8;
+       _tx_buf[5] = size & 0x00FF;
+   }
+   else {
+       // PRESET_SINGLE_REGISTER
+       _tx_buf[4] = D_Hi;
+       _tx_buf[5] = D_Lo;
+   }
+
+   CRC_PR_Out = Crc16(_tx_buf, 6);
+   CRC_16_Lo = CRC_PR_Out & 0xFF;
+   CRC_16_Hi = (CRC_PR_Out & 0xFF00) >> 8;
+   
+   _tx_buf[6] = CRC_16_Lo;
+   _tx_buf[7] = CRC_16_Hi;
 
    _tx_len = 8;
     
@@ -160,9 +156,8 @@ void RS_Update() {
     }
 }
 
-void Modbus_RTU()
-{
-    int c,i;
+void Modbus_RTU() {
+    int c, i;
     
     if (uart_is_data_ready()) {
         if (!_rx_frame_incomplete) {
@@ -178,36 +173,31 @@ void Modbus_RTU()
             _rx_len += sz;
         }
         
-        if (RS_CheckCRC())
-        {
+        if (RS_CheckCRC()) {
             _rx_frame_incomplete = 0;
 
             unsigned char* data = _rx_buf;
-            if (data[0] == Address)                 // проверяем адрес посылки
-            {
-                unsigned int start = (data[2] << 8) | data[3]; //номер стартового регистра
-                unsigned int count = (data[4] << 8) | data[5]; //количество регистров
+            if (data[0] == Address) {
+                unsigned int start = (data[2] << 8) | data[3];
+                unsigned int count = (data[4] << 8) | data[5];
 
-                switch (data[1])
-                {
+                switch (data[1]) {
                     case READ_HOLDING_REGISTERS:
-                    RS_Send(&(RamData[start]), count,data[0],data[1]);// передаем //АДРЕС первого регистра, количество,Адрес устройства,КОП
-                    break;
+                        RS_Send(RamData+start, count, data[0], data[1]);
+                        break;
 
                     case PRESET_SINGLE_REGISTER:
-                    RamData[start]=((data[4] << 8)) | data[5];
-                    RS_Answer(start,0,data[0],data[1],data[4],data[5]);
-                    break;
+                        RamData[start] = ((data[4] << 8)) | data[5];
+                        RS_Answer(start, 0, data[0], data[1], data[4], data[5]);
+                        break;
 
                     case PRESET_MULTIPLE_REGISTERS:
-                    for (i = 0, c = 0; c < count; c++)
-                    {
-                        RamData[start+c]=(((uint16_t)data[i+7]) << 8) | data[i+8];
-                        i++;
-                        i++;
-                    }
-                    RS_Answer(start,count,data[0],data[1],0,0);
-                    break;
+                        for (i = 0, c = 0; c < count; c++) {
+                            RamData[start+c] = (((uint16_t)data[i+7]) << 8) | data[i+8];
+                            i += 2;
+                        }
+                        RS_Answer(start, count, data[0], data[1], 0, 0);
+                        break;
                 }
             }
             RS_Reset();
