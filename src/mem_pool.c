@@ -13,7 +13,7 @@ typedef struct tagPOOLALLOC {
              allocSize : 15;
 } _MPoolAlloc;
 
-// XXX address 0x830 is magical... shit
+// XXX address 0x830 is magical in dsPIC33F...
 _PERSISTENT __attribute__((address(0x834))) uint16_t _mPoolAllocCount;
 _PERSISTENT uint16_t _mPoolAllocEnd;
 _PERSISTENT uint8_t _memPool[POOL_SIZE];

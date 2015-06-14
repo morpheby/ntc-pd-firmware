@@ -41,7 +41,6 @@ extern uint32_t sysFreq;
 #define PIN_PORT(type, num) __PIN_CTL_EXT(PORT, R, type, num)
 #define ODC_BIT(type, num) __PIN_CTL(ODC, type, num)
 
-
 /******************************************************************************/
 /* System Function Prototypes                                                 */
 /******************************************************************************/
@@ -141,6 +140,5 @@ void led_off();
 _Bool led_state();
 void led_change();
 void led_flash(uint32_t t);
-
 
 #endif	/* OSCILLATORS_H */

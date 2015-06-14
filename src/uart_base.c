@@ -26,6 +26,7 @@
 #endif
 
 /* Maintain UART status between resets */
+
 /**** UART RX buffers and parameters ****/
 _PERSISTENT unsigned char *uartBufferR, *uartBufferW,
         *uartBufferStart, *uartBufferEnd;

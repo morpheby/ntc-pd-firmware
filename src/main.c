@@ -1,4 +1,16 @@
-#include <P33FJ32MC204.h>
+/******************************************************************************/
+/* Files to Include                                                           */
+/******************************************************************************/
+
+#include "system.h"        /* System funct/params, like osc/peripheral config */
+#include "oscillators.h"
+#include "uart_base.h"
+#include "messaging.h"
+#include "flash_store.h"
+#include "wdt.h"
+#include "cn_inputs.h"
+#include "mem_pool.h"
+
 #include "modbus.h"
 #include "ADC.h"
 #include "electrical_params_calc.h"
@@ -6,15 +18,11 @@
 #include "math.h"
 #include "D_I_O.h"
 #include "izmer_V.h"
-#include "system.h"
-#include "cn_inputs.h"
 
-#include "uart_base.h"
-#include "oscillators.h"
-#include "flash_store.h"
-#include "wdt.h"
-#include "mem_pool.h"
 
+/******************************************************************************/
+/* Global Variable Declaration                                                */
+/******************************************************************************/
 
 #define RAM_START_ADDRESS               0x900
 #define FLASH_START                     0x0F
@@ -134,12 +142,12 @@ int imp_kol_temp = 0;
 int PARAM_SET;
 int ind_off = 0x07;
 
-//переключение профилей индикации при помощи:
+//Г”Г‚пЈїГ‚ГЌГЋЛ›ЛњГ‚ГЊГ‹Г‚ Г”пЈїГ“Г™Г‹ГЋГ‚Г€ Г‹ГЊвЂ°Г‹ГЌвЂЎЛ†Г‹Г‹ Г”пЈїГ‹ Г”Г“ГЏГ“ЛГ‹:
 #define MODBUS                                  0x00
 #define DISCRETE_INPUTS                         0x01
 #define ADC                                     0x02
 
-int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21]; //коэффициенты и оффсеты
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21]; //ГЌГ“ЛќГ™Г™Г‹Л†Г‹Г‚ГЊГљЛљ Г‹ Г“Г™Г™Г’Г‚ГљЛљ
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -157,13 +165,13 @@ float* RamData_ADC = &(ADC0);
 
 int _temp_BAUD=0;
 
-static long int arr[7]= {0, 0, 0, 0, 0, 0, 0}; //буфер АЦП
-static unsigned int init[7] = {0, 0, 0, 0, 0, 0, 0}; //буфер АЦП
+static long int arr[7]= {0, 0, 0, 0, 0, 0, 0}; //В·Г›Г™Г‚пЈї ВїГ·Е“
+static unsigned int init[7] = {0, 0, 0, 0, 0, 0, 0}; //В·Г›Г™Г‚пЈї ВїГ·Е“
 char i=0;
 
 #define FILTER_COUNT 1000
 
-unsigned int filter (unsigned int  value,char channel_num) //фильтрация значений ацп
+unsigned int filter (unsigned int  value,char channel_num) //Г™Г‹ГЋВёГљпЈївЂЎЛ†Г‹Л‡ ГЃГЊвЂЎЛњГ‚ГЊГ‹Г€ вЂЎЛ†Г”
 {
     if (init[channel_num] < FILTER_COUNT) {
         arr[channel_num] += value;
@@ -207,7 +215,7 @@ void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt()
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt()
 {
-   //LATCbits.LATC6=1;//для теста
+   //LATCbits.LATC6=1;//вЂ°ГЋЛ‡ ГљГ‚Г’ГљвЂЎ
 
    A0=filter(ADC1BUF0,0);
    A1=filter(ADC1BUF1,1);
@@ -230,7 +238,7 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt()
 //   Data_Calc(ADC4,ADC5,ADC6);
    count_12_5us++;
 
-   //LATCbits.LATC6=0;//для теста
+   //LATCbits.LATC6=0;//вЂ°ГЋЛ‡ ГљГ‚Г’ГљвЂЎ
 
    IFS0bits.AD1IF=0;
 }
@@ -238,7 +246,7 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt()
 //80 kHz
 void __attribute__((interrupt,no_auto_psv)) _T3Interrupt()
 {
-   IFS0bits.T3IF=0;                     //сброс флага прерывания
+   IFS0bits.T3IF=0;                     //Г’В·пЈїГ“Г’ Г™ГЋвЂЎвЂћвЂЎ Г”пЈїГ‚пЈїЛљвЂљвЂЎГЊГ‹Л‡
    TMR3=0;
 }
 unsigned int count_10ms=0;
@@ -247,7 +255,7 @@ void __attribute__((interrupt,no_auto_psv)) _T2Interrupt()
 {
     count_10ms++;
     
-    IFS0bits.T2IF=0;                     //сброс флага прерывания
+    IFS0bits.T2IF=0;                     //Г’В·пЈїГ“Г’ Г™ГЋвЂЎвЂћвЂЎ Г”пЈїГ‚пЈїЛљвЂљвЂЎГЊГ‹Л‡
     TMR2=0;
 
 }
@@ -259,9 +267,13 @@ void __attribute__((interrupt,no_auto_psv)) _T1Interrupt()
 {
     count_1ms++;
     
-    IFS0bits.T1IF = 0;	// сброс флага прерывания таймера
-    TMR1= 0;		// обнуление таймера
+    IFS0bits.T1IF = 0;	// Г’В·пЈїГ“Г’ Г™ГЋвЂЎвЂћвЂЎ Г”пЈїГ‚пЈїЛљвЂљвЂЎГЊГ‹Л‡ ГљвЂЎГ€ГЏГ‚пЈївЂЎ
+    TMR1= 0;		// Г“В·ГЊГ›ГЋГ‚ГЊГ‹Г‚ ГљвЂЎГ€ГЏГ‚пЈївЂЎ
 }
+
+/******************************************************************************/
+/* Main Program                                                               */
+/******************************************************************************/
 
 int16_t main() {
     
@@ -286,9 +298,9 @@ int16_t main() {
     /* Initialize RTSP */
     flash_init();
     
-    ADC_Init(1);     //инициализация АЦП (в 12-битном режиме(1))
-    DI_Init();      //инициализация дискретных входов
-    Encoder_Init(); //инициализация квадратурного декодера
+    ADC_Init(1);     //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ ВїГ·Е“ (вЂљ 12-В·Г‹ГљГЊГ“ГЏ пЈїГ‚ГЉГ‹ГЏГ‚(1))
+    DI_Init();      //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ вЂ°Г‹Г’ГЌпЈїГ‚ГљГЊЛљД± вЂљД±Г“вЂ°Г“вЂљ
+    Encoder_Init(); //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ ГЌвЂљвЂЎвЂ°пЈївЂЎГљГ›пЈїГЊГ“вЂћГ“ вЂ°Г‚ГЌГ“вЂ°Г‚пЈївЂЎ
     
     RamData = &(BRG_VAL);
     
@@ -298,21 +310,21 @@ int16_t main() {
     N = 4000;
     BRG_VAL = 19200;
    
-    Init_Timer1();  //инициализация таймера 1 (для подсвечивания индикаторов)
-    Init_Timer2();  //инициализация таймера 2 (для записи значений в переменные)
-    //Init_Timer3();  //инициализация таймера 3 ()
+    Init_Timer1();  //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ ГљвЂЎГ€ГЏГ‚пЈївЂЎ 1 (вЂ°ГЋЛ‡ Г”Г“вЂ°Г’вЂљГ‚ЛњГ‹вЂљвЂЎГЊГ‹Л‡ Г‹ГЊвЂ°Г‹ГЌвЂЎГљГ“пЈїГ“вЂљ)
+    Init_Timer2();  //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ ГљвЂЎГ€ГЏГ‚пЈївЂЎ 2 (вЂ°ГЋЛ‡ ГЃвЂЎГ”Г‹Г’Г‹ ГЃГЊвЂЎЛњГ‚ГЊГ‹Г€ вЂљ Г”Г‚пЈїГ‚ГЏГ‚ГЊГЊЛљГ‚)
+    //Init_Timer3();  //Г‹ГЊГ‹Л†Г‹вЂЎГЋГ‹ГЃвЂЎЛ†Г‹Л‡ ГљвЂЎГ€ГЏГ‚пЈївЂЎ 3 ()
 
     char i=0;
     char AD_12b_temp=0;
 
     for (i = 0; i < 21; i++) RamData[FLASH_START+i]=flash_data_buf[i];
 
-    IEC0bits.T1IE = 1; //разрешение прерываний от таймера 1
+    IEC0bits.T1IE = 1; //пЈївЂЎГЃпЈїГ‚ВЇГ‚ГЊГ‹Г‚ Г”пЈїГ‚пЈїЛљвЂљвЂЎГЊГ‹Г€ Г“Гљ ГљвЂЎГ€ГЏГ‚пЈївЂЎ 1
     
     while (1)
     {
      
-//    if (imp_kol != imp_kol_temp) //пересчет коэффициента в случае изменения параметра кодового диска
+//    if (imp_kol != imp_kol_temp) //Г”Г‚пЈїГ‚Г’ЛњГ‚Гљ ГЌГ“ЛќГ™Г™Г‹Л†Г‹Г‚ГЊГљвЂЎ вЂљ Г’ГЋГ›ЛњвЂЎГ‚ Г‹ГЃГЏГ‚ГЊГ‚ГЊГ‹Л‡ Г”вЂЎпЈївЂЎГЏГ‚ГљпЈївЂЎ ГЌГ“вЂ°Г“вЂљГ“вЂћГ“ вЂ°Г‹Г’ГЌвЂЎ
 //    {
 //        K_v=((6.28*4)/(2*imp_kol)); // QEI_mode X2
 //        imp_kol_temp = imp_kol;

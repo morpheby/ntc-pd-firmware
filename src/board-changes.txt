@@ -1,0 +1,6 @@
+1. RS-485 - add NOT on RE-OE pin
+2. LED segment driver - power from 3.5V line, separate dot segment line from 5V
+   line
+3. Buttons don't need additional pull-ups - CPU has them (just remember to enable)
+4. Also it's better to use 3.5 V on buttons (certainly, from CPU pullups),
+   since 5V becomes 2.3V < 0.7Vdd on the PICkit power

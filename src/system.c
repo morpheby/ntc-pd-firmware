@@ -1,4 +1,8 @@
-#include "system.h"
+/******************************************************************************/
+/* Files to Include                                                           */
+/******************************************************************************/
+
+#include "system.h"          /* variables/params used by system.c             */
 
 #include <stdlib.h>
 #include <reset.h>
@@ -247,7 +251,7 @@ void __attribute__((noreturn)) system_fail(const char *reason) {
 //    while(1) {
 //        led_flash(7000000L);
 //    }
-//     XXX For production reset system
+    // XXX For production reset system
     system_reset();
 }
 
