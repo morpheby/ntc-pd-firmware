@@ -216,15 +216,12 @@ void _uart_read_byte() {
 
         // Correct cycle ring
         if(uartBufferR >= uartBufferW) {
-            unsigned char *newTail = uartBufferStart + endOffset,
-                          *oldTail = uartBufferStart;
-            for(; oldTail < uartBufferW; ++newTail, ++oldTail) {
-                // Cycle buffer
-                if(newTail == uartBufferEnd)
-                    newTail = uartBufferStart;
+            unsigned char *newTail = uartBufferEnd,
+                          *oldTail = uartBufferStart + bufSize;
+            for(; oldTail > uartBufferStart + readOffset; --newTail, --oldTail) {
                 *newTail = *oldTail;
             }
-            uartBufferW = newTail;
+            uartBufferR = newTail;
         }
 
     }
@@ -293,8 +290,12 @@ size_t uart_recieve_nolock(unsigned char *data, size_t bufLen) {
 
     /* Finally, read stored data ;) */
     for(i = 0; i < bufLen && uartBufferR != uartBufferW;
-            ++i, ++data, ++uartBufferR, --uartBufLen)
+            ++i, ++data, ++uartBufferR, --uartBufLen) {
+        if (uartBufferR == uartBufferEnd) {
+            uartBufferR = uartBufferStart;
+        }
         *data = *uartBufferR;
+    }
     
     return i;
 }

@@ -1,7 +1,7 @@
 /*
  * list.c
  *
- *  Created on: 12.4.2012
+ *  Created on: 12 April 2012
  *      Author: Morphe
  */
 

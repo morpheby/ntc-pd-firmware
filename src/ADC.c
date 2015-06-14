@@ -1,5 +1,5 @@
-#
-include "ADC.h"
+
+#include "ADC.h"
 #include "system.h"
 
 void ADC_Init(_Bool ad_12b) {
