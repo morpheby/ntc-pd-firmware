@@ -1,0 +1,10 @@
+
+.DS_Store
+Makefile
+build/
+dist/
+
+nbproject/*.mk
+nbproject/*.bash
+nbproject/private/
+
