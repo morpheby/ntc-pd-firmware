@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1">
+        <file>
+            <url>modbus.c</url>
+            <line>75</line>
+        </file>
+        <file>
+            <url>main.c</url>
+            <line>12</line>
+        </file>
+    </editor-bookmarks>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0">
+        <file>
+            <url>modbus.c</url>
+            <bookmark id="0">
+                <name/>
+                <line>70</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>main.c</url>
+            <bookmark id="0">
+                <name/>
+                <line>16</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/electrical_params_calc.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/cn_inputs.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/uart_base.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/util.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/flash_store.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/pinmap.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/list.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/cn_inputs.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/list.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/mem_pool.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/Timers_Init.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/system.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/traps.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/ipl-config.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/configuration_bits.c</file>
+            <file>file:/Applications/microchip/xc16/v1.24/include/stdint.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/oscillators.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/wdt.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/D_I_O.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/system.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/ADC.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/cn_inputs_reg.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/D_I_O.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/modbus.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/ADC.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/izmer_V.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/p33FJ32MC204.gld</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/modbus.h</file>
+            <file>file:/Applications/microchip/xc16/v1.24/support/dsPIC33F/h/p33FJ32MC204.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/resource.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/oscillators.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/Init_timers.c</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/uart_base.h</file>
+            <file>file:/Users/morpheby/Documents/workspace/ntc/PD%20R2.3%20(Прошивка)/02.04.15/прошивка/main.c</file>
+        </group>
+    </open-files>
+</project-private>
