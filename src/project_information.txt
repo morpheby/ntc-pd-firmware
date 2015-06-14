@@ -1,12 +1,12 @@
 <Application Description for Project Goes Here>
 
 Project Owner(s): NTP Center
-Author(s): Morphe
+Author(s): Ilya Mikhaltsou, Aleksandr Zhloba, Evgeniy Savastianov
 Hardware Platform: dsPIC33FJ32MC204
-Debuggers Used:
-Programmers Used:
-MPLAB Version: MPLAB X IDE v1.20
-C Compiler Version: MPLAB XC16
+Debuggers Used: PICkit2, PICkit3
+Programmers Used: PICkit2, PICkit3
+MPLAB Version: MPLAB X IDE v3.00
+C Compiler Version: MPLAB XC16 v1.24
 Final Checksum:
 
 FILES INCLUDED IN THE PROJECT TREE:
@@ -41,8 +41,23 @@ uart_base.c   be initialized with uart_init().
 wdt.h - Functions to use with watch-dog functionality
 wdt.c
 
-messaging.h - Functions for multi-master communication with time synchronisation
-messaging.c
+flash_store.h - API for RTSP; provides the ability to reprogram const-values.
+flash_store.c   Call flash_init() before use. For API usage consult the header
+                file.
+
+list.h - list implementation
+list.c
+
+mem_pool.h - Creates and setups persistent memory pool. Persistent here means
+mem_pool.c   that the allocations will not be removed after a software reset.
+             Call mempool_init() before use.
+
+resource.h - Single place to store all text constants
+resource.c
+
+pinmap.h - Board configuration file
+
+
 
 FILES INCLUDED IN THE PROJECT BUT NOT IN THE PROJECT TREE:
 
