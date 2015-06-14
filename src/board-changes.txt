@@ -1,3 +1,9 @@
+
+PD v2.32
+
+
+--------------------------------------------------------------------------------
+PD v0.1
 1. RS-485 - add NOT on RE-OE pin
 2. LED segment driver - power from 3.5V line, separate dot segment line from 5V
    line
