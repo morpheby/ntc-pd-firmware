@@ -2,8 +2,9 @@
 #include "modbus.h"
 #include "system.h"
 #include "uart_base.h"
+#include "timing.h"
 
-#define TIMEOUT		10
+#define TIMEOUT		10000000 // nsec
 #define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
@@ -17,7 +18,7 @@
 unsigned char _rx_buf[RX_BUFFER_SIZE];
 unsigned char _tx_buf[TX_BUFFER_SIZE];
 unsigned char _tx_len = 0, _rx_len = 0;
-uint16_t _rx_frame_start_time = 0;
+uint32_t _rx_frame_start_time = 0;
 _Bool _rx_frame_incomplete = 0;
 
 unsigned char CRC_16_Hi,CRC_16_Lo;
@@ -148,11 +149,10 @@ void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi
 extern int* RamData;
 
 void RS_Update() {
-    // XXX
-//    if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < count_1ms) {
+    if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < timing_get_time_low()) {
         // Timeout event
-//        RS_Reset();
-//    }
+        RS_Reset();
+    }
 }
 
 void Modbus_RTU() {
@@ -161,8 +161,7 @@ void Modbus_RTU() {
     if (uart_is_data_ready()) {
         if (!_rx_frame_incomplete) {
             // Mark data arrival time
-            // XXX
-//            _rx_frame_start_time = count_1ms;
+            _rx_frame_start_time = timing_get_time_low();
             _rx_frame_incomplete = 1;
             _rx_len = 0;
         }

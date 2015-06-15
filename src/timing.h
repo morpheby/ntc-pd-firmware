@@ -30,6 +30,7 @@ uint32_t timer32_get_period_raw();
 uint32_t timer32_get_period(); // Period in nanosecs
 
 _SystemTime timing_get_time();
+uint32_t timing_get_time_low();
 
 
 // Main timer

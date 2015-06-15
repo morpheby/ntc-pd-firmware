@@ -182,6 +182,10 @@ _SystemTime timing_get_time() {
     return tm;
 }
 
+uint32_t timing_get_time_low() {
+    return timing_get_time().lowDWord;
+}
+
 void _ISR_NOPSV _T1Interrupt(void) {
     // Increase system time value
     if (!_useHighResTimer) {
