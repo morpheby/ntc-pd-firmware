@@ -33,5 +33,7 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 
 src/nbproject/*.mk
+src/nbproject/Makefile*
 src/nbproject/*.bash
 src/nbproject/private/
+
