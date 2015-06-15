@@ -2,55 +2,68 @@
 #include "ipl-config.h"
 #include "menu-base.h"
 #include "menu.h"
-#include "messaging.h"
 
 #define MAIN_TIMER_PERIOD_DFLT 65535
 
-_PERSISTENT _Bool tmMsrMode;
+// System time in nanoseconds
+static _SystemTime _systemTime = {0, 0};
+
+static _Bool _useHighResTimer;
 
 void timing_init() {
-    if(reset_is_cold())
-        tmMsrMode = 0;
-
-    T1CONbits.TON = 0;
-    T1CONbits.TCS = 0;
-    T1CONbits.TGATE = 0;
-    T1CONbits.TSYNC = 0; // Enable Synchronization
-    T1CONbits.TCKPS = 0b00; // 00 - 1:1
+    T1CONbits.TON = 0;      // Turn off Timer 1
+    T1CONbits.TCS = 0;      // 0 - Internal clock, 1 - External clock (TxCK pin)
+    T1CONbits.TGATE = 0;    // Don't use Gated Timer mode
+    T1CONbits.TSYNC = 0;    // 1 - Synchronize external clock input, 0 - Don't synchronize
+                            // When TCS=0 - unused
+    T1CONbits.TCKPS = 0b00; // Prescaler:
+                            // 00 - 1:1
                             // 01 - 1:8
                             // 10 - 1:64
                             // 11 - 1:256
-    TMR1 = 0x00;
-    PR1 = MAIN_TIMER_PERIOD_DFLT;
+    
+    TMR1 = 0x00;            // Reset Timer register
+    
+    // Initialize timer period
+    timer_set_period_raw(0);
 
-    IPC0bits.T1IP = IPL_TIMER1;
-    IFS0bits.T1IF = 0;
-    IEC0bits.T1IE = 1;
+    // Setup Timer1 interrupt handling
+    IPC0bits.T1IP = IPL_TIMER1;  // IPL
+    IFS0bits.T1IF = 0;           // Clear interrupt flag
+    IEC0bits.T1IE = 1;           // Enable interrupt
+    
+    // Start Timer1
     T1CONbits.TON = 1;
 
-    T3CONbits.TON = 0;
+
+    // Configure Timer2+Timer3 in 32-bit mode
+    T3CONbits.TON = 0;      // Turn off both timers
     T2CONbits.TON = 0;
-    T2CONbits.T32 = 1;
-    T2CONbits.TCS = 0;
-    T2CONbits.TGATE = 0;
-    T2CONbits.TCKPS = 0b00;
+    T2CONbits.T32 = 1;      // Enable 32-bit operation mode
+    T2CONbits.TCS = 0;      // Internal clock source
+    T2CONbits.TGATE = 0;    // Normal operation, not gated
+    T2CONbits.TCKPS = 0b00; // 1:1 Prescale
 
+    // Reset counters
     timer32_reset();
-    timer32_set_period((uint32_t)-1L);
+    
+    // Set maximum possible period
+    timer32_set_period_raw((uint32_t)-1L);
 
-    IPC2bits.T3IP = IPL_TIMER32;
-    IFS0bits.T3IF = 0;
-}
-
-void timing_set_period(uint16_t period) {
-    if(period)
-        PR1 = period;
-    else
-        PR1 = MAIN_TIMER_PERIOD_DFLT;
+    // Setup Timer2 interrupts
+    IPC2bits.T3IP = IPL_TIMER32;  // IPL
+    IFS0bits.T3IF = 0;            // Clear interrupt flag
+    IEC0bits.T2IE = 1;            // Set interrupts enable flag
+    
+    // Don't turn on timer32 unless requested explicitly
 }
 
 void timer32_start() {
     timer32_reset();
+    
+    // When we use timer32, prefer it over main timer for system time value
+    _useHighResTimer = 1;
+    
     IEC0bits.T3IE = 1;
     T2CONbits.TON = 1;
 }
@@ -62,12 +75,9 @@ void timer32_reset() {
 
 void timer32_stop() {
     IEC0bits.T3IE = 0;
-    T2CONbits.TON = 1;
-}
-
-void timer32_set_period(uint32_t period) {
-    PR3 = period >> 16;
-    PR2 = period;
+    T2CONbits.TON = 0;
+    
+    _useHighResTimer = 1;
 }
 
 uint32_t timer32_get() {
@@ -76,18 +86,119 @@ uint32_t timer32_get() {
     return val;
 }
 
-void timer32_set(uint32_t val) {
-    TMR3HLD = val >> 16;
-    TMR2 = val;
+uint16_t timer_get() {
+    return TMR1;
+}
+
+uint16_t timer_get_period_raw() {
+    return PR1;
+}
+
+void timer_set_period_raw(uint16_t period) {
+    if(period)
+        PR1 = period;
+    else
+        PR1 = MAIN_TIMER_PERIOD_DFLT;
+}
+
+uint32_t timer_tick_period_internal(uint8_t timer) {
+    static uint32_t tmpFCY = 0;
+    static uint8_t tmpTckps[2] = {0, 0};
+    static uint32_t period[2];
+    
+    if (tmpFCY != FCY || tmpTckps[timer] != T1CONbits.TCKPS) {
+        uint32_t freq;
+        tmpFCY = FCY;
+        tmpTckps[timer] = timer == 0 ? T1CONbits.TCKPS : T2CONbits.TCKPS;
+        freq = tmpFCY >> (tmpTckps[timer] * 3);
+        
+        // Split division in two steps
+        period[timer]  = (1000000L/freq)*1000L;
+        period[timer] += ((1000000L % freq)*1000L)/freq;
+    }
+    return period[timer];
+}
+
+uint32_t timer_get_period() {
+    return timer_get_period_raw() * timer_tick_period_internal(0);
+}
+
+void timer32_set_period_raw(uint32_t period) {
+    PR3 = period >> 16;
+    PR2 = period;
+}
+
+uint32_t timer32_get_period_raw() {
+    return ((uint32_t)PR2) | (((uint32_t)PR3)<<16);
+}
+
+uint32_t timer32_get_period() {
+    return timer_get_period_raw() * timer_tick_period_internal(1);
+    
+}
+
+uint32_t timing_time_add(uint32_t *low, uint32_t *high, uint32_t diff) {
+    uint32_t t;
+    
+    t = *low;
+    *low += diff;
+    
+    if (high && *low < t){
+        ++*high;
+    }
+    
+    return *low;
+}
+
+/* timerSource: 0 - Timer1 interrupt,
+ *              1 - Timer2 interrupt,
+ */
+void timing_time_increment(int8_t timerSource) {
+    uint32_t incrementValue;
+    
+    switch (timerSource) {
+        case 0:
+            incrementValue = timer_get_period();
+            break;
+        case 1:
+            incrementValue = timer32_get_period();
+            break;
+    }
+    timing_time_add(
+            &(_systemTime.lowDWord),
+            &(_systemTime.highDWord),
+            incrementValue);
+}
+
+_SystemTime timing_get_time() {
+    _SystemTime tm = _systemTime;
+    timing_time_add(
+            &(tm.lowDWord),
+            &(tm.highDWord),
+            _useHighResTimer
+                ? timer_tick_period_internal(1) * timer32_get()
+                : timer_tick_period_internal(0) * timer_get()
+            );
+    return tm;
 }
 
 void _ISR_NOPSV _T1Interrupt(void) {
+    // Increase system time value
+    if (!_useHighResTimer) {
+        timing_time_increment(0);
+    }
+    
     disp_draw();
     menu_worker();
-    messages_check();
     IFS0bits.T1IF = 0;
 }
 
 void _ISR_NOPSV _T3Interrupt(void) {
+    // Timer 3 is used as a high-resolution timing module.
+    // Prefer not to use this interrupt function
+    
+    // Increase system time value
+    timing_time_increment(1);
+    
     IFS0bits.T3IF = 0;
 }

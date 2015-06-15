@@ -10,14 +10,37 @@
 
 #include "system.h"
 
+typedef struct _tagSYTEMTIME {
+    uint32_t lowDWord, highDWord;
+} _SystemTime;
+
 void timing_init();
-void timing_measure_mode_on();
+
+// Timer32
 void timer32_start();
 void timer32_stop();
 void timer32_reset();
-void timer32_set_period(uint32_t period);
+
 uint32_t timer32_get();
-void timer32_set(uint32_t val);
+
+// Set interrupt and value clear period in Timer32
+void timer32_set_period_raw(uint32_t period);
+uint32_t timer32_get_period_raw();
+
+uint32_t timer32_get_period(); // Period in nanosecs
+
+_SystemTime timing_get_time();
+
+
+// Main timer
+uint16_t timer_get();
+
+uint16_t timer_get_period_raw();
+void timer_set_period_raw(uint16_t period);
+
+uint32_t timer_get_period(); // Period in nanosecs
+
+
 
 #endif	/* TIMING_H */
 

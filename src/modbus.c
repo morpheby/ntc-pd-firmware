@@ -20,8 +20,6 @@ unsigned char _tx_len = 0, _rx_len = 0;
 uint16_t _rx_frame_start_time = 0;
 _Bool _rx_frame_incomplete = 0;
 
-extern int count_1ms;
-
 unsigned char CRC_16_Hi,CRC_16_Lo;
 
 // Fast CRC16 table
@@ -150,10 +148,11 @@ void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi
 extern int* RamData;
 
 void RS_Update() {
-    if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < count_1ms) {
+    // XXX
+//    if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < count_1ms) {
         // Timeout event
-        RS_Reset();
-    }
+//        RS_Reset();
+//    }
 }
 
 void Modbus_RTU() {
@@ -162,7 +161,8 @@ void Modbus_RTU() {
     if (uart_is_data_ready()) {
         if (!_rx_frame_incomplete) {
             // Mark data arrival time
-            _rx_frame_start_time = count_1ms;
+            // XXX
+//            _rx_frame_start_time = count_1ms;
             _rx_frame_incomplete = 1;
             _rx_len = 0;
         }

@@ -10,7 +10,6 @@
       <itemPath>modbus.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>D_I_O.h</itemPath>
-      <itemPath>Timers_Init.h</itemPath>
       <itemPath>system.h</itemPath>
       <itemPath>cn_inputs.h</itemPath>
       <itemPath>cn_inputs_reg.h</itemPath>
@@ -53,7 +52,6 @@
       <itemPath>ADC.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>D_I_O.c</itemPath>
-      <itemPath>Init_timers.c</itemPath>
       <itemPath>system.c</itemPath>
       <itemPath>cn_inputs.c</itemPath>
       <itemPath>list.c</itemPath>

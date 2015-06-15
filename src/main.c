@@ -5,15 +5,14 @@
 #include "system.h"        /* System funct/params, like osc/peripheral config */
 #include "oscillators.h"
 #include "uart_base.h"
-#include "messaging.h"
 #include "flash_store.h"
 #include "wdt.h"
 #include "cn_inputs.h"
 #include "mem_pool.h"
+#include "timing.h"
 
 #include "modbus.h"
 #include "ADC.h"
-#include "Timers_Init.h"
 #include "math.h"
 #include "D_I_O.h"
 
@@ -134,10 +133,6 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21];
 int PROF=1;
 char MENU_LEVEL = 0;
 
-int count_12_5us=0;
-int count_1ms=0;
-int count_1ms_2=0;
-
 float* RamData_KOEF = &(K0);
 float* RamData_ADC = &(ADC0);
 
@@ -184,32 +179,7 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
 //   ADC5=((int)A5 - OFS_ADC5)*K5;   //AN1
 //   ADC6=((int)A6 - OFS_ADC6)*K6;   //AN2
  
-   count_12_5us++;
-   
    IFS0bits.AD1IF=0;
-}
-
-//80 kHz
-void __attribute__((interrupt,no_auto_psv)) _T3Interrupt() {
-   IFS0bits.T3IF = 0;
-   TMR3 = 0;
-}
-
-unsigned int count_10ms = 0;
-//100 Hz PWM
-void __attribute__((interrupt,no_auto_psv)) _T2Interrupt() {
-    count_10ms++;
-    
-    IFS0bits.T2IF = 0;
-    TMR2 = 0;
-}
-
-//1 kHz
-void __attribute__((interrupt,no_auto_psv)) _T1Interrupt() {
-    count_1ms++;
-    
-    IFS0bits.T1IF = 0;
-    TMR1 = 0;
 }
 
 /******************************************************************************/
@@ -240,6 +210,9 @@ int16_t main() {
     /* Initialize RTSP */
     flash_init();
     
+    /* Initialize system timing */
+    timing_init();
+    
     ADC_Init(1);
     DI_Init();
     
@@ -249,15 +222,10 @@ int16_t main() {
     N = 4000;
     BRG_VAL = 19200;
    
-    Init_Timer1();
-    Init_Timer2();
-    
     char i = 0;
     RamData = &(BRG_VAL);
 
     for (i = 0; i < 21; i++) RamData[FLASH_START+i] = flash_data_buf[i];
-
-    IEC0bits.T1IE = 1;
     
     // Main cycle
     while (1) {

@@ -5,7 +5,6 @@
 #include "cn_inputs_reg.h"
 
 extern int D_In;
-extern int count_12_5us;
 
 void DI_Init() {
     TRIS_BIT(DI0_PIN_TYPE, DI0_PIN_NUM) = 1;
@@ -24,7 +23,8 @@ CNI_DECL_PROC_FN(CNI_DI3) {
     static int last_time = 0xEFFD;
     int i;
     
-    if (!__on && (counter || count_12_5us > last_time+10)) {
+    // XXX
+//    if (!__on && (counter || count_12_5us > last_time+10)) {
         value |= ((uint32_t)PIN_PORT(DI0_PIN_TYPE, DI0_PIN_NUM) & 1) << counter;
         ++counter;
         if (counter == 24) {
@@ -33,9 +33,9 @@ CNI_DECL_PROC_FN(CNI_DI3) {
             value = 0;
             counter = 0;
         }
-    }
+//    }
     
     if (!__on) {
-        last_time = count_12_5us;
+//        last_time = count_12_5us;
     }
 }
