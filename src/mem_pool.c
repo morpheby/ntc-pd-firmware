@@ -14,8 +14,6 @@ typedef struct tagPOOLALLOC {
              allocSize : 15;
 } _MPoolAlloc;
 
-// XXX address 0x830-0x834 is magical in dsPIC33F, we need to lock it
-_PERSISTENT static __attribute__((address(0x830))) uint32_t __unused;
 _PERSISTENT uint16_t _mPoolAllocCount;
 _PERSISTENT uint16_t _mPoolAllocEnd;
 _PERSISTENT uint8_t _memPool[POOL_SIZE];

@@ -3,27 +3,9 @@
 #include <uart.h>
 #include <stdlib.h>
 #include "ipl-config.h"
+#include "board-config.h"
 
 #define UART_BRGVAL         (UART_RATE_CYCLES/16 - 1)
-
-#define UART_HAS_CTS    0
-#define UART_HAS_RTS    0
-
-#define UART_RX_PIN     21
-
-#if UART_HAS_CTS
-#define UART_CTS_PIN    9
-#define UART_CTS_PIN_T  B
-#define UART_CTS_LATCH  PIN_LATCH(UART_CTS_PIN_T, UART_CTS_PIN)
-#endif
-
-#define UART_TX_PIN     20
-#define UART_TX_PIN2    10 // == UART_TX_PIN/2
-
-#if UART_HAS_RTS
-#define UART_RTS_PIN    23
-#define UART_RTS_PIN2   11 // == UART_RTS_PIN/2
-#endif
 
 /* Maintain UART status between resets */
 

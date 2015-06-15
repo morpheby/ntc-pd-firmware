@@ -9,8 +9,7 @@
 #define	OSCILLATORS_H
 
 #include "system.h"
-
-#define HAS_EXTERNAL_OSCILLATOR 0
+#include "board-config.h"
 
 typedef enum tagOSCILLATOR {
     oscillatorFRC        = 0b000,

@@ -1,17 +1,9 @@
 
 #include "cn_inputs.h"
 #include "ipl-config.h"
-#include "pinmap.h"
+#include "board-config.h"
 
 #define CNI_THRESHOLD            0
-
-// DI2
-#define CNI_1_PIN_NUM            DI3_PIN_NUM
-#define CNI_1_PIN_TYPE           DI3_PIN_TYPE
-#define CNI_1                    9
-#define CNI_1_16                 1
-#define CNI_1_NEEDSPU            0
-
 
 #define __CNI_TRIS(n) TRIS_BIT(CNI_##n##_PIN_TYPE, CNI_##n##_PIN_NUM)
 #define __CNI_IE_(n16,n) CNEN##n16##bits.CN##n##IE

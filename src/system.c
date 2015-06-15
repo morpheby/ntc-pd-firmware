@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <reset.h>
+#include "board-config.h"
 
 #include "mem_pool.h"
 
@@ -17,12 +18,6 @@
 #define MAGIC            0xA5
 
 #define USE_PERSISTENT_HEAP 1
-#define HAS_LED 0
-
-#if HAS_LED
-#define LED_PIN_TPYE
-#define LED_PIN_NUM
-#endif
 
 #if USE_PERSISTENT_HEAP
 #define GC_MALLOC mp_alloc
@@ -42,6 +37,11 @@ _PERSISTENT const char *lastFailReason;
 const char *lastFail = 0;
 
 _ResetType lastReset = 0;
+
+#ifdef FIX_830_RAM_BUG
+// XXX address 0x830-0x834 is magical in dsPIC33F, we need to lock it
+_PERSISTENT static __attribute__((address(0x830), __unused__)) uint32_t __unused;
+#endif
 
 typedef struct tagGCFUNCLIST {
     void (*gcFPtr) ();

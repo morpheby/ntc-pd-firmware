@@ -1,7 +1,7 @@
 
 #include "D_I_O.h"
 #include "system.h"
-#include "pinmap.h"
+#include "board-config.h"
 #include "cn_inputs_reg.h"
 
 extern int D_In;

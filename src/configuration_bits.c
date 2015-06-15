@@ -1,13 +1,6 @@
-/******************************************************************************/
-/* Files to Include                                                           */
-/******************************************************************************/
 
-/* Device header file */
-#if defined(__dsPIC33E__)
-	#include <p33Exxxx.h>
-#elif defined(__dsPIC33F__)
-	#include <p33Fxxxx.h>
-#endif
+#include "system.h"
+#include "board-config.h"
 
 /******************************************************************************/
 /* Configuration Bits                                                         */
@@ -25,7 +18,11 @@
 _FOSCSEL(FNOSC_FRC);
 
 /* Enable Clock Switching and Configure */
+#if HAS_EXTERNAL_OSCILLATOR
+_FOSC(FCKSM_CSECME & OSCIOFNC_OFF & POSCMD_XT);
+#else
 _FOSC(FCKSM_CSECME & OSCIOFNC_ON & POSCMD_NONE);
+#endif
 
 /* Turns off JTAG and selects debug channel */
 _FICD(JTAGEN_OFF & ICS_PGD2);
