@@ -1,9 +1,6 @@
 
 #include "oscillators.h"
-
-#if HAS_EXTERNAL_OSCILLATOR
-#define PRIMARY_CRYSTAL_FREQ 8000000L
-#endif
+#include "board-config.h"
 
 void osc_switch(_OSCILATOR osc) {
     SYSHANDLE prevState = high_priority_enter();

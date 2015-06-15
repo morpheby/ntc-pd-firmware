@@ -12,6 +12,10 @@
 /* 1 if board has an oscillator, 0 otherwise */
 #define HAS_EXTERNAL_OSCILLATOR 0
 
+/* Externall oscillator frequency, if present */
+//#define PRIMARY_CRYSTAL_FREQ 8000000L
+
+
 /* Errata */
 
 #define FIX_830_RAM_BUG
