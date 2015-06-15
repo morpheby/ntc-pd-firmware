@@ -4,6 +4,9 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="menu" projectFiles="true">
+        <itemPath>menu_ext.h</itemPath>
+      </logicalFolder>
       <itemPath>modbus.h</itemPath>
       <itemPath>ADC.h</itemPath>
       <itemPath>D_I_O.h</itemPath>
@@ -21,6 +24,10 @@
       <itemPath>wdt.h</itemPath>
       <itemPath>flash_store.h</itemPath>
       <itemPath>board-config.h</itemPath>
+      <itemPath>timing.h</itemPath>
+      <itemPath>display.h</itemPath>
+      <itemPath>menu-base.h</itemPath>
+      <itemPath>menu.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -38,6 +45,10 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="menu" projectFiles="true">
+        <itemPath>err_disp.c</itemPath>
+        <itemPath>comm_test.c</itemPath>
+      </logicalFolder>
       <itemPath>modbus.c</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>main.c</itemPath>
@@ -55,6 +66,10 @@
       <itemPath>traps.c</itemPath>
       <itemPath>wdt.c</itemPath>
       <itemPath>flash_store.c</itemPath>
+      <itemPath>display.c</itemPath>
+      <itemPath>timing.c</itemPath>
+      <itemPath>menu-base.c</itemPath>
+      <itemPath>menu.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -63,7 +78,6 @@
     </logicalFolder>
     <itemPath>board-changes.txt</itemPath>
     <itemPath>project_information.txt</itemPath>
-    <itemPath>messaging-info</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
