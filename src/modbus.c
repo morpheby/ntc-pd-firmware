@@ -86,7 +86,7 @@ void RS_Send(int* buf, unsigned char size, unsigned char ADR, char Op_Code) {
    
     _tx_len = 2*size + 5;
 
-    CRC_data_Out = Crc16(_tx_buf[0], _tx_len-2);
+    CRC_data_Out = Crc16(_tx_buf, _tx_len-2);
 
     CRC_16_Lo = CRC_data_Out & 0xFF;
     CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
