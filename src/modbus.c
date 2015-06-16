@@ -4,7 +4,7 @@
 #include "uart_base.h"
 #include "timing.h"
 
-#define TIMEOUT		10000000 // nsec
+#define TIMEOUT		100000000 // nsec
 #define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
