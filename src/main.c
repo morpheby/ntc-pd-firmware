@@ -22,7 +22,6 @@
 /******************************************************************************/
 
 #define RAM_START_ADDRESS               0x900
-#define FLASH_START                     0x0F
 
 // Modbus Registers
 int BRG_VAL __attribute__ ((address(RAM_START_ADDRESS+0)));//REG 0
@@ -128,13 +127,11 @@ int PARAM_SET;
 int ind_off = 0x07;
 
 // Flash storage for permanent modbus registers
-int _FLASH_STORE _FLASH_ACCESS flash_data_buf[21];
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
 
 int PROF=1;
 char MENU_LEVEL = 0;
-
-float* RamData_KOEF = &(K0);
-float* RamData_ADC = &(ADC0);
 
 int _temp_BAUD=0;
 
@@ -222,20 +219,35 @@ int16_t main() {
     N = 4000;
     BRG_VAL = 19200;
    
-    char i = 0;
+    uint16_t i = 0;
+    float *adcCoeffPtr = &K0;
+    int *adcOffsetPtr = OFS_ADC0;
+    uint16_t *tmpPtr;
     RamData = &(BRG_VAL);
 
-    for (i = 0; i < 21; i++) RamData[FLASH_START+i] = flash_data_buf[i];
+    // Init permanently stored values for coeffs
+    for (i = 0; i < 7; ++i) {
+        adcCoeffPtr[i]  = flash_data_buf_K[i];
+        adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
+    }
     
     // Main cycle
     while (1) {
         // Perform RTSP, if externally requested
         if (FLASH_WR == 1) {
-            for (i = 0; i < 21; i++) {
-                if (flash_data_buf[i] != RamData[FLASH_START+i]) {
+            for (i = 0; i < 7; i++) {
+                if (flash_data_buf_K[i] != adcCoeffPtr[i]) {
                     // Only perform if the data has changed, spare memory
-                    flash_set(FLASH_GETPAGE(flash_data_buf), FLASH_GETAOFFSET(flash_data_buf, i),
-                            RamData[FLASH_START+i]);
+                    tmpPtr = adcCoeffPtr+i;
+                    flash_set(FLASH_GETPAGE(flash_data_buf_K), FLASH_GETAOFFSET(flash_data_buf_K, i),
+                            tmpPtr[0]);
+                    flash_set(FLASH_GETPAGE(flash_data_buf_K), FLASH_GETAOFFSET(flash_data_buf_K, i)+2,
+                            tmpPtr[1]);
+                }
+                if (flash_data_buf_OFFSET[i] != adcOffsetPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_OFFSET), FLASH_GETAOFFSET(flash_data_buf_OFFSET, i),
+                            adcOffsetPtr[i]);
                 }
             }
             flash_write();
