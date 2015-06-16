@@ -18,7 +18,7 @@ unsigned char DI() {
    return 0;
 }
 
-CNI_DECL_PROC_FN(CNI_DI3) {
+CNI_DECL_PROC_FN(CNI_DI1) {
     static uint32_t value = 0;
     static int counter = 0;
     static int last_time = 0xEFFD;

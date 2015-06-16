@@ -16,7 +16,7 @@
     __cni_##n##_proc(on)
 #define CNI_CALL_PROC_FN(n, on) __CNI_CALL_PROC_FN(n, on)
 
-#define CNI_DI3 1
+#define CNI_DI1 1
 
 #endif	/* CN_INPUTS_REG_H */
 

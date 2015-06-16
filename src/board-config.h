@@ -47,8 +47,8 @@
 //#define UART_RTS_PIN    23
 //#define UART_RTS_PIN2   11 // == UART_RTS_PIN/2
 
-#define CNI_1_PIN_NUM            DI3_PIN_NUM
-#define CNI_1_PIN_TYPE           DI3_PIN_TYPE
+#define CNI_1_PIN_NUM            DI1_PIN_NUM
+#define CNI_1_PIN_TYPE           DI1_PIN_TYPE
 #define CNI_1                    9
 #define CNI_1_16                 1
 #define CNI_1_NEEDSPU            0
