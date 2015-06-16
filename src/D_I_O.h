@@ -6,4 +6,4 @@
  */
 
 void DI_Init();
-unsigned char DI();
+void discrete_update();

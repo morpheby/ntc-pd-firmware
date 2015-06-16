@@ -6,37 +6,27 @@
 #include "timing.h"
 
 extern int D_In;
+extern int D_Out;
 
 void DI_Init() {
     TRIS_BIT(DI0_PIN_TYPE, DI0_PIN_NUM) = 1;
     TRIS_BIT(DI1_PIN_TYPE, DI1_PIN_NUM) = 1;
     TRIS_BIT(DI2_PIN_TYPE, DI2_PIN_NUM) = 1;
     TRIS_BIT(DI3_PIN_TYPE, DI3_PIN_NUM) = 1;
+    
+    TRIS_BIT(VT0_PIN_TYPE, VT0_PIN_NUM) = 0;
+    TRIS_BIT(VT1_PIN_TYPE, VT1_PIN_NUM) = 0;
+    TRIS_BIT(VT2_PIN_TYPE, VT2_PIN_NUM) = 0;
+    TRIS_BIT(VT3_PIN_TYPE, VT3_PIN_NUM) = 0;
 }
 
-unsigned char DI() {
-   return 0;
+void discrete_update() {
+   // Switch latches for discrete outputs
+    PIN_LATCH(VT0_PIN_TYPE, VT0_PIN_NUM, (_Bool)D_Out&1);
+    PIN_LATCH(VT1_PIN_TYPE, VT1_PIN_NUM, (_Bool)D_Out&2);
+    PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM, (_Bool)D_Out&4);
+    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM, (_Bool)D_Out&8);
 }
 
 CNI_DECL_PROC_FN(CNI_DI3) {
-    static uint32_t value = 0;
-    static int counter = 0;
-    static int last_time = 0xEFFD;
-    int i;
-    
-    // XXX correct times
-    if (!__on && (counter || timing_get_time_low() > last_time+1000)) {
-        value |= ((uint32_t)PIN_PORT(DI0_PIN_TYPE, DI0_PIN_NUM) & 1) << counter;
-        ++counter;
-        if (counter == 24) {
-            value = (~value) & 0x0FFFFFFFL;
-            D_In = value;
-            value = 0;
-            counter = 0;
-        }
-    }
-    
-    if (!__on) {
-        last_time = timing_get_time_low();
-    }
 }

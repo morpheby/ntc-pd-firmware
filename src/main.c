@@ -261,6 +261,9 @@ int16_t main() {
         // Internal Modbus function for framing
         RS_Update();
         
+        // Update discrete outputs and resample discrete inputs
+        discrete_update();
+        
         // Clear WDT flag to indicate normal operation
         wdt_clr();
     }
