@@ -22,6 +22,7 @@
 
 /* Pinmap */
 
+// Discrete inputs
 #define DI0_PIN_TYPE A
 #define DI0_PIN_NUM  3
 #define DI1_PIN_TYPE A
@@ -31,6 +32,15 @@
 #define DI3_PIN_TYPE C
 #define DI3_PIN_NUM  1
 
+// Discrete outputs
+#define VT0_PIN_TYPE B
+#define VT0_PIN_NUM  15
+#define VT1_PIN_TYPE B
+#define VT1_PIN_NUM  14
+#define VT2_PIN_TYPE C
+#define VT2_PIN_NUM  7
+#define VT3_PIN_TYPE C
+#define VT3_PIN_NUM  6
 
 #define HAS_LED 0
 #define LED_PIN_TYPE
