@@ -49,8 +49,8 @@
 
 #define CNI_1_PIN_NUM            DI1_PIN_NUM
 #define CNI_1_PIN_TYPE           DI1_PIN_TYPE
-#define CNI_1                    9
-#define CNI_1_16                 1
+#define CNI_1                    30
+#define CNI_1_16                 2
 #define CNI_1_NEEDSPU            0
 
 #endif	/* BOARD_CONFIG_H */
