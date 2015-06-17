@@ -42,6 +42,16 @@
 #define VT3_PIN_TYPE C
 #define VT3_PIN_NUM  6
 
+// Devices
+#define MOTOR   VT3
+#define COIL    VT2
+#define REVERSE VT1
+
+#define __DEV_PIN_TYPE(dev) dev##_PIN_TYPE
+#define DEV_PIN_TYPE(dev) __DEV_PIN_TYPE(dev)
+#define __DEV_PIN_NUM(dev) dev##_PIN_NUM
+#define DEV_PIN_NUM(dev) __DEV_PIN_NUM(dev)
+
 #define HAS_LED 0
 #define LED_PIN_TYPE
 #define LED_PIN_NUM

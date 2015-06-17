@@ -22,10 +22,10 @@ void DI_Init() {
 
 void discrete_update() {
    // Switch latches for discrete outputs
-    PIN_LATCH(VT0_PIN_TYPE, VT0_PIN_NUM, (_Bool)D_Out&1);
-    PIN_LATCH(VT1_PIN_TYPE, VT1_PIN_NUM, (_Bool)D_Out&2);
-    PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM, (_Bool)D_Out&4);
-    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM, (_Bool)D_Out&8);
+    PIN_LATCH(VT0_PIN_TYPE, VT0_PIN_NUM) = (_Bool)(D_Out&1);
+    PIN_LATCH(VT1_PIN_TYPE, VT1_PIN_NUM) = (_Bool)(D_Out&2);
+    PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = (_Bool)(D_Out&4);
+    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = (_Bool)(D_Out&8);
 }
 
 CNI_DECL_PROC_FN(CNI_DI3) {
