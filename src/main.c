@@ -10,6 +10,7 @@
 #include "cn_inputs.h"
 #include "mem_pool.h"
 #include "timing.h"
+#include "app_connector.h"
 
 #include "modbus.h"
 #include "ADC.h"
@@ -179,7 +180,8 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
    IFS0bits.AD1IF=0;
 }
 
-void app_init();
+
+MAIN_DECL_LOOP_FN();
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -265,6 +267,9 @@ int16_t main() {
         
         // Update discrete outputs and resample discrete inputs
         discrete_update();
+        
+        // Call application-end function
+        MAIN_CALL_LOOP_FN();
         
         // Clear WDT flag to indicate normal operation
         wdt_clr();

@@ -169,6 +169,9 @@ op(27); op(28); op(29); \
 op(30)
 #define CNI_OP(op) __CNI_OP(op)
 
+#if APP_USE_CN
+
+#define CNI_DECL_PROC_FN_INTERNAL(x) CNI_DECL_PROC_FN(x, t)
 CNI_OP(CNI_DECL_PROC_FN_INTERNAL);
 
 #define _CNI_SIGNAL(n) \
@@ -189,3 +192,9 @@ void _ISR_NOPSV _CNInterrupt() {
     CNI_OP(_CNI_SIGNAL);
     IFS1bits.CNIF = 0;
 }
+
+#else
+
+void cni_init() {}
+
+#endif

@@ -13,7 +13,7 @@ void app_init() {
     
 }
 
-void main_loop_worker() {
+MAIN_DECL_LOOP_FN() {
     
 }
 

@@ -94,6 +94,8 @@
  * NOTE: each enabled CN pin has to be accompanied by a CNI_x_NEEDSPU macro
  * definition, set to 1 or 0, depending whether selected input requires in-chip
  * pull-up resister or not.
+ * NOTE: enabling CN pin automatically requires for a definition of accompanying
+ * function in app_main (see CNI_DECL_PROC_FN)
  */
 #define CNI_0_ENABLE      0
 #define CNI_1_ENABLE      0

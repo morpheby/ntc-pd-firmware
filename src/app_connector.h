@@ -29,17 +29,24 @@
 #define ADC_CALL_PROC_FN(channel, value)
 #endif
 
+/*
+ * CNI_DECL_PROC_FN(n, varOn) declares a function body for a signal in case of
+ * CN event on nth pin, with the value of the event passed through the varOn
+ * variable name. Each pin signal is enabled separately through the CNI_x_ENABLE
+ * macro definition in board-config.h
+ */
 #define __CNI_DECL_PROC_FN(n, varOn) \
-    void __cni_##n##_proc(_Bool varOn)
-#define CNI_DECL_PROC_FN_INTERNAL(n) \
-    IF(CNI_##n##_ENABLE, void __cni_##n##_proc(_Bool));
+    IF(CNI_##n##_ENABLE, void __cni_##n##_proc(_Bool varOn))
 #define CNI_DECL_PROC_FN(n, varOn) __CNI_DECL_PROC_FN(n, varOn)
 
 #define __CNI_CALL_PROC_FN(n, on)  \
     IF(CNI_##n##_ENABLE, __cni_##n##_proc(on))
 #define CNI_CALL_PROC_FN(n, on) __CNI_CALL_PROC_FN(n, on)
 
-
+#define MAIN_DECL_LOOP_FN() \
+    IF(MAIN_LOOP_FN_ENABLE, void __main_loop_fn())
+#define MAIN_CALL_LOOP_FN() \
+    IF(MAIN_LOOP_FN_ENABLE, __main_loop_fn())
 
 #endif	/* APP_CONNECTOR_H */
 

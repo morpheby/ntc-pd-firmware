@@ -8,17 +8,49 @@
 #ifndef APP_MAIN_H
 #define	APP_MAIN_H
 
+/*
+ * Module configuration
+ */
+
+// Use ADC module
 #define APP_USE_ADC             1
+
+// Use CN module
 #define APP_USE_CN              1
-#define APP_USE_TIMER_EVENTS    1
+
+// Use interactive menu
 #define APP_USE_MENU            0
+
+// Use modbus dynamic addressing extensions
 #define APP_USE_MODBUS_EXT      1
+
+// Use Real-time self-programming module
 #define APP_USE_RTSP            1
+
+// Use LED display extensions (segmentation, rounding, scrolling, string display)
 #define APP_USE_LED_DISP        0
 
-/* Requests using 9-Bit mode + addressing */
+
+/*
+ * UART configuration
+ */
+
+// Requests using 9-Bit mode + addressing
 #define UART_USE_9BIT_MODE  0
+
+// UART baudrate
 #define UART_BAUDRATE       19200
+
+
+/* 
+ * Event-based functions
+ */
+
+// Called each time before the end of while-loop in main proc. IPL is set to 0.
+// Use MAIN_DECL_LOOP_FN to declare
+#define MAIN_LOOP_FN_ENABLE    1
+
+
 
 #endif	/* APP_MAIN_H */
 
