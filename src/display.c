@@ -1,6 +1,9 @@
 
 #include "display.h"
 #include "string.h"
+#include "board-config.h"
+
+#if HAS_LED_DISPLAY
 
 #define SEG_DRV_SDI_PIN_TYPE    B
 #define SEG_DRV_SDI_PIN_NUM     14
@@ -189,5 +192,11 @@ void display_set(const char *str) {
  */
  /*****************************************************************************/
 
+#else
 
+void disp_init() {}
+void display_update() {}
+void display_set(const char *str) {}
+
+#endif
 

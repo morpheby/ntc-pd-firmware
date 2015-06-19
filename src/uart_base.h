@@ -9,16 +9,14 @@
 #define	UART_BASE_H
 
 #include "system.h"
+#include "app_connector.h"
 
-/* Requests using 9-Bit mode + addressing */
-#define UART_USE_9BIT_MODE  0
 
 #define UART_GLOBAL_ADDR    0xFF
 #define UART_NO_ADDR        0x00
 
 #define UART_IPL 6
 
-#define UART_BAUDRATE       19200
 #define UART_RATE_CYCLES    (FCY/UART_BAUDRATE)
 
 void uart_init();

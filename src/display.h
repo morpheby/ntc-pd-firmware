@@ -9,9 +9,8 @@
 #define	DISPLAY_H
 
 #include "system.h"
+#include "board-config.h"
 
-#define DISPLAY_COUNT   12
-#define CHARS_IN_SECTION 4
 
 void disp_init();
 

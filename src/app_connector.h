@@ -8,6 +8,10 @@
 #ifndef APP_CONNECTOR_H
 #define	APP_CONNECTOR_H
 
+/*
+ * app_connector.h is header included in every module that has app-faced ends
+ */
+
 #include "app_main.h"
 
 #define IF_0(a)
