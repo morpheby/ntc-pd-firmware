@@ -19,15 +19,11 @@
 #define __IF(x, a) IF_##x(a)
 #define IF(x, a) __IF(x, a)
 
-#if APP_USE_ADC
 #define ADC_DECL_PROC_FN(channel, varValue) \
     void __adc_##channel##_proc(uint16_t value)
 
 #define ADC_CALL_PROC_FN(channel, value) \
     __adc_##channel##_proc(value)
-#else
-#define ADC_CALL_PROC_FN(channel, value)
-#endif
 
 /*
  * CNI_DECL_PROC_FN(n, varOn) declares a function body for a signal in case of
