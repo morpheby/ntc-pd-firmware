@@ -39,6 +39,11 @@
     IF(CNI_##n##_ENABLE, __cni_##n##_proc(on))
 #define CNI_CALL_PROC_FN(n, on) __CNI_CALL_PROC_FN(n, on)
 
+/*
+ * MAIN_DECL_LOOP_FN() declares a function body for a signal, passed each time
+ * main() reaches while-loop end just before invoking wdt_clr(), after all
+ * other operations. IPL is set to 0 upon entry.
+ */
 #define MAIN_DECL_LOOP_FN() \
     IF(MAIN_LOOP_FN_ENABLE, void __main_loop_fn())
 #define MAIN_CALL_LOOP_FN() \
