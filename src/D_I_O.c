@@ -2,7 +2,7 @@
 #include "D_I_O.h"
 #include "system.h"
 #include "board-config.h"
-#include "cn_inputs_reg.h"
+#include "app_connector.h"
 #include "timing.h"
 
 extern int D_In;
@@ -26,7 +26,4 @@ void discrete_update() {
     PIN_LATCH(VT1_PIN_TYPE, VT1_PIN_NUM) = (_Bool)(D_Out&2);
     PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = (_Bool)(D_Out&4);
     PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = (_Bool)(D_Out&8);
-}
-
-CNI_DECL_PROC_FN(CNI_DI3) {
 }
