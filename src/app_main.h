@@ -25,6 +25,9 @@
 #define APP_USE_MODBUS_EXT      1
 
 // Use Real-time self-programming module
+// Note that disabling RTSP module here will not free one-page section .fixed
+// in linker script, so if you require some memory, go to the linker script and
+// remove the section after disabling the module
 #define APP_USE_RTSP            1
 
 // Use LED display extensions (segmentation, rounding, scrolling, string display)

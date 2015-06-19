@@ -1,6 +1,7 @@
 
 #include "flash_store.h"
 #include "list.h"
+#include "app_connector.h"
 
 /*
  * dsPIC33F simulator seems to have bug with holding buffers:
@@ -9,6 +10,8 @@
  *
  * !!! THIS BUG DAMAGES CODE WHILE EXECUTING IN SIMULATOR !!!
  */
+
+#if APP_USE_RTSP
 
 #define FLASH_PAGE_MASK   0xFC00     // Gets 512-instruction aligned offset (1024)
 #define FLASH_PAGE        0x0400     // Flash page size
@@ -302,3 +305,13 @@ _FlashOp *_flashop_copy(const _FlashOp *op) {
     *newOp = *op;
     return newOp;
 }
+
+#else
+
+void flash_init() {}
+void flash_set(unsigned char page, unsigned int offset, uint16_t value) {}
+void flash_set_data(unsigned char page, unsigned int startOffset,
+        size_t size, unsigned int *data) {}
+int flash_write() {}
+
+#endif
