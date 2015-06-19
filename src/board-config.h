@@ -43,7 +43,7 @@
 #define VT3_PIN_NUM  6
 
 // Devices
-#define MOTOR   VT3
+#define MOTOR   VT0
 #define COIL    VT2
 #define REVERSE VT1
 

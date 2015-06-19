@@ -29,7 +29,7 @@ void ADC_Init(_Bool ad_12b) {
         // 10 bit mode
         AD1CON1bits.AD12B = 0;
     }
-
+    
     // TODO: annotate registers from documentation
     AD1CON1bits.FORM = 0b00;
     AD1CON1bits.SSRC = 0b111;
