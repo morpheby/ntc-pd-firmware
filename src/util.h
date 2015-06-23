@@ -10,7 +10,9 @@
 
 #include "system.h"
 
-#define abs_fast(a) (a>=0?a:-a)
+#define abs_fast(a) ((a)>=0?(a):-(a))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
 
 unsigned pow_fast(unsigned val, unsigned pow);
 int trunc_long(long int i);

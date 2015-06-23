@@ -3,6 +3,8 @@
 #include "system.h"
 #include "uart_base.h"
 #include "timing.h"
+#include "modbus_registers.h"
+#include "util.h"
 
 #define TIMEOUT		200 // msec
 #define TX_BUFFER_SIZE	64
@@ -59,24 +61,50 @@ const unsigned short Crc16Table[256] = {
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-unsigned short Crc16(unsigned char *pcBlock, unsigned short len) {
-    unsigned short crc = 0xFFFF;
+inline uint16_t crc16_kern(uint16_t crc0, uint8_t byte) {
+    return (crc0 >> 8) ^ Crc16Table[(crc0 & 0xFF) ^ byte];
+}
 
-    while (len--) {
-        crc = (crc >> 8) ^ Crc16Table[(crc & 0xFF) ^ *pcBlock++];
+uint16_t crc16_block_add(uint16_t crc, uint8_t *data, uint16_t size) {
+    while (--size) {
+        crc = crc16_kern(crc, *data++);
     }
-
     return crc;
 }
 
-void RS_Send(int* buf, unsigned char size, unsigned char ADR, char Op_Code) {
+unsigned short Crc16(unsigned char *pcBlock, unsigned short len) {
+    return crc16_block_add(0xFFFF, pcBlock, len);
+}
+
+void RS_Send(uint16_t offset, unsigned char size, unsigned char ADR, char Op_Code) {
    unsigned int CRC_data_Out;
    unsigned int c,i;
    i = 3;
    _tx_buf[0] = ADR;
    _tx_buf[1] = Op_Code;
    _tx_buf[2] = size*2;
-
+   
+   
+#if APP_USE_MODBUS_EXT
+   CRC_data_Out = Crc16(_tx_buf, 3);
+   
+   uart_send(0, _tx_buf, 3);
+   
+   uint16_t chunkHold[32];
+   uint16_t sz;
+   for (i = offset; i < size; i+=32) {
+       sz = MIN(size-i,32);
+       modbus_get_reg_data(i, sz, chunkHold);
+       CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz);
+       uart_send(0, (uint8_t *)chunkHold, sz);
+   }
+   
+    CRC_16_Lo = CRC_data_Out & 0xFF;
+    CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
+    _tx_buf[0]   = CRC_16_Lo;
+    _tx_buf[1] = CRC_16_Hi;
+   uart_send(0, _tx_buf, 2);
+#else
     for (c = 0; c < size; c++) {
         _tx_buf[i] = *(buf+c) >> 8;                 // hi byte of DATA
         i++;
@@ -94,6 +122,7 @@ void RS_Send(int* buf, unsigned char size, unsigned char ADR, char Op_Code) {
     _tx_buf[2*size + 4] = CRC_16_Hi;
    
     uart_send(0, _tx_buf, _tx_len);
+#endif
 }
 
 char RS_CheckCRC() {
@@ -146,8 +175,6 @@ void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi
    uart_send(0, _tx_buf, _tx_len);
 }
 
-extern int* RamData;
-
 void RS_Update() {
     if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < timing_get_time_msecs()) {
         // Timeout event
@@ -182,19 +209,16 @@ void Modbus_RTU() {
 
                 switch (data[1]) {
                     case READ_HOLDING_REGISTERS:
-                        RS_Send(RamData+start, count, data[0], data[1]);
+                        RS_Send(start, count, data[0], data[1]);
                         break;
 
                     case PRESET_SINGLE_REGISTER:
-                        RamData[start] = ((data[4] << 8)) | data[5];
+                        modbus_set_reg_data(start, 1, (uint16_t *)(data+4));
                         RS_Answer(start, 0, data[0], data[1], data[4], data[5]);
                         break;
 
                     case PRESET_MULTIPLE_REGISTERS:
-                        for (i = 0, c = 0; c < count; c++) {
-                            RamData[start+c] = (((uint16_t)data[i+7]) << 8) | data[i+8];
-                            i += 2;
-                        }
+                        modbus_set_reg_data(start, count, (uint16_t *)(data+7));
                         RS_Answer(start, count, data[0], data[1], 0, 0);
                         break;
                 }
