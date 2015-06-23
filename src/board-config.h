@@ -106,7 +106,7 @@
 #define CNI_6_ENABLE      0
 #define CNI_7_ENABLE      0
 #define CNI_8_ENABLE      0
-#define CNI_9_ENABLE      1
+#define CNI_9_ENABLE      0
 #define CNI_10_ENABLE     0
 #define CNI_11_ENABLE     0
 #define CNI_12_ENABLE     0
@@ -126,10 +126,10 @@
 #define CNI_26_ENABLE     0
 #define CNI_27_ENABLE     0
 #define CNI_28_ENABLE     0
-#define CNI_29_ENABLE     0
+#define CNI_29_ENABLE     1
 #define CNI_30_ENABLE     0
 
-#define CNI_9_NEEDSPU     0
+#define CNI_29_NEEDSPU     0
 
 
 /*
@@ -159,11 +159,11 @@
 #define MOTOR       VT0
 #define COIL        VT2
 #define REVERSE     VT1
-#define DETECTOR    DI3
+#define DETECTOR    DI0
 
 // CN-attached devices
 // Use CNx pin number, to associate with the CNI_DECL_PROC_FN macro
-#define CNI_DETECTOR    9
+#define CNI_DETECTOR    29
 
 // These four are used in the menu module. The module will not compile, if this
 // configuration is not set

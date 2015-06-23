@@ -34,11 +34,15 @@ void app_init() {
 }
 
 MAIN_DECL_LOOP_FN() {
+    if (Control & ctrlCalibrate) {
+        D_Out = 1;
+        lastRotDetection = timing_get_time_msecs();
+        Control &= ~ctrlCalibrate;
+    }
     if (lastRotDetection + ROT_TIMEOUT < timing_get_time_msecs()) {
         speed = 0;
-    }
-    if (Control & ctrlCalibrate) {
-        D_Out = 3;
+        
+        D_Out = 0;
     }
 }
 
