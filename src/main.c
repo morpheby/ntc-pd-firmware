@@ -235,6 +235,9 @@ int16_t main() {
         adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
     }
     
+    // Initialize application-specific module
+    app_init();
+    
     // Main cycle
     while (1) {
         // Perform RTSP, if externally requested

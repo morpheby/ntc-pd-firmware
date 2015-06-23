@@ -49,11 +49,17 @@
  * Event-based functions
  */
 
-// Called each time before the end of while-loop in main proc. IPL is set to 0.
-// Use MAIN_DECL_LOOP_FN to declare
-#define MAIN_LOOP_FN_ENABLE    1
+// Main loop addition. See MAIN_DECL_LOOP_FN
+#define MAIN_LOOP_FN_ENABLE     1
+
+// Custom processing of discrete outputs. See DIO_DECL_UPDATE_FN
+#define DIO_UPDATE_FN_ENABLE    1
 
 
+/*
+ * Internal function declarations
+ */
+void app_init();
 
 #endif	/* APP_MAIN_H */
 

@@ -49,5 +49,16 @@
 #define MAIN_CALL_LOOP_FN() \
     IF(MAIN_LOOP_FN_ENABLE, __main_loop_fn())
 
+/*
+ * Declares function body for a signal, passed by DIO module each time digital
+ * output values have to be updated. Usually that is called just before 
+ * calling MAIN_LOOP_FN. dOut is a value used as a reference to set output
+ * values (generally, each bit should correspond to 1 output)
+ */
+#define DIO_DECL_UPDATE_FN(varDOut) \
+    IF(DIO_UPDATE_FN_ENABLE, void __dio_update_fn(uint16_t varDOut))
+#define DIO_CALL_UPDATE_FN(dOut) \
+    IF(DIO_UPDATE_FN_ENABLE, __dio_update_fn(dOut))
+
 #endif	/* APP_CONNECTOR_H */
 
