@@ -123,6 +123,8 @@ int  __attribute__ ((address(RAM_START_ADDRESS+218))) V=0;                  //RE
 int  __attribute__ ((address(RAM_START_ADDRESS+220))) D_Out_Init=0;         //REG 110
 int  __attribute__ ((address(RAM_START_ADDRESS+222))) AD_12b=0;             //REG 111
 
+int  __attribute__ ((address(RAM_START_ADDRESS+224))) Control=0;             //REG 112
+
 int imp_kol_temp = 0;
 int PARAM_SET;
 int ind_off = 0x07;

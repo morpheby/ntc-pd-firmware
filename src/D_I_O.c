@@ -23,5 +23,5 @@ void DI_Init() {
 }
 
 void discrete_update() {
-    DIO_CALL_UPDATE_FN();
+    DIO_CALL_UPDATE_FN(D_Out);
 }
