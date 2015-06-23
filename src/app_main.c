@@ -12,6 +12,7 @@
  * App-specific includes
  */
 #include "timing.h"
+#include "D_I_O.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -44,6 +45,9 @@ MAIN_DECL_LOOP_FN() {
         
         D_Out = 0;
     }
+    
+    // Set outputs from modbus
+    discrete_set_output(D_Out);
 }
 
 CNI_DECL_PROC_FN(CNI_DETECTOR, on) {
