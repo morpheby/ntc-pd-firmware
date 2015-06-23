@@ -117,6 +117,9 @@ int16_t main() {
     /* Initialize system timing */
     timing_init();
     
+    /* Initialize modbus registers */
+    modbus_regs_init();
+    
     ADC_Init(1);
     discrete_init();
     

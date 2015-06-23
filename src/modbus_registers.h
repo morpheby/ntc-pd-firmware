@@ -20,7 +20,7 @@
 #define _MB_SIZE(t) (sizeof(_MB_TYPE(t))/sizeof(uint16_t))
 #define _MB_FUNCTION(f, t) f ## t
 
-void modbus_init();
+void modbus_regs_init();
 
 void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out);
 void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in);

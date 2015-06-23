@@ -15,7 +15,7 @@ static _PERSISTENT uint16_t  _modbusMMapSize;
 uint16_t *modbus_get_addr(uint16_t offset);
 
 
-void modbus_init() {
+void modbus_regs_init() {
     if (reset_is_cold()) {
         memset(_modbusData, 0, MODBUS_DATA_END*sizeof(uint16_t));
 #if APP_USE_MODBUS_EXT
