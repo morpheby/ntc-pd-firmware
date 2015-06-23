@@ -112,7 +112,7 @@ uint32_t timer_tick_period_internal(uint8_t timer) {
         tmpTckps[timer] = timer == 0 ? T1CONbits.TCKPS : T2CONbits.TCKPS;
         freq = tmpFCY >> (tmpTckps[timer] * 3);
         
-        period[timer]  = (1000000000L/freq)*1000L;
+        period[timer]  = (1000000000L/freq);
     }
     return period[timer];
 }
@@ -186,8 +186,8 @@ uint32_t timing_get_time_low() {
 
 uint32_t timing_get_time_msecs() {
     _SystemTime tm = timing_get_time();
-    return tm.lowDWord/1000000 + tm.highDWord * 4924 +
-            (tm.highDWord * 967296L)/1000000L;
+    return tm.lowDWord/1000000L + tm.highDWord * 4294L +
+            (tm.highDWord * 967L)/1000L;
 }
 
 void _ISR_NOPSV _T1Interrupt(void) {
