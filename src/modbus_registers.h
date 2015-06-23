@@ -15,7 +15,8 @@
 #define __MB_TYPE__u16      uint16_t
 #define __MB_TYPE__f        float
 
-#define _MB_TYPE(t) __MB_TYPE__##t
+#define __MB_TYPE(t) __MB_TYPE__##t
+#define _MB_TYPE(t) __MB_TYPE(t)
 #define _MB_SIZE(t) (sizeof(_MB_TYPE(t))/sizeof(uint16_t))
 #define _MB_FUNCTION(f, t) f ## t
 
@@ -93,7 +94,7 @@ void modbus_mmap_free();
 #define REG_ind_2_3             53, i16
 #define REG_ind_0_4             54, i16
 #define REG_ind_1_4             55, i16
-#define REG_ind_1_4             56, i16
+#define REG_ind_2_4             56, i16
 
 #define REG_P1                  57, f
 #define REG_P2                  59, f
@@ -153,8 +154,135 @@ void modbus_mmap_free();
 #define MODBUS_BULK_START      256
 #endif
 
-#define REG_OFFSET(r,t) r
-#define REG_TYPE(r,t) t
+#define _REG_OFFSET(r,t) r
+#define _REG_TYPE(r,t) t
+
+#define REG_TYPE(r) _REG_TYPE(r)
+#define REG_OFFSET(r) _REG_OFFSET(r)
+
+#define _REG_DEFINE(r) _MB_TYPE(REG_TYPE(REG_##r)) r
+
+typedef struct _tagMODBUS_DATA {
+    union {
+        struct {     
+            _REG_DEFINE(BRG_VAL);
+
+            _REG_DEFINE(ADC0);
+            _REG_DEFINE(ADC1);
+            _REG_DEFINE(ADC2);
+            _REG_DEFINE(ADC3);
+            _REG_DEFINE(ADC4);
+            _REG_DEFINE(ADC5);
+            _REG_DEFINE(ADC6);
+
+            _REG_DEFINE(K0);
+            _REG_DEFINE(K1);
+            _REG_DEFINE(K2);
+            _REG_DEFINE(K3);
+            _REG_DEFINE(K4);
+            _REG_DEFINE(K5);
+            _REG_DEFINE(K6);
+
+            _REG_DEFINE(OFS_ADC0);
+            _REG_DEFINE(OFS_ADC1);
+            _REG_DEFINE(OFS_ADC2);
+            _REG_DEFINE(OFS_ADC3);
+            _REG_DEFINE(OFS_ADC4);
+            _REG_DEFINE(OFS_ADC5);
+            _REG_DEFINE(OFS_ADC6);
+
+            _REG_DEFINE(n_a);
+            _REG_DEFINE(n_b);
+            _REG_DEFINE(n_c);
+            _REG_DEFINE(ind_off);
+
+            _REG_DEFINE(N);
+
+            _REG_DEFINE(D_In);
+            _REG_DEFINE(D_Out);
+
+            _REG_DEFINE(Ind_Delay);
+
+            _REG_DEFINE(profile);
+            _REG_DEFINE(ind_0_1);
+            _REG_DEFINE(ind_1_1);
+            _REG_DEFINE(ind_2_1);
+            _REG_DEFINE(ind_0_2);
+            _REG_DEFINE(ind_1_2);
+            _REG_DEFINE(ind_2_2);
+            _REG_DEFINE(ind_0_3);
+            _REG_DEFINE(ind_1_3);
+            _REG_DEFINE(ind_2_3);
+            _REG_DEFINE(ind_0_4);
+            _REG_DEFINE(ind_1_4);
+            _REG_DEFINE(ind_2_4);
+
+            _REG_DEFINE(P1);
+            _REG_DEFINE(P2);
+            _REG_DEFINE(P3);
+
+            _REG_DEFINE(Q1);
+            _REG_DEFINE(Q2);
+            _REG_DEFINE(Q3);
+
+            _REG_DEFINE(S1);
+            _REG_DEFINE(S2);
+            _REG_DEFINE(S3);
+
+            _REG_DEFINE(cos_f1);
+            _REG_DEFINE(cos_f2);
+            _REG_DEFINE(cos_f3);
+
+            _REG_DEFINE(AD4_AVG);
+            _REG_DEFINE(AD5_AVG);
+            _REG_DEFINE(AD6_AVG);
+
+            _REG_DEFINE(AD4_RMS);
+            _REG_DEFINE(AD5_RMS);
+            _REG_DEFINE(AD6_RMS);
+
+            _REG_DEFINE(FLASH_WR);
+            _REG_DEFINE(FLASH_RD);
+
+            _REG_DEFINE(PROF_CHANGE_SOURCE);
+
+            _REG_DEFINE(A0);
+            _REG_DEFINE(A1);
+            _REG_DEFINE(A2);
+            _REG_DEFINE(A3);
+            _REG_DEFINE(A4);
+            _REG_DEFINE(A5);
+            _REG_DEFINE(A6);
+
+            _REG_DEFINE(ind_off_1);
+            _REG_DEFINE(ind_off_2);
+            _REG_DEFINE(ind_off_3);
+            _REG_DEFINE(ind_off_4);
+
+            _REG_DEFINE(channel_num_U);
+            _REG_DEFINE(imp_kol);
+            _REG_DEFINE(V);
+            _REG_DEFINE(D_Out_Init);
+            _REG_DEFINE(AD_12b);
+
+            _REG_DEFINE(Control0);
+            
+            uint16_t __last1;
+        };
+        struct {
+            uint16_t data[MODBUS_DATA_END];
+            uint16_t __last2;
+        };
+    };
+} _ModbusData_t;
+
+#ifdef MODBUS_INTERNAL
+#define MODBUS
+#else
+#define MODBUS extern
+#endif
+
+MODBUS _ModbusData_t MB;
 
 #endif	/* MODBUS_REGISTERS_H */
 

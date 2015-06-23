@@ -188,13 +188,14 @@ void cni_init() {
 void _ISR_NOPSV _CNInterrupt() {
     int i;
 
-    for(i = 0; i < CNI_THRESHOLD; ++i);
+    for (i = 0; i < CNI_THRESHOLD; ++i);
     CNI_OP(_CNI_SIGNAL);
     IFS1bits.CNIF = 0;
 }
 
 #else
 
-void cni_init() {}
+void cni_init() {
+}
 
 #endif

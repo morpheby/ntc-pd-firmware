@@ -1,8 +1,11 @@
 
+#define MODBUS_INTERNAL
+
 #include "modbus_registers.h"
+#include <string.h>
 
-
-static _PERSISTENT uint16_t _modbusData[MODBUS_DATA_END];
+MODBUS _PERSISTENT _ModbusData_t MB;
+static uint16_t *_modbusData = MB.data;
 
 #if APP_USE_MODBUS_EXT
 static _PERSISTENT uint16_t *_modbusMMapData;
@@ -38,31 +41,33 @@ uint16_t *modbus_get_addr(uint16_t offset) {
 }
 
 void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out) {
-    for (uint16_t i = offset; i < offset + count; ++i) {
+    uint16_t i;
+    for (i = offset; i < offset + count; ++i) {
         *out = *modbus_get_addr(i);
     }
 }
 
 void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in) {
-    for (uint16_t i = offset; i < offset + count; ++i) {
+    uint16_t i;
+    for (i = offset; i < offset + count; ++i) {
         *modbus_get_addr(i) = *in;
     }
 }
 
-#define _MB_GET_REG_FN(t)                               \
-_MB_GET_REG_DECL(t) {                                   \
-    _MB_TYPE(t) v;                                      \
-    modbus_get_reg_data(offset, _MB_SIZE(t), &v);       \
-    return v;                                           \
+#define _MB_GET_REG_FN(t)                                       \
+_MB_GET_REG_DECL(t) {                                           \
+    _MB_TYPE(t) v;                                              \
+    modbus_get_reg_data(offset, _MB_SIZE(t), (uint16_t *)&v);   \
+    return v;                                                   \
 }
 
 _MB_GET_REG_FN(i16)
 _MB_GET_REG_FN(u16)
 _MB_GET_REG_FN(f)
 
-#define _MB_SET_REG_FN(t)                               \
-_MB_SET_REG_DECL(t) {                                   \
-    modbus_set_reg_data(offset, _MB_SIZE(t), &value);   \
+#define _MB_SET_REG_FN(t)                                           \
+_MB_SET_REG_DECL(t) {                                               \
+    modbus_set_reg_data(offset, _MB_SIZE(t), (uint16_t *)&value);   \
 }
 
 _MB_SET_REG_FN(i16)

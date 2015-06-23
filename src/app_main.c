@@ -13,6 +13,7 @@
  */
 #include "timing.h"
 #include "D_I_O.h"
+#include "modbus_registers.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -23,9 +24,6 @@ enum ControlFlags {
     ctrlCalibrate = 1,
 };
 
-extern int Control;
-extern int D_Out;
-
 static int speed = 0;
 static uint32_t lastRotDetection = 0;
 
@@ -35,19 +33,19 @@ void app_init() {
 }
 
 MAIN_DECL_LOOP_FN() {
-    if (Control & ctrlCalibrate) {
-        D_Out = 1;
+    if (MB.Control0 & ctrlCalibrate) {
+        MB.D_Out = 1;
         lastRotDetection = timing_get_time_msecs();
-        Control &= ~ctrlCalibrate;
+        MB.Control0 &= ~ctrlCalibrate;
     }
     if (lastRotDetection + ROT_TIMEOUT < timing_get_time_msecs()) {
         speed = 0;
         
-        D_Out = 0;
+        MB.D_Out = 0;
     }
     
     // Set outputs from modbus
-    discrete_set_output(D_Out);
+    discrete_set_output(MB.D_Out);
 }
 
 CNI_DECL_PROC_FN(CNI_DETECTOR, on) {
