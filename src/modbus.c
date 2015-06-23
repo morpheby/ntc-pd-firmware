@@ -8,7 +8,7 @@
 #define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
-#define Address                     0x03
+#define Address                     0x01
 
 // Modbus commands
 #define READ_HOLDING_REGISTERS		0x03
