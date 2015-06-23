@@ -217,7 +217,7 @@ int16_t main() {
     timing_init();
     
     ADC_Init(1);
-    DI_Init();
+    discrete_init();
     
     FLASH_WR = 0;
     

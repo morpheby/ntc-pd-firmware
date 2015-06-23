@@ -53,7 +53,7 @@
 #define MAIN_LOOP_FN_ENABLE     1
 
 // Custom processing of discrete outputs. See DIO_DECL_UPDATE_FN
-#define DIO_UPDATE_FN_ENABLE    1
+#define DIO_UPDATE_FN_ENABLE    0
 
 
 /*
