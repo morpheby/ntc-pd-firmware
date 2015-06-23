@@ -26,6 +26,7 @@ enum ControlFlags {
 
 static int speed = 0;
 static uint32_t lastRotDetection = 0;
+static _Bool motorActive = 0;
 
 #define ROT_TIMEOUT 100
 
@@ -36,11 +37,12 @@ MAIN_DECL_LOOP_FN() {
     if (MB.Control0 & ctrlCalibrate) {
         MB.D_Out = 1;
         lastRotDetection = timing_get_time_msecs();
+        motorActive = 1;
         MB.Control0 &= ~ctrlCalibrate;
     }
-    if (lastRotDetection + ROT_TIMEOUT < timing_get_time_msecs()) {
+    if (motorActive && lastRotDetection + ROT_TIMEOUT < timing_get_time_msecs()) {
         speed = 0;
-        
+        motorActive = 0;
         MB.D_Out = 0;
     }
     

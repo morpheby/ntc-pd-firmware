@@ -22,8 +22,10 @@
 
 void modbus_regs_init();
 
-void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out);
-void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in);
+void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out,
+        _Bool switchEndianess);
+void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in,
+        _Bool switchEndianess);
 
 #define _MB_GET_REG_DECL(t) \
 _MB_TYPE(t) modbus_get_reg_##t(uint16_t offset)

@@ -40,24 +40,34 @@ uint16_t *modbus_get_addr(uint16_t offset) {
     }
 }
 
-void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out) {
+void modbus_get_reg_data(uint16_t offset, uint16_t count, uint16_t *out,
+        _Bool switchEndianess) {
     uint16_t i;
     for (i = offset; i < offset + count; ++i) {
-        *out = *modbus_get_addr(i);
+        uint16_t t = *modbus_get_addr(i);
+        if (switchEndianess) {
+            t = (t >> 8) | (t << 8);
+        }
+        *out = t;
     }
 }
 
-void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in) {
+void modbus_set_reg_data(uint16_t offset, uint16_t count, const uint16_t *in,
+        _Bool switchEndianess) {
     uint16_t i;
     for (i = offset; i < offset + count; ++i) {
-        *modbus_get_addr(i) = *in;
+        uint16_t t = *in;
+        if (switchEndianess) {
+            t = (t >> 8) | (t << 8);
+        }
+        *modbus_get_addr(i) = t;
     }
 }
 
 #define _MB_GET_REG_FN(t)                                       \
 _MB_GET_REG_DECL(t) {                                           \
     _MB_TYPE(t) v;                                              \
-    modbus_get_reg_data(offset, _MB_SIZE(t), (uint16_t *)&v);   \
+    modbus_get_reg_data(offset, _MB_SIZE(t), (uint16_t *)&v, 0);\
     return v;                                                   \
 }
 
@@ -67,7 +77,7 @@ _MB_GET_REG_FN(f)
 
 #define _MB_SET_REG_FN(t)                                           \
 _MB_SET_REG_DECL(t) {                                               \
-    modbus_set_reg_data(offset, _MB_SIZE(t), (uint16_t *)&value);   \
+    modbus_set_reg_data(offset, _MB_SIZE(t), (uint16_t *)&value, 0);\
 }
 
 _MB_SET_REG_FN(i16)

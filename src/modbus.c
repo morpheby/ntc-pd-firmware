@@ -5,6 +5,7 @@
 #include "timing.h"
 #include "modbus_registers.h"
 #include "util.h"
+#include <string.h>
 
 #define TIMEOUT		200 // msec
 #define TX_BUFFER_SIZE	64
@@ -66,7 +67,7 @@ inline uint16_t crc16_kern(uint16_t crc0, uint8_t byte) {
 }
 
 uint16_t crc16_block_add(uint16_t crc, uint8_t *data, uint16_t size) {
-    while (--size) {
+    while (size--) {
         crc = crc16_kern(crc, *data++);
     }
     return crc;
@@ -92,17 +93,17 @@ void RS_Send(uint16_t offset, unsigned char size, unsigned char ADR, char Op_Cod
    
    uint16_t chunkHold[32];
    uint16_t sz;
-   for (i = offset; i < size; i+=32) {
-       sz = MIN(size-i,32);
-       modbus_get_reg_data(i, sz, chunkHold);
-       CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz);
-       uart_send(0, (uint8_t *)chunkHold, sz);
+   for (i = offset; i < offset+size; i+=32) {
+       sz = MIN(size+offset-i,32);
+       modbus_get_reg_data(i, sz, chunkHold, 0);
+       CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz*2);
+       uart_send(0, (uint8_t *)chunkHold, sz*2);
    }
    
-    CRC_16_Lo = CRC_data_Out & 0xFF;
-    CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
-    _tx_buf[0]   = CRC_16_Lo;
-    _tx_buf[1] = CRC_16_Hi;
+   CRC_16_Lo = CRC_data_Out & 0xFF;
+   CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
+   _tx_buf[0]   = CRC_16_Lo;
+   _tx_buf[1] = CRC_16_Hi;
    uart_send(0, _tx_buf, 2);
 #else
     for (c = 0; c < size; c++) {
@@ -184,6 +185,7 @@ void RS_Update() {
 
 void Modbus_RTU() {
     int c, i;
+    uint8_t *ptr;
     
     if (uart_is_data_ready()) {
         if (!_rx_frame_incomplete) {
@@ -213,12 +215,15 @@ void Modbus_RTU() {
                         break;
 
                     case PRESET_SINGLE_REGISTER:
-                        modbus_set_reg_data(start, 1, (uint16_t *)(data+4));
+                        modbus_set_reg_data(start, 1, (uint16_t *)(data+4), 1);
                         RS_Answer(start, 0, data[0], data[1], data[4], data[5]);
                         break;
 
                     case PRESET_MULTIPLE_REGISTERS:
-                        modbus_set_reg_data(start, count, (uint16_t *)(data+7));
+                        ptr = gc_malloc(count * 2);
+                        memcpy(ptr, data+7, count*2);
+                        modbus_set_reg_data(start, count, (uint16_t *)ptr, 1);
+                        gc_free(ptr);
                         RS_Answer(start, count, data[0], data[1], 0, 0);
                         break;
                 }
