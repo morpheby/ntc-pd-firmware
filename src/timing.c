@@ -168,7 +168,7 @@ void timing_time_increment(int8_t timerSource) {
             incrementValue);
 }
 
-_SystemTime timing_get_time() {
+_SystemTime timing_get_systime() {
     _SystemTime tm = _systemTime;
     timing_time_add(
             &(tm.lowDWord),
@@ -181,13 +181,24 @@ _SystemTime timing_get_time() {
 }
 
 uint32_t timing_get_time_low() {
-    return timing_get_time().lowDWord;
+    return timing_get_systime().lowDWord;
 }
 
 uint32_t timing_get_time_msecs() {
-    _SystemTime tm = timing_get_time();
+    _SystemTime tm = timing_get_systime();
     return tm.lowDWord/1000000L + tm.highDWord * 4294L +
             (tm.highDWord * 967L)/1000L;
+}
+
+_time_t timing_get_time() {
+    _SystemTime tm = timing_get_systime();
+    _time_t time = {
+        tm.lowDWord/1000000000L +
+                tm.highDWord * 4 +
+                (tm.highDWord * 295L)/1000L,
+        tm.lowDWord % 1000000000L
+    };
+    return time;
 }
 
 void _ISR_NOPSV _T1Interrupt(void) {

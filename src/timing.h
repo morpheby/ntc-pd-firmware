@@ -14,6 +14,10 @@ typedef struct _tagSYTEMTIME {
     uint32_t lowDWord, highDWord;
 } _SystemTime;
 
+typedef struct _tagTIME {
+    uint32_t secs, nsecs;
+} _time_t;
+
 void timing_init();
 
 // Timer32
@@ -29,7 +33,7 @@ uint32_t timer32_get_period_raw();
 
 uint32_t timer32_get_period(); // Period in nanosecs
 
-_SystemTime timing_get_time();
+_SystemTime timing_get_systime();
 uint32_t timing_get_time_low();
 uint32_t timing_get_time_msecs();
 
@@ -42,7 +46,7 @@ void timer_set_period_raw(uint16_t period);
 
 uint32_t timer_get_period(); // Period in nanosecs
 
-
+_time_t timing_get_time();
 
 #endif	/* TIMING_H */
 
