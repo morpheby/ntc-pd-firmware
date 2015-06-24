@@ -31,8 +31,14 @@ uint16_t discrete_get_output() {
 }
 
 void discrete_set_output_bit(_Bool output, uint16_t idx) {
-    uint16_t v = ((uint16_t)output) << idx;
-    discrete_set_output((discrete_get_output() & (~v)) | v);
+    uint16_t v = 1 << idx;
+    uint16_t out = discrete_get_output();
+    if (output) {
+        out |= v;
+    } else {
+        out &= ~v;
+    }
+    discrete_set_output(out);
 }
 
 _Bool discrete_get_output_bit(uint16_t idx) {
