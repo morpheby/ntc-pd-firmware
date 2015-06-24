@@ -152,14 +152,13 @@
 
 /*
  * Devices
- * Put here pin ids of onboard devices for easier comprehension of code.
- * Suggested use is through DEV_PIN_NUM and DEV_PIN_TYPE macros, so set them
- * accordingly
+ * Put here ids of onboard devices for easier comprehension of code. Use as index
+ * for discrete_* functions
  */
-#define MOTOR       VT0
-#define COIL        VT2
-#define REVERSE     VT1
-#define DETECTOR    DI0
+#define MOTOR       0
+#define COIL        2
+#define REVERSE     1
+#define DETECTOR    0
 
 // CN-attached devices
 // Use CNx pin number, to associate with the CNI_DECL_PROC_FN macro
