@@ -48,5 +48,17 @@ uint32_t timer_get_period(); // Period in nanosecs
 
 _time_t timing_get_time();
 
+/*
+ * -1: lsv  < rsv
+ *  0: lsv == rsv
+ *  1: lsv  > rsv
+ */
+int time_compare(_time_t lsv, _time_t rsv);
+
+void time_add(_time_t *dst, _time_t add);
+
+// NOTE: dst should be greater than sub. Otherwise result is undefined
+void time_sub(_time_t *dst, _time_t sub);
+
 #endif	/* TIMING_H */
 

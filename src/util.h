@@ -18,6 +18,7 @@ unsigned pow_fast(unsigned val, unsigned pow);
 int trunc_long(long int i);
 long int trunc_ulong(long unsigned i);
 _Bool in_range(uint16_t start, uint16_t end, uint16_t val);
+int uint32_cmp(uint32_t lsv, uint32_t rsv);
 
 #endif	/* UTIL_H */
 

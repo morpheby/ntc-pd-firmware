@@ -2,6 +2,7 @@
 #include "ipl-config.h"
 #include "menu-base.h"
 #include "menu.h"
+#include "util.h"
 
 #define MAIN_TIMER_PERIOD_DFLT 65535
 
@@ -199,6 +200,38 @@ _time_t timing_get_time() {
         tm.lowDWord % 1000000000L
     };
     return time;
+}
+
+int time_compare(_time_t lsv, _time_t rsv) {
+    int32_t r = uint32_cmp(lsv.secs, rsv.secs);
+    if (r) {
+        return r;
+    }
+    r = lsv.nsecs - rsv.nsecs;
+    if (r > 0) {
+        return 1;
+    } else if (r < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+void time_add(_time_t *dst, _time_t add) {
+    dst->nsecs += add.nsecs;
+    if (dst->nsecs > 1000000000L) {
+        dst->nsecs -= 1000000000L;
+        ++dst->secs;
+    }
+    dst->secs += add.secs;
+}
+
+void time_sub(_time_t *dst, _time_t sub) {
+    dst->secs -= sub.secs;
+    if (dst->nsecs < sub.nsecs) {
+        dst->nsecs += 1000000000L;
+        --dst->secs;
+    }
+    dst->nsecs -= sub.nsecs;
 }
 
 void _ISR_NOPSV _T1Interrupt(void) {
