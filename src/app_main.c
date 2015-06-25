@@ -169,6 +169,9 @@ MAIN_DECL_LOOP_FN() {
         impulseCounter = 0;
         // Reset modbus_mmap
         modbus_mmap_free();
+        
+        // Actually, status is need calibrarion, so
+        MB.Status0 |= stNeedsCalibration;
     }
     
     // Zero command register to acknowledge command reception
@@ -192,7 +195,7 @@ CNI_DECL_PROC_FN(CNI_DETECTOR, on) {
     
     ++impulseCounter;
     if ((MB.Status0 & stMeasureMode) && !(impulseCounter % 6)) {
-        adcData[adcDataSz++] = MB.ADC0;
+        adcData[adcDataSz++] = MB.ADC3;
         if (adcDataSz == ADC_BUFFER_SIZE) {
             // We cannot hold more
             MB.Status0 |= stError;
