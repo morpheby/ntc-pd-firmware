@@ -209,7 +209,10 @@ void *gc_realloc(void *mem, size_t size) {
         newMem = GC_REALLOC(mem, size);
     if(!newMem) {
         garbage_collect_do();
-        newMem = GC_REALLOC(mem, size);
+        if (!mem)
+            newMem = GC_MALLOC(size);
+        else
+            newMem = GC_REALLOC(mem, size);
         if(!newMem)
             system_fail(_StrNoMemory);
     }

@@ -95,7 +95,7 @@ void RS_Send(uint16_t offset, unsigned char size, unsigned char ADR, char Op_Cod
    uint16_t sz;
    for (i = offset; i < offset+size; i+=32) {
        sz = MIN(size+offset-i,32);
-       modbus_get_reg_data(i, sz, chunkHold, 0);
+       modbus_get_reg_data(i, sz, chunkHold, 1);
        CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz*2);
        uart_send(0, (uint8_t *)chunkHold, sz*2);
    }
