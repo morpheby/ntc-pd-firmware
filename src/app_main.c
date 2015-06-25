@@ -22,24 +22,35 @@
  */
 
 enum ControlFlags {
-    ctrlCalibrate = 0x01,
+    ctrlCalibrate = 0x0001,
+    ctrlStartMeasure = 0x0002,
+    ctrlCoilOn = 0x0004,
+    ctrlCoilOff = 0x0008,
+    ctrlAbort = 0x8000,
 };
 
 enum StatusFlags {
-    stMotorOn = 0x01,
-    stMotorReverse = 0x02,
+    stMotorOn = 0x0001,
+    stMotorReverse = 0x0002,
+    stNeedsCalibration = 0x0004,
+    stMeasureMode = 0x0008,
+    stCoilOn = 0x0010,
+    stError = 0x8000,
 };
+
+#define ADC_BUFFER_SIZE 128
 
 static float speed = 0;
 static _time_t lastRotDetection = {0,0};
+static int impulseCounter = 0;
+static _PERSISTENT float *adcData;
+static _PERSISTENT int adcDataSz;
 
 static const _time_t ROT_TIMEOUT = {0, 100000000L};
 
-void app_init() {
-}
-
-static void motor_start() {
+static void motor_start(_Bool reverse) {
     MB.Status0 |= stMotorOn;
+    MB.Status0 |= reverse ? stMotorReverse : 0;
     if (speed == 0) {
         speed = FLT_MIN;
         lastRotDetection = timing_get_time();
@@ -47,7 +58,42 @@ static void motor_start() {
 }
 
 static void motor_stop() {
-    MB.Status0 &= ~stMotorOn;
+    MB.Status0 &= ~(stMotorOn|stMotorReverse);
+}
+
+static void measure_start() {
+    if (!adcData) {
+        adcData = gc_malloc(ADC_BUFFER_SIZE*sizeof(float));
+    }
+    MB.Status0 |= stMeasureMode;
+    adcDataSz = 0;
+    impulseCounter = 0;
+    modbus_mmap_free();
+    motor_start(true);
+}
+
+static void measure_stop() {
+    MB.Status0 &= ~stMeasureMode;
+}
+
+void app_gc() {
+    measure_stop();
+    modbus_mmap_free();
+    if (adcData) {
+        gc_free(adcData);
+        adcData = 0;
+    }
+}
+
+void app_init() {
+    if (reset_is_cold()) {
+        garbage_collect_reg(app_gc);
+        adcDataSz = 0;
+        adcData = 0;
+        MB.Status0 = 0;
+        MB.Control0 = 0;
+        MB.Status0 |= stNeedsCalibration;
+    }
 }
 
 void update_speed() {
@@ -69,18 +115,60 @@ MAIN_DECL_LOOP_FN() {
     
     if (speed == 0) {
         if (MB.Status0 & stMotorOn) {
+            if (!(MB.Status0 & stMotorReverse)) {
+                // Calibration finished
+                MB.Status0 &= ~stNeedsCalibration;
+                impulseCounter = 0;
+            } else {
+                MB.Status0 |= stNeedsCalibration;
+            }
             motor_stop();
+        }
+        if (MB.Status0 & stMeasureMode) {
+            measure_stop();
         }
     } else {
         if (!(MB.Status0 & stMotorOn)) {
-            // Unexpected movement, start calibration
-            motor_start();
+            // Unexpected movement, mark invalid position
+            if (impulseCounter >= 4) {
+                MB.Status0 |= stNeedsCalibration;
+            }
         }
     }
     
     // Read commands
     if (MB.Control0 & ctrlCalibrate) {
-        motor_start();
+        motor_start(false);
+    }
+    
+    if (MB.Control0 & ctrlStartMeasure) {
+        if (MB.Status0 & stMotorOn) {
+            MB.Status0 |= stError;
+        } else {
+            measure_start();
+        }
+    }
+    
+    if (MB.Control0 & ctrlCoilOn) {
+        MB.Status0 |= stCoilOn;
+    }
+    
+    if (MB.Control0 & ctrlCoilOff) {
+        MB.Status0 &= ~stCoilOn;
+    }
+    
+    if (MB.Control0 & ctrlAbort) {
+        // Stop all operations
+        MB.Status0 = 0;
+        // Clear D_Out
+        MB.D_Out = 0;
+        // Zero speed
+        speed = 0;
+        // Reset counters
+        adcDataSz = 0;
+        impulseCounter = 0;
+        // Reset modbus_mmap
+        modbus_mmap_free();
     }
     
     // Zero command register to acknowledge command reception
@@ -88,14 +176,28 @@ MAIN_DECL_LOOP_FN() {
     
     // Read external direct controls from modbus
     // NOTE: use bit 15 to mark override mode
-    if (MB.D_Out & 0x80) {
+    if (MB.D_Out & 0x8000) {
         discrete_set_output(MB.D_Out);
     } else {
         discrete_set_output_bit(MB.Status0 & stMotorReverse, REVERSE);
         discrete_set_output_bit(MB.Status0 & stMotorOn, MOTOR);
+        discrete_set_output_bit(MB.Status0 & stCoilOn, COIL);
+        
+        MB.D_Out = discrete_get_output();
     }
 }
 
 CNI_DECL_PROC_FN(CNI_DETECTOR, on) {
     update_speed();
+    
+    ++impulseCounter;
+    if ((MB.Status0 & stMeasureMode) && !(impulseCounter % 6)) {
+        adcData[adcDataSz++] = MB.ADC0;
+        if (adcDataSz == ADC_BUFFER_SIZE) {
+            // We cannot hold more
+            MB.Status0 |= stError;
+            measure_stop();
+        }
+        modbus_mmap_set(adcData, adcDataSz*sizeof(float)/sizeof(uint16_t));
+    }
 }
