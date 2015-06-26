@@ -29,6 +29,7 @@ RESOURCE const char
            *_StrMsgUnstableLink,
            *_StrMsgCommTimeout,
            *_StrBootMsg,
+           *_StrModbusCfgError,
            *_StrResetDescr[];
 
 #endif	/* RESOURCE_H */

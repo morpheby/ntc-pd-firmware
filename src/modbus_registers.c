@@ -23,6 +23,9 @@ void modbus_regs_init() {
         _modbusMMapSize = 0;
 #endif
     }
+    if (&MB.__last1 != &MB.__last2) {
+        system_fail(_StrModbusCfgError);
+    }
 }
 
 uint16_t *modbus_get_addr(uint16_t offset) {

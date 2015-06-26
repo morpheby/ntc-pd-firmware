@@ -149,7 +149,10 @@ void modbus_mmap_free();
 #define REG_Control0           112, i16
 #define REG_Status0            113, i16
 
-#define MODBUS_DATA_END        114
+#define REG_Power0             114, i16
+#define REG_Position0          115, i16
+
+#define MODBUS_DATA_END        116
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -270,6 +273,9 @@ typedef struct _tagMODBUS_DATA {
 
             _REG_DEFINE(Control0);
             _REG_DEFINE(Status0);
+            
+            _REG_DEFINE(Power0);
+            _REG_DEFINE(Position0);
             
             uint16_t __last1;
         };
