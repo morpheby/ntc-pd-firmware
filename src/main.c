@@ -33,6 +33,7 @@ int ind_off = 0x07;
 // Flash storage for permanent modbus registers
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = 1;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -161,6 +162,10 @@ int16_t main() {
                     // Only perform if the data has changed, spare memory
                     flash_set(FLASH_GETPAGE(flash_data_buf_OFFSET), FLASH_GETAOFFSET(flash_data_buf_OFFSET, i),
                             adcOffsetPtr[i]);
+                }
+                if (flash_data_buf_PosK0 != MB.PositionK0) {
+                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
+                            MB.PositionK0);
                 }
             }
             flash_write();
