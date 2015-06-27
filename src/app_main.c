@@ -15,6 +15,7 @@
 #include "D_I_O.h"
 #include "modbus_registers.h"
 #include "float.h"
+#include <stdint.h>
 
 /*
  * This file contains functions, being called from every module upon some
@@ -26,6 +27,7 @@ enum ControlFlags {
     ctrlStartMeasure = 0x0002,
     ctrlCoilOn = 0x0004,
     ctrlCoilOff = 0x0008,
+    ctrlMove = 0x0010,
     ctrlAbort = 0x8000,
 };
 
@@ -42,9 +44,10 @@ enum StatusFlags {
 
 static float speed = 0;
 static _time_t lastRotDetection = {0,0};
-static int impulseCounter = 0;
+static _PERSISTENT int impulseCounter;
 static _PERSISTENT float *adcData;
 static _PERSISTENT int adcDataSz;
+
 
 static const _time_t ROT_TIMEOUT = {0, 100000000L};
 
@@ -67,9 +70,7 @@ static void measure_start() {
     }
     MB.Status0 |= stMeasureMode;
     adcDataSz = 0;
-    impulseCounter = 0;
     modbus_mmap_free();
-    motor_start(true);
 }
 
 static void measure_stop() {
@@ -90,6 +91,7 @@ void app_init() {
         garbage_collect_reg(app_gc);
         adcDataSz = 0;
         adcData = 0;
+        impulseCounter = 0;
         MB.Status0 = 0;
         MB.Control0 = 0;
         MB.Status0 |= stNeedsCalibration;
@@ -119,8 +121,6 @@ MAIN_DECL_LOOP_FN() {
                 // Calibration finished
                 MB.Status0 &= ~stNeedsCalibration;
                 impulseCounter = 0;
-            } else {
-                MB.Status0 |= stNeedsCalibration;
             }
             motor_stop();
         }
@@ -139,6 +139,14 @@ MAIN_DECL_LOOP_FN() {
     // Read commands
     if (MB.Control0 & ctrlCalibrate) {
         motor_start(false);
+        impulseCounter = INT16_MAX;
+    }
+    
+    // Update linear position
+    MB.Position1 = impulseCounter * MB.PositionK0;
+    
+    if (MB.Control0 & ctrlMove) {
+        motor_start(MB.Position0 > MB.Position1);
     }
     
     if (MB.Control0 & ctrlStartMeasure) {
@@ -155,6 +163,12 @@ MAIN_DECL_LOOP_FN() {
     
     if (MB.Control0 & ctrlCoilOff) {
         MB.Status0 &= ~stCoilOn;
+    }
+    
+    // Stop when requested position is reached
+    if ((MB.Position0 <= MB.Position1 && MB.Status0 & stMotorReverse)
+     || (MB.Position0 >= MB.Position1 && !(MB.Status0 & stMotorReverse))) {
+        motor_stop();
     }
     
     if (MB.Control0 & ctrlAbort) {
@@ -193,7 +207,11 @@ MAIN_DECL_LOOP_FN() {
 CNI_DECL_PROC_FN(CNI_DETECTOR, on) {
     update_speed();
     
-    ++impulseCounter;
+    if (MB.Status0 & stMotorReverse) {
+        ++impulseCounter;
+    } else {
+        --impulseCounter;
+    }
     if ((MB.Status0 & stMeasureMode) && !(impulseCounter % 6)) {
         adcData[adcDataSz++] = MB.ADC3;
         if (adcDataSz == ADC_BUFFER_SIZE) {
