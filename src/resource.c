@@ -18,7 +18,7 @@ const char
            *_StrMsgUnstableLink = "Unstable link",
            *_StrMsgCommTimeout  = "Communication timeout",
            *_StrBootMsg         = "System ready",
-           *z  = "Invalid modbus configuration",
+           *_StrModbusCfgError  = "Invalid modbus configuration",
            *_StrResetDescr[]    = {
                                     "Power on",
                                     "Power fail",
