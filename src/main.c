@@ -11,6 +11,8 @@
 #include "mem_pool.h"
 #include "timing.h"
 #include "app_connector.h"
+#include "display.h"
+#include "menu-base.h"
 
 #include "modbus.h"
 #include "ADC.h"
@@ -100,6 +102,12 @@ int16_t main() {
     
     cpu_ipl_set(0);
     
+    /* Initialize display */
+    disp_init();
+    
+    /* Initialize menu-base */
+    disp_config();
+    
     /* Initialize Change-notification inputs */
     cni_init();
     
@@ -176,6 +184,8 @@ int16_t main() {
             system_reset();
             MB.FLASH_WR = 0;
         }
+        
+        display_update();
         
         // Perform Modbus protocol processing
         Modbus_RTU();
