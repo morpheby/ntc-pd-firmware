@@ -35,7 +35,7 @@ int ind_off = 0x07;
 // Flash storage for permanent modbus registers
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = 1.;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
 
 int PROF=1;
 char MENU_LEVEL = 0;
