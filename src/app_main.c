@@ -86,6 +86,15 @@ void app_gc() {
     }
 }
 
+void coil_off() {
+    P2OVDCONbits.POVD1L = 0;
+}
+
+void coil_on(uint16_t value) {
+    P2DC1 = value;
+    P2OVDCONbits.POVD1L = 1;
+}
+
 void app_init() {
     if (reset_is_cold()) {
         garbage_collect_reg(app_gc);
@@ -96,6 +105,14 @@ void app_init() {
         MB.Control0 = 0;
         MB.Status0 |= stNeedsCalibration;
     }
+    
+    // PWM init
+    coil_off();
+    P2TCONbits.PTEN = 1;
+    P2TCONbits.PTCKPS = 0b10;
+    P2TPER = 2048;
+    PWM2CON1bits.PMOD1 = 1;
+    PWM2CON1bits.PEN1L = 1;
 }
 
 void update_speed() {
@@ -140,6 +157,7 @@ MAIN_DECL_LOOP_FN() {
     if (MB.Control0 & ctrlCalibrate) {
         motor_start(false);
         impulseCounter = INT16_MAX;
+        MB.Position0 = 0;
     }
     
     // Update linear position
@@ -150,11 +168,7 @@ MAIN_DECL_LOOP_FN() {
     }
     
     if (MB.Control0 & ctrlStartMeasure) {
-        if (MB.Status0 & stMotorOn) {
-            MB.Status0 |= stError;
-        } else {
-            measure_start();
-        }
+        measure_start();
     }
     
     if (MB.Control0 & ctrlCoilOn) {
@@ -198,7 +212,11 @@ MAIN_DECL_LOOP_FN() {
     } else {
         discrete_set_output_bit(MB.Status0 & stMotorReverse, REVERSE);
         discrete_set_output_bit(MB.Status0 & stMotorOn, MOTOR);
-        discrete_set_output_bit(MB.Status0 & stCoilOn, COIL);
+        if(MB.Status0 & stCoilOn) {
+            coil_on(MB.Power0);
+        } else {
+            coil_off();
+        }
         
         MB.D_Out = discrete_get_output();
     }
