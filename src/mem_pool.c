@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define POOL_SIZE 524
+#define POOL_SIZE 768
 #define INVALID_OFFSET 0xFFFF
 
 typedef struct tagPOOLALLOC {

@@ -10,11 +10,15 @@
 #include "cn_inputs.h"
 #include "mem_pool.h"
 #include "timing.h"
+#include "app_connector.h"
+#include "display.h"
+#include "menu-base.h"
 
 #include "modbus.h"
 #include "ADC.h"
 #include "math.h"
 #include "D_I_O.h"
+#include "modbus_registers.h"
 
 
 /******************************************************************************/
@@ -23,104 +27,6 @@
 
 #define RAM_START_ADDRESS               0x900
 
-// Modbus Registers
-int BRG_VAL __attribute__ ((address(RAM_START_ADDRESS+0)));//REG 0
-
-float ADC0 __attribute__  ((address(RAM_START_ADDRESS+2)));//REG 1, REG 2
-float ADC1 __attribute__  ((address(RAM_START_ADDRESS+6)));//REG 3, REG 4
-float ADC2 __attribute__  ((address(RAM_START_ADDRESS+10)));//REG 5, REG 6
-float ADC3 __attribute__  ((address(RAM_START_ADDRESS+14)));//REG 7, REG 8
-float ADC4 __attribute__  ((address(RAM_START_ADDRESS+18)));//REG 9, REG 10
-float ADC5 __attribute__  ((address(RAM_START_ADDRESS+22)));//REG 11, REG 12
-float ADC6 __attribute__  ((address(RAM_START_ADDRESS+26)));//REG 13, REG 14
-
-float K0 __attribute__ ((address(RAM_START_ADDRESS+30)));//REG 15, REG 16
-float K1 __attribute__ ((address(RAM_START_ADDRESS+34)));//REG 17, REG 18
-float K2 __attribute__ ((address(RAM_START_ADDRESS+38)));//REG 19, REG 20
-float K3 __attribute__ ((address(RAM_START_ADDRESS+42)));//REG 21, REG 22
-float K4 __attribute__ ((address(RAM_START_ADDRESS+46)));//REG 23, REG 24
-float K5 __attribute__ ((address(RAM_START_ADDRESS+50)));//REG 25, REG 26
-float K6 __attribute__ ((address(RAM_START_ADDRESS+54)));//REG 27, REG 28
-
-int OFS_ADC0 __attribute__        ((address(RAM_START_ADDRESS+58)));//REG 29
-int OFS_ADC1 __attribute__        ((address(RAM_START_ADDRESS+60)));//REG 30
-int OFS_ADC2 __attribute__        ((address(RAM_START_ADDRESS+62)));//REG 31
-int OFS_ADC3 __attribute__        ((address(RAM_START_ADDRESS+64)));//REG 32
-int OFS_ADC4 __attribute__        ((address(RAM_START_ADDRESS+66)));//REG 33
-int OFS_ADC5 __attribute__        ((address(RAM_START_ADDRESS+68)));//REG 34
-int OFS_ADC6 __attribute__        ((address(RAM_START_ADDRESS+70)));//REG 35
-
-int n_a  __attribute__ ((address(RAM_START_ADDRESS+72)));           //REG 36
-int n_b  __attribute__ ((address(RAM_START_ADDRESS+74)));           //REG 37
-int n_c  __attribute__ ((address(RAM_START_ADDRESS+76)));           //REG 38
-int ind_off __attribute__ ((address(RAM_START_ADDRESS+78)));        //REG 39
-
-int N __attribute__ ((address(RAM_START_ADDRESS+80)));              //REG 40
-
-int D_In  __attribute__ ((address(RAM_START_ADDRESS+82)));          //REG 41
-int D_Out __attribute__ ((address(RAM_START_ADDRESS+84)));          //REG 42
-int Ind_Delay __attribute__ ((address(RAM_START_ADDRESS+86)));      //REG 43
-
-int profile __attribute__ ((address(RAM_START_ADDRESS+88)));        //REG 44
-int ind_0_1 __attribute__ ((address(RAM_START_ADDRESS+90)));        //REG 45
-int ind_1_1 __attribute__ ((address(RAM_START_ADDRESS+92)));        //REG 46
-int ind_2_1 __attribute__ ((address(RAM_START_ADDRESS+94)));        //REG 47
-int ind_0_2 __attribute__ ((address(RAM_START_ADDRESS+96)));        //REG 48
-int ind_1_2 __attribute__ ((address(RAM_START_ADDRESS+98)));        //REG 49
-int ind_2_2 __attribute__ ((address(RAM_START_ADDRESS+100)));       //REG 50
-int ind_0_3 __attribute__ ((address(RAM_START_ADDRESS+102)));       //REG 51
-int ind_1_3 __attribute__ ((address(RAM_START_ADDRESS+104)));       //REG 52
-int ind_2_3 __attribute__ ((address(RAM_START_ADDRESS+106)));       //REG 53
-int ind_0_4 __attribute__ ((address(RAM_START_ADDRESS+108)));       //REG 54
-int ind_1_4 __attribute__ ((address(RAM_START_ADDRESS+110)));       //REG 55
-int ind_2_4 __attribute__ ((address(RAM_START_ADDRESS+112)));       //REG 56
-
-float P1   __attribute__  ((address(RAM_START_ADDRESS+114)));   //REG 57
-float P2   __attribute__  ((address(RAM_START_ADDRESS+118)));   //REG 59
-float P3   __attribute__  ((address(RAM_START_ADDRESS+122)));   //REG 61
-
-float Q1   __attribute__ ((address(RAM_START_ADDRESS+126)));    //REG 63
-float Q2   __attribute__ ((address(RAM_START_ADDRESS+130)));    //REG 65
-float Q3   __attribute__ ((address(RAM_START_ADDRESS+134)));    //REG 67
-
-float S1   __attribute__ ((address(RAM_START_ADDRESS+138)));    //REG 69
-float S2   __attribute__ ((address(RAM_START_ADDRESS+142)));    //REG 71
-float S3   __attribute__ ((address(RAM_START_ADDRESS+146)));    //REG 73
-
-float cos_f1 __attribute__ ((address(RAM_START_ADDRESS+150)));    //REG 75
-float cos_f2 __attribute__ ((address(RAM_START_ADDRESS+154)));    //REG 77
-float cos_f3 __attribute__ ((address(RAM_START_ADDRESS+158)));    //REG 79
-
-float AD4_AVG  __attribute__ ((address(RAM_START_ADDRESS+162)));       //REG 81
-float AD5_AVG  __attribute__ ((address(RAM_START_ADDRESS+166)));       //REG 83
-float AD6_AVG  __attribute__ ((address(RAM_START_ADDRESS+170)));       //REG 85
-
-float AD4_RMS __attribute__ ((address(RAM_START_ADDRESS+174)));      //REG 87
-float AD5_RMS __attribute__ ((address(RAM_START_ADDRESS+178)));      //REG 89
-float AD6_RMS __attribute__ ((address(RAM_START_ADDRESS+182)));      //REG 91
-
-int FLASH_WR __attribute__ ((address(RAM_START_ADDRESS+186)));      //REG 93
-int FLASH_RD __attribute__ ((address(RAM_START_ADDRESS+188)));      //REG 94
-int PROF_CHANGE_SOURCE __attribute__ ((address(RAM_START_ADDRESS+190)));//REG 95
-
-unsigned int A0  __attribute__ ((address(RAM_START_ADDRESS+192)));      //REG 96
-unsigned int A1  __attribute__ ((address(RAM_START_ADDRESS+194)));      //REG 97
-unsigned int A2  __attribute__ ((address(RAM_START_ADDRESS+196)));      //REG 98
-unsigned int A3  __attribute__ ((address(RAM_START_ADDRESS+198)));      //REG 99
-unsigned int A4  __attribute__ ((address(RAM_START_ADDRESS+200)));      //REG 100
-unsigned int A5  __attribute__ ((address(RAM_START_ADDRESS+202)));      //REG 101
-unsigned int A6  __attribute__ ((address(RAM_START_ADDRESS+204)));      //REG 102
-
-int ind_off_1 __attribute__ ((address(RAM_START_ADDRESS+206)));      //REG 103
-int ind_off_2 __attribute__ ((address(RAM_START_ADDRESS+208)));      //REG 104
-int ind_off_3 __attribute__ ((address(RAM_START_ADDRESS+210)));      //REG 105
-int ind_off_4 __attribute__ ((address(RAM_START_ADDRESS+212)));      //REG 106
-
-int  __attribute__ ((address(RAM_START_ADDRESS+214))) channel_num_U=0;      //REG 107
-int  __attribute__ ((address(RAM_START_ADDRESS+216))) imp_kol=90;           //REG 108
-int  __attribute__ ((address(RAM_START_ADDRESS+218))) V=0;                  //REG 109
-int  __attribute__ ((address(RAM_START_ADDRESS+220))) D_Out_Init=0;         //REG 110
-int  __attribute__ ((address(RAM_START_ADDRESS+222))) AD_12b=0;             //REG 111
 
 int imp_kol_temp = 0;
 int PARAM_SET;
@@ -129,6 +35,7 @@ int ind_off = 0x07;
 // Flash storage for permanent modbus registers
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -144,7 +51,7 @@ static unsigned int init[7] = {0, 0, 0, 0, 0, 0, 0};
 #define FILTER_COUNT 1000
 
 // Filters ADC input data
-unsigned int filter (unsigned int  value,char channel_num) {
+unsigned int filter (unsigned int  value, uint8_t channel_num) {
     if (init[channel_num] < FILTER_COUNT) {
         arr[channel_num] += value;
         ++init[channel_num];
@@ -160,24 +67,27 @@ void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt() {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-   A0=filter(ADC1BUF0,0);
-   A1=filter(ADC1BUF1,1);
-   A2=filter(ADC1BUF2,2);
-//   A3=filter(ADC1BUF6,3);
-//   A4=filter(ADC1BUF0,4);
-//   A5=filter(ADC1BUF1,5);
-//   A6=filter(ADC1BUF2,6);
+   MB.A0=filter(ADC1BUF0,0);
+   MB.A1=filter(ADC1BUF1,1);
+   MB.A2=filter(ADC1BUF2,2);
+   MB.A3=filter(ADC1BUF3,3);
+   MB.A4=filter(ADC1BUF4,4);
+   MB.A5=filter(ADC1BUF5,5);
+   MB.A6=filter(ADC1BUF6,6);
    
-   ADC0=((int)A0 - OFS_ADC0)*K0;   //AN6
-   ADC1=((int)A1 - OFS_ADC1)*K1;   //AN3
-   ADC2=((int)A2 - OFS_ADC2)*K2;   //AN4
-//   ADC3=((int)A3 - OFS_ADC3)*K3;   //AN5
-//   ADC4=((int)A4 - OFS_ADC4)*K4;   //AN0
-//   ADC5=((int)A5 - OFS_ADC5)*K5;   //AN1
-//   ADC6=((int)A6 - OFS_ADC6)*K6;   //AN2
+   MB.ADC0=((int)MB.A0 - MB.OFS_ADC0)*MB.K0;   //AN6
+   MB.ADC1=((int)MB.A1 - MB.OFS_ADC1)*MB.K1;   //AN3
+   MB.ADC2=((int)MB.A2 - MB.OFS_ADC2)*MB.K2;   //AN4
+   MB.ADC3=((int)MB.A3 - MB.OFS_ADC3)*MB.K3;   //AN5
+   MB.ADC4=((int)MB.A4 - MB.OFS_ADC4)*MB.K4;   //AN0
+   MB.ADC5=((int)MB.A5 - MB.OFS_ADC5)*MB.K5;   //AN1
+   MB.ADC6=((int)MB.A6 - MB.OFS_ADC6)*MB.K6;   //AN2
  
    IFS0bits.AD1IF=0;
 }
+
+
+MAIN_DECL_LOOP_FN();
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -191,6 +101,12 @@ int16_t main() {
     mempool_init();
     
     cpu_ipl_set(0);
+    
+    /* Initialize display */
+    disp_init();
+    
+    /* Initialize menu-base */
+    disp_config();
     
     /* Initialize Change-notification inputs */
     cni_init();
@@ -210,31 +126,38 @@ int16_t main() {
     /* Initialize system timing */
     timing_init();
     
+    /* Initialize modbus registers */
+    modbus_regs_init();
+    
     ADC_Init(1);
-    DI_Init();
+    discrete_init();
     
-    FLASH_WR = 0;
+    MB.FLASH_WR = 0;
     
-    Ind_Delay = 100; 
-    N = 4000;
-    BRG_VAL = 19200;
+    MB.Ind_Delay = 100; 
+    MB.N = 4000;
+    MB.BRG_VAL = 19200;
    
     uint16_t i = 0;
-    float *adcCoeffPtr = &K0;
-    int *adcOffsetPtr = OFS_ADC0;
+    float *adcCoeffPtr = &MB.K0;
+    int *adcOffsetPtr = &MB.OFS_ADC0;
     uint16_t *tmpPtr;
-    RamData = &(BRG_VAL);
+    RamData = &(MB.BRG_VAL);
 
     // Init permanently stored values for coeffs
     for (i = 0; i < 7; ++i) {
         adcCoeffPtr[i]  = flash_data_buf_K[i];
         adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
     }
+    MB.PositionK0 = flash_data_buf_PosK0;
+    
+    // Initialize application-specific module
+    app_init();
     
     // Main cycle
     while (1) {
         // Perform RTSP, if externally requested
-        if (FLASH_WR == 1) {
+        if (MB.FLASH_WR == 1) {
             for (i = 0; i < 7; i++) {
                 if (flash_data_buf_K[i] != adcCoeffPtr[i]) {
                     // Only perform if the data has changed, spare memory
@@ -249,17 +172,32 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_OFFSET), FLASH_GETAOFFSET(flash_data_buf_OFFSET, i),
                             adcOffsetPtr[i]);
                 }
+                if (flash_data_buf_PosK0 != MB.PositionK0) {
+                    tmpPtr = &MB.PositionK0;
+                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
+                            tmpPtr[0]);
+                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
+                            tmpPtr[1]);
+                }
             }
             flash_write();
             system_reset();
-            FLASH_WR = 0;
+            MB.FLASH_WR = 0;
         }
+        
+        display_update();
         
         // Perform Modbus protocol processing
         Modbus_RTU();
         
         // Internal Modbus function for framing
         RS_Update();
+        
+        // Update discrete outputs and resample discrete inputs
+        discrete_update();
+        
+        // Call application-end function
+        MAIN_CALL_LOOP_FN();
         
         // Clear WDT flag to indicate normal operation
         wdt_clr();

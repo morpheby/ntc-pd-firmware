@@ -25,7 +25,12 @@ _PERSISTENT uint8_t deviceID;
 _PERSISTENT _Bool uartRXLock;
 
 /**** UART TX buffers and parameters ****/
-_PERSISTENT uint16_t *uartTransmitData,
+#if UART_USE_9BIT_MODE
+_PERSISTENT uint16_t
+#else
+_PERSISTENT uint8_t
+#endif
+        *uartTransmitData,
         *uartTransmitPos;
 _PERSISTENT unsigned int uartTransmitLen;
 _Bool uartTXLock;
@@ -301,7 +306,11 @@ void uart_send(uint8_t addr, const unsigned char *data, size_t len) {
         uartTransmitLen += 3;
 #endif
         uartTransmitData = gc_realloc(uartTransmitData,
+#if UART_USE_9BIT_MODE
                 uartTransmitLen*sizeof(uint16_t));
+#else
+                uartTransmitLen*sizeof(uint8_t));
+#endif
         uartTransmitPos = uartTransmitData + dataPosOffset;
         
 #if UART_USE_9BIT_MODE

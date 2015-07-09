@@ -2,6 +2,7 @@
 #include "ipl-config.h"
 #include "menu-base.h"
 #include "menu.h"
+#include "util.h"
 
 #define MAIN_TIMER_PERIOD_DFLT 65535
 
@@ -112,9 +113,7 @@ uint32_t timer_tick_period_internal(uint8_t timer) {
         tmpTckps[timer] = timer == 0 ? T1CONbits.TCKPS : T2CONbits.TCKPS;
         freq = tmpFCY >> (tmpTckps[timer] * 3);
         
-        // Split division in two steps
-        period[timer]  = (1000000L/freq)*1000L;
-        period[timer] += ((1000000L % freq)*1000L)/freq;
+        period[timer]  = (1000000000L/freq);
     }
     return period[timer];
 }
@@ -170,7 +169,7 @@ void timing_time_increment(int8_t timerSource) {
             incrementValue);
 }
 
-_SystemTime timing_get_time() {
+_SystemTime timing_get_systime() {
     _SystemTime tm = _systemTime;
     timing_time_add(
             &(tm.lowDWord),
@@ -183,7 +182,56 @@ _SystemTime timing_get_time() {
 }
 
 uint32_t timing_get_time_low() {
-    return timing_get_time().lowDWord;
+    return timing_get_systime().lowDWord;
+}
+
+uint32_t timing_get_time_msecs() {
+    _SystemTime tm = timing_get_systime();
+    return tm.lowDWord/1000000L + tm.highDWord * 4294L +
+            (tm.highDWord * 967L)/1000L;
+}
+
+_time_t timing_get_time() {
+    _SystemTime tm = timing_get_systime();
+    _time_t time = {
+        tm.lowDWord/1000000000L +
+                tm.highDWord * 4 +
+                (tm.highDWord * 295L)/1000L,
+        tm.lowDWord % 1000000000L
+    };
+    return time;
+}
+
+int time_compare(_time_t lsv, _time_t rsv) {
+    int32_t r = uint32_cmp(lsv.secs, rsv.secs);
+    if (r) {
+        return r;
+    }
+    r = lsv.nsecs - rsv.nsecs;
+    if (r > 0) {
+        return 1;
+    } else if (r < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+void time_add(_time_t *dst, _time_t add) {
+    dst->nsecs += add.nsecs;
+    if (dst->nsecs > 1000000000L) {
+        dst->nsecs -= 1000000000L;
+        ++dst->secs;
+    }
+    dst->secs += add.secs;
+}
+
+void time_sub(_time_t *dst, _time_t sub) {
+    dst->secs -= sub.secs;
+    if (dst->nsecs < sub.nsecs) {
+        dst->nsecs += 1000000000L;
+        --dst->secs;
+    }
+    dst->nsecs -= sub.nsecs;
 }
 
 void _ISR_NOPSV _T1Interrupt(void) {

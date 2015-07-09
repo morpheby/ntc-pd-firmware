@@ -1,6 +1,8 @@
 #include "menu.h"
 #include "list.h"
-#include "cn_inputs_reg.h"
+#include "app_connector.h"
+
+#if APP_USE_MENU
 
 typedef void (*_menuHitFunc)();
 typedef void (*_menuHitWorker)(_MWrkCallReason reason);
@@ -199,3 +201,16 @@ void _menu_prevlist_free(_ListHandle list) {
 _ListHandle _menu_prevlist_copy(const _ListHandle list) {
     return list_copy(list);
 }
+
+#else
+
+void menu_init() {}
+void menu_worker() {}
+void menu_enter() {}
+void menu_return() {}
+void menu_move(_Bool next) {}
+void menu_close() {}
+void menu_show() {}
+
+#endif
+

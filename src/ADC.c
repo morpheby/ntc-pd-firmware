@@ -10,17 +10,17 @@ void ADC_Init(_Bool ad_12b) {
     TRISCbits.TRISC0 = 1;
 
     // Configure as digital inputs
-    AD1PCFGLbits.PCFG6 = 1;
-    AD1PCFGLbits.PCFG5 = 1;
-    AD1PCFGLbits.PCFG4 = 1;
-    AD1PCFGLbits.PCFG3 = 1;
     AD1PCFGLbits.PCFG8 = 1;
     AD1PCFGLbits.PCFG7 = 1;
     
     // Configure as analog inputs
+    AD1PCFGLbits.PCFG0 = 0;  //M0
     AD1PCFGLbits.PCFG2 = 0;  //M2
     AD1PCFGLbits.PCFG1 = 0;  //M1
-    AD1PCFGLbits.PCFG0 = 0;  //M0
+    AD1PCFGLbits.PCFG3 = 0;  //A0
+    AD1PCFGLbits.PCFG4 = 0;  //A1
+    AD1PCFGLbits.PCFG5 = 0;  //A2
+    AD1PCFGLbits.PCFG6 = 0;  //A3
 
     if (ad_12b) {
         //12 bit mode
@@ -29,7 +29,7 @@ void ADC_Init(_Bool ad_12b) {
         // 10 bit mode
         AD1CON1bits.AD12B = 0;
     }
-
+    
     // TODO: annotate registers from documentation
     AD1CON1bits.FORM = 0b00;
     AD1CON1bits.SSRC = 0b111;
@@ -40,7 +40,7 @@ void ADC_Init(_Bool ad_12b) {
     AD1CON2bits.CHPS = 0b11;
 
     if (ad_12b) {
-        AD1CON2bits.SMPI = 0x03;
+        AD1CON2bits.SMPI = 0x07;
     } else {
         //Increments the DMA address or generates interrupt after completion
         // of every 2nd sample/conversion operation
@@ -55,16 +55,14 @@ void ADC_Init(_Bool ad_12b) {
         AD1CON2bits.ALTS = 1;
     }
 
-    // Enable input scans for AN0-AN2
+    // Enable input scans for AN0-AN6
     AD1CSSLbits.CSS0 = 1;
     AD1CSSLbits.CSS1 = 1;
     AD1CSSLbits.CSS2 = 1;
-    
-    // Disable for AN3-AN6
-    AD1CSSLbits.CSS3 = 0;
-    AD1CSSLbits.CSS4 = 0;
-    AD1CSSLbits.CSS5 = 0;
-    AD1CSSLbits.CSS6 = 0;
+    AD1CSSLbits.CSS3 = 1;
+    AD1CSSLbits.CSS4 = 1;
+    AD1CSSLbits.CSS5 = 1;
+    AD1CSSLbits.CSS6 = 1;
 
     if (ad_12b) {
         //SCAN AN0-AN6
