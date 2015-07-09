@@ -165,5 +165,14 @@
 #define CNI_BTN_RIGHT   0
 #define CNI_BTN_RETURN  0
 
+//ADC channels configuration
+#define ADC_0_ENABLE 1
+#define ADC_1_ENABLE 1
+#define ADC_2_ENABLE 1
+#define ADC_3_ENABLE 1
+#define ADC_4_ENABLE 1
+#define ADC_5_ENABLE 1
+#define ADC_6_ENABLE 1
+
 #endif	/* BOARD_CONFIG_H */
 

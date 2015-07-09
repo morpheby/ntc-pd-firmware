@@ -29,6 +29,7 @@
       <itemPath>app_connector.h</itemPath>
       <itemPath>app_main.h</itemPath>
       <itemPath>modbus_registers.h</itemPath>
+      <itemPath>filter.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -73,6 +74,7 @@
       <itemPath>app_main.c</itemPath>
       <itemPath>app_connector.c</itemPath>
       <itemPath>modbus_registers.c</itemPath>
+      <itemPath>filter.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
