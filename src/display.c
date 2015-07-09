@@ -66,7 +66,7 @@ void set_seg_char(char c);
 void _set_disp_direct(uint8_t num);
 void _set_segment_pattern(uint8_t pattern);
 
-const uint8_t _dispMap[DISPLAY_COUNT] = {
+const uint8_t _dispMap[] = {
 //0  1  2  3  4  5  6  7  8  9  10  11
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 };
