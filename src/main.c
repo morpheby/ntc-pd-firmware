@@ -45,11 +45,6 @@ int _temp_BAUD=0;
 int *RamData;
 
 
-void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt() {
-     IFS3bits.QEIIF = 0;
-}
-
-
 MAIN_DECL_LOOP_FN();
 
 /******************************************************************************/

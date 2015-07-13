@@ -17,21 +17,22 @@
 #include "float.h"
 #include <stdint.h>
 
+#include "quadrature_encoder.h"
+
 /*
  * This file contains functions, being called from every module upon some
  * events. Use this module for all application-specific tasks.
  */
 
-
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
     }
+    initQEI();
 }
 
 MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
+    MB.QEI_POS = POSCNT;
 }
-
-

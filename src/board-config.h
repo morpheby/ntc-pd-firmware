@@ -87,6 +87,10 @@
 // RTS pin number divided by two, floored
 #define UART_RTS_PIN2   11
 
+//QEI pin numbers. Digital inputs DI3 (RP17) and DI2(RP18) are available. Data sheet page 5.
+#define QEIA 17
+#define QEIB 18
+
 /*
  * Change notification pins
  * Set ENABLE to 1 to enable interrupts on the pin. Numbering is the same, as in
