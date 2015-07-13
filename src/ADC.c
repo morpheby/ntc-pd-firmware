@@ -66,7 +66,9 @@ void ADC_Init(_Bool ad_12b) {
     AD1CON2bits.CHPS = 0b11;
 
     if (ad_12b) {
-        AD1CON2bits.SMPI = 0x07;
+        AD1CON2bits.SMPI = ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE
+                         + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE
+                         + ADC_6_ENABLE;
     } else {
         //Increments the DMA address or generates interrupt after completion
         // of every 2nd sample/conversion operation

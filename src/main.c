@@ -143,8 +143,6 @@ int16_t main() {
             MB.FLASH_WR = 0;
         }
         
-        display_update();
-        
         // Perform Modbus protocol processing
         Modbus_RTU();
         

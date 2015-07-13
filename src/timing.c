@@ -4,7 +4,7 @@
 #include "menu.h"
 #include "util.h"
 
-#define MAIN_TIMER_PERIOD_DFLT 65535
+#define MAIN_TIMER_PERIOD_DFLT 4096
 
 // System time in nanoseconds
 static _SystemTime _systemTime = {0, 0};
@@ -242,6 +242,7 @@ void _ISR_NOPSV _T1Interrupt(void) {
     
     disp_draw();
     menu_worker();
+    display_update();
     IFS0bits.T1IF = 0;
 }
 
