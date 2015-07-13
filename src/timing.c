@@ -4,7 +4,7 @@
 #include "menu.h"
 #include "util.h"
 
-#define MAIN_TIMER_PERIOD_DFLT 4096
+#define MAIN_TIMER_PERIOD_DFLT 8192
 
 // System time in nanoseconds
 static _SystemTime _systemTime = {0, 0};

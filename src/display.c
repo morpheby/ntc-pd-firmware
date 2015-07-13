@@ -145,8 +145,9 @@ void set_disp_num(uint8_t num) {
 }
 
 void disp_lightup(_Bool on) {
-    if (!on)
+    if (!on) {
         _set_disp_direct(-1);
+    }
 }
 
 void set_seg_char(char c) {
@@ -166,26 +167,30 @@ void _set_segment_pattern(uint8_t pattern) {
 }
 
 void display_update() {
-    int i;
+    static int i = 0;
     unsigned k;
     _Bool eol = 0;
-    for(i = 0; i < DISPLAY_COUNT; ++i) {
-        disp_lightup(0);
-
-        char c = dispBuff[i];
-        if(!c) // EOL reached
-            eol = 1;
-        
-        if(eol)
-            set_seg_char(' ');
-        else
-            set_seg_char(c);
-        
-        set_disp_num(i);
-        disp_lightup(1);
-        for(k = 0; k < 50; ++k);
-    }
+    
     disp_lightup(0);
+
+    char c = dispBuff[i];
+    if(!c) {
+        // EOL reached
+        eol = 1;
+    }
+
+    if(eol) {
+        set_seg_char(' ');
+    } else {
+        set_seg_char(c);
+    }
+
+    set_disp_num(i);
+    disp_lightup(1);
+    for (k = 0; k < 10; ++k);
+    disp_lightup(0);
+    
+    i = (i+1)%DISPLAY_COUNT;
 }
 
 void display_set(const char *str) {
