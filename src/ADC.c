@@ -47,6 +47,8 @@ void ADC_Init(_Bool ad_12b) {
     AD1PCFGLbits.PCFG4 = 0;  //A1
     AD1PCFGLbits.PCFG5 = 0;  //A2
     AD1PCFGLbits.PCFG6 = 0;  //A3
+    AD1PCFGLbits.PCFG7 = 1;  //DI2
+    AD1PCFGLbits.PCFG8 = 1;  //DI3
 
     if (ad_12b) {
         //12 bit mode

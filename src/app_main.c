@@ -18,6 +18,7 @@
 #include <stdint.h>
 
 #include "quadrature_encoder.h"
+#include  "menu-base.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -35,4 +36,5 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
     MB.QEI_POS = POSCNT;
+    disp_puti(0, POSCNT);
 }

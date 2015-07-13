@@ -31,7 +31,7 @@
 #define APP_USE_RTSP            1
 
 // Use LED display extensions (segmentation, rounding, scrolling, string display)
-#define APP_USE_LED_DISP        0
+#define APP_USE_LED_DISP        1
 
 
 /*
