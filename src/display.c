@@ -187,7 +187,7 @@ void display_update() {
 
     set_disp_num(i);
     disp_lightup(1);
-    for (k = 0; k < 10; ++k);
+    for (k = 0; k < 100; ++k);
     disp_lightup(0);
     
     i = (i+1)%DISPLAY_COUNT;
