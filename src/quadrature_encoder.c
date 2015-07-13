@@ -5,10 +5,10 @@
 void initQEI()
 {
     //Pins configuration. Data Sheet pages 120, 131
-    pin_remap_enable(true);
+    pin_remap_enable(1);
     RPINR14bits.QEA1R = QEIA;
     RPINR14bits.QEB1R = QEIB;
-    pin_remap_enable(false);
+    pin_remap_enable(0);
 
     QEICONbits.QEIM = 0;       // Disable QEI Module
     QEICONbits.CNTERR = 0;     // Clear any count errors

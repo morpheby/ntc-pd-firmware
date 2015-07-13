@@ -118,9 +118,9 @@ void osccon_set_bit(_Bool value, uint8_t bitNum) {
     if(bitNum>7)
         return;
     if(value)
-        val |= value << bitNum;
+        val |= 1 << bitNum;
     else
-        val &= ~ (value << bitNum);
+        val &= ~ (1 << bitNum);
     __builtin_write_OSCCONL(val);
 }
 
