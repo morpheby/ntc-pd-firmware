@@ -55,6 +55,8 @@ int16_t main() {
     
     /* Initialize reset parser */
     system_init();
+    
+    wdt_init();
 
     mempool_init();
     

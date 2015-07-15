@@ -10,6 +10,7 @@
 
 #include "system.h"
 
+void wdt_init();
 void wdt_clr();
 
 #endif	/* WDT_H */
