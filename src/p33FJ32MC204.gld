@@ -102,9 +102,9 @@ SECTIONS
   */
   .reset :
   {
-        SHORT(ABSOLUTE(__reset));
+        SHORT(ABSOLUTE(__boot));
         SHORT(0x04);
-        SHORT((ABSOLUTE(__reset) >> 16) & 0x7F);
+        SHORT((ABSOLUTE(__boot) >> 16) & 0x7F);
         SHORT(0);
   } >reset
 
@@ -130,11 +130,15 @@ SECTIONS
   */
   .text :
   {
+        /* Bootloader mode flag */
+        _BOOTMODE = ABSOLUTE(.);
+        SHORT(0x1);
+
         *(.init);
         *(.user_init);
         KEEP (*(.handle));
         KEEP (*(.isr*));
-        *(.libc) *(.libm) *(.libdsp);  /* keep together in this order */
+        *(.libm) *(.libdsp);  /* keep together in this order */
         *(.lib*);
   } >program
 
@@ -161,6 +165,7 @@ SECTIONS
   fixed BLOCK(2048) :
   {
         *(.fixed);
+        *(.libc);
         . = ALIGN(2048);
   } >program = 0
 
@@ -1595,3 +1600,4 @@ _OC2          = 0x186;
 _SPI1         = 0x240;
  UART1        = 0x220;
 _UART1        = 0x220;
+

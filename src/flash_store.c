@@ -1,7 +1,7 @@
 
 #include "flash_store.h"
 #include "list.h"
-#include "app_connector.h"
+#include <libpic30.h>
 
 /*
  * dsPIC33F simulator seems to have bug with holding buffers:
@@ -11,6 +11,10 @@
  * !!! THIS BUG DAMAGES CODE WHILE EXECUTING IN SIMULATOR !!!
  */
 
+#if !APP_USE_RTSP && APP_USE_BOOTLOADER
+#error "RTSP has to be enabled to use bootloader"
+#endif
+
 #if APP_USE_RTSP
 
 #define FLASH_PAGE_MASK   0xFC00     // Gets 512-instruction aligned offset (1024)
@@ -18,11 +22,6 @@
 #define FLASH_OFFSET_MASK 0x03FF
 #define FLASH_ROW_MASK    0x007F
 #define FLASH_ROW         0x0080
-
-// Use special section defined in the custom linker script to store RTSP-relevant
-// functions. Section has to be page-aligned and contain nothing but the code
-// marked for this section.
-#define SECURE __attribute__((section(".fixed")))
 
 typedef struct tagFLASHOP {
     unsigned char pageNum;
@@ -51,38 +50,37 @@ _ListHandle _flashop_list_create() {
     return h;
 }
 
+
+
+#if APP_USE_BOOTLOADER
+// Non-secure (integrated) versions, required to update bootloader itself
+#define SECURE(f) f
+#define SCALL(f) f
+#define NSCALL(f) f
+#include "flash_secure.c"
+#undef SECURE
+#undef SCALL
+#undef NSCALL
+#endif
+
+// Secure versions
+#define SECURE(f) SECURE_DECL secure_##f
+#define SCALL(f) secure_##f
+#if APP_USE_BOOTLOADER
+#define NSCALL(f) sub_##f
+#include "bootloader_sub.h"
+#else
+#define NSCALL(f) f
+#endif
+#include "flash_secure.c"
+#undef SECURE
+#undef NSCALL
+
+
 void flash_init() {
     if(reset_is_cold()) {
         flashOps = _flashop_list_create();
     }
-}
-
-void SECURE _flash_start() {
-    asm volatile(
-        "MOV #0x55,W0            \n"   // Unlock sequence
-        "MOV W0, NVMKEY          \n"
-        "MOV #0xAA,W0            \n"
-        "MOV W0, NVMKEY          \n"
-        "BSET NVMCON,#15         \n"   // Initiate programming cycle (15=WRbit)
-        "NOP                     \n"
-        "NOP                     \n"
-    );
-}
-
-inline _Bool _flash_ok() {
-    return !NVMCONbits.WRERR;
-}
-
-void SECURE _flash_preconf_row() {
-    NVMCONbits.WREN = 1;        // Enable write
-    NVMCONbits.ERASE = 0;       // Don't erase
-    NVMCONbits.NVMOP = 0b0001;  // Single row write
-}
-
-void _flash_preconf_erase() {
-    NVMCONbits.WREN = 1;        // Enable write
-    NVMCONbits.ERASE = 1;       // Erase
-    NVMCONbits.NVMOP = 0b0010;  // Single page erase
 }
 
 void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
@@ -93,64 +91,14 @@ void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
     list_push_back(flashOps, operation);
 }
 
-/* Returns 0 if successful */
-int SECURE _flash_program_row() {
-    _flash_preconf_row();   // Configure flashing operation
-    _flash_start();         // Flash
-    return !_flash_ok();
-}
-
-/* Returns 0 if successful */
-int _flash_erase_page() {
-    _flash_preconf_erase();   // Configure flashing operation
-    _flash_start();           // Flash
-    return !_flash_ok();
-}
-
-int flash_erase_page(unsigned char page, unsigned int offset) {
-    TBLPAG = page;
-    __builtin_tblwtl(offset, 0);
-    return _flash_erase_page();
-}
-
-int SECURE flash_writerow(unsigned char page, unsigned int offset,
-        _Instruction *row) {
-    int i;
-    TBLPAG = page;
-    
-    // Write 64 instructions == 1 row
-    for(i = 0; i < 128; i+=2) {
-        __builtin_tblwtl(offset + i, row[i/2].lowWord);
-        __builtin_tblwth(offset + i, row[i/2].highByte);
-    }
-    // Flash row
-    return _flash_program_row();
-}
-
-void SECURE flash_readrow(unsigned char page, unsigned int offset,
-        _Instruction *row) {
-    int i;
-    TBLPAG = page;
-    // Read 64 instructions == 1 row
-    for(i = 0; i < 128; i+=2) {
-        row[i/2].lowWord  = __builtin_tblrdl(offset + i);
-        row[i/2].highByte = __builtin_tblrdh(offset + i);
-    }
-}
-
 int flash_store_erase() {
-    return flash_erase_page(FLASH_GETPAGE(pageStore),
+    return SCALL(flash_erase_page)(FLASH_GETPAGE(pageStore),
             FLASH_GETOFFSET(pageStore));
 }
 
-void SECURE flash_store_readrow(unsigned int rowNum, _Instruction *row) {
-    flash_readrow(FLASH_GETPAGE(pageStore),
-                FLASH_GETOFFSET(pageStore) + rowNum*128, row);
-}
-
 int flash_store_writerow(unsigned int rowNum, _Instruction *row) {
-    return flash_writerow(FLASH_GETPAGE(pageStore),
-                FLASH_GETOFFSET(pageStore) + rowNum*128, row);
+    return SCALL(flash_writerow)(FLASH_GETPAGE(pageStore),
+                FLASH_GETOFFSET(pageStore) + (rowNum<<7), row);
 }
 
 _Bool on_same_page(const _FlashOp *op1, const _FlashOp *op2) {
@@ -165,7 +113,6 @@ _Bool in_same_row(const _FlashOp *op1, const _FlashOp *op2) {
 
 void flash_readpage(unsigned char page, unsigned int offset) {
     int i;
-    SYSHANDLE hp;
     
     _Instruction *progRow = _flash_tmp_instructionHold;
 
@@ -174,77 +121,11 @@ void flash_readpage(unsigned char page, unsigned int offset) {
     // Prepare pageStor
     flash_store_erase();
 
-    hp = high_priority_enter();
-        // Read page
-        for(i = 0; i < 8; ++i) {
-            flash_readrow(page, offset+i*128, progRow);
-            flash_store_writerow(i, progRow);
-        }
-    high_priority_exit(hp);
-}
-
-/* Return 0 on success and 1 if flashing error has occured */
-int SECURE flash_writepage(_ListHandle pageGroup) {
-    int i, k = 0, opsSize, result = 0;
-    _ListIterator j;
-    _FlashOp op = *(_FlashOp*)list_front(pageGroup),
-            *ops;
-    _Instruction *row = _flash_tmp_instructionHold;
-    
-    unsigned int offset;
-    SYSHANDLE hp;
-
-
-    // While we will be rewriting page, some parts of program may become invalid
-    // Ensure we are not erasing this exact function
-    if(FLASH_GETPAGE(flash_writepage) == op.pageNum &&
-       (FLASH_GETOFFSET(flash_writepage) ^ op.offset) < FLASH_PAGE)
-        return 2;
-
-    // Preload list of changes
-    j = list_begin(pageGroup);
-    do {
-        ++k;
-    } while(list_iterate_fwd(j));
-    list_iterator_free(j);
-
-    ops = gc_malloc(sizeof(_FlashOp)*k);
-
-    k = 0;
-    j = list_begin(pageGroup);
-    do {
-        ops[k++] = *(_FlashOp*) list_iterator_value(j);
-    } while(list_iterate_fwd(j));
-    list_iterator_free(j);
-
-    opsSize = k;
-
-
-    hp = high_priority_enter();
-        // Prepare page
-        flash_erase_page(op.pageNum, op.offset);
-        offset = op.offset & FLASH_PAGE_MASK;
-
-        // Group by row
-        for(i = 0; i < 8; ++i) {
-            // Load row
-            flash_store_readrow(i, row);
-
-            // Apply all operations from that row
-            for(k = 0; k < opsSize; ++k)
-                if((ops[k].offset & FLASH_OFFSET_MASK) / 128 == i)
-                    row[(ops[k].offset & FLASH_ROW_MASK) / 2].lowWord = ops[k].value;
-
-            // Store row
-            if(flash_writerow(op.pageNum, offset+i*128, row)) {
-                result = 1;
-                break;
-            }
-        }
-    high_priority_exit(hp);
-    gc_free(ops);
-
-    return result;
+    // Read page
+    for(i = 0; i < 8; ++i) {
+        SCALL(flash_readrow)(page, offset+(i>>7), progRow);
+        flash_store_writerow(i, progRow);
+    }
 }
 
 int flash_write() {
@@ -280,7 +161,7 @@ int flash_write() {
             op = list_front(group);
             flash_readpage(op->pageNum, op->offset); // prepare page
             // Apply all operations from the group and program device
-            if(flash_writepage(group)) {
+            if(SCALL(flash_writepage)(group)) {
                 return 1;
             }
 
@@ -305,7 +186,6 @@ _FlashOp *_flashop_copy(const _FlashOp *op) {
     *newOp = *op;
     return newOp;
 }
-
 #else
 
 void flash_init() {}

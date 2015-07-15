@@ -9,7 +9,9 @@
 #define	FLASH_STORE_H
 
 #include "system.h"
+#include "app_connector.h"
 
+#if APP_USE_RTSP
 //#define FLASH_NOAUTOPSV 1
 
 #ifdef FLASH_USEEEPROM
@@ -21,6 +23,30 @@
 #else /* Suppose auto-psv */
 #   define _FLASH_ACCESS
 #   define _FLASH_STORE __attribute__((space(auto_psv)))
+#endif
+// Use special section defined in the custom linker script to store RTSP-relevant
+// functions. Section has to be page-aligned and contain nothing but the code
+// marked for this section.
+#define SECURE_DECL __attribute__((section(".fixed")))
+
+// TBLPAGE and TBLOFFSET instructions support only explicit address
+#define FLASH_GETPAGE(ptr) __builtin_tblpage((ptr))
+#define FLASH_GETOFFSET(ptr) __builtin_tbloffset((ptr))
+
+#define FLASH_GETAOFFSET(ptr, i) \
+    (__builtin_tbloffset((ptr)) + sizeof((ptr)[0])*(i))
+
+#else
+
+#define _FLASH_ACCESS
+#define _FLASH_STORE
+#define SECURE_DECL
+
+#define FLASH_GETPAGE(ptr) 0
+#define FLASH_GETOFFSET(ptr) 0
+
+#define FLASH_GETAOFFSET(ptr, i) 0
+
 #endif
 
 void flash_init();
@@ -66,13 +92,6 @@ void flash_set_data(unsigned char page, unsigned int startOffset,
  *    the operation completes.
  */
 int flash_write();
-
-// TBLPAGE and TBLOFFSET instructions support only explicit address
-#define FLASH_GETPAGE(ptr) __builtin_tblpage((ptr))
-#define FLASH_GETOFFSET(ptr) __builtin_tbloffset((ptr))
-
-#define FLASH_GETAOFFSET(ptr, i) \
-    (__builtin_tbloffset((ptr)) + sizeof((ptr)[0])*(i))
 
 
 #endif	/* FLASH_STORE_H */
