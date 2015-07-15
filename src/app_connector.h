@@ -19,6 +19,11 @@
 #define __IF(x, a) IF_##x(a)
 #define IF(x, a) __IF(x, a)
 
+#define IF_ELSE_0(a, b) b
+#define IF_ELSE_1(a, b) a
+#define __IF_ELSE(x, a, b) IF_ELSE_##x(a, b)
+#define IF_ELSE(x, a, b) __IF_ELSE(x, a, b)
+
 #define ADC_DECL_PROC_FN(channel, varValue) \
     void __adc_##channel##_proc(uint16_t value)
 

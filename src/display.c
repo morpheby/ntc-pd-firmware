@@ -1,5 +1,6 @@
 
 #include "display.h"
+#include "app_connector.h"
 #include "string.h"
 #include "board-config.h"
 
@@ -95,6 +96,35 @@ const uint8_t _segMap[256] = {
 
 char dispBuff[24] = "4567STUVWXYZ";
 
+#define A_A 1
+#define A_B 0
+#define A_C 0
+#define B_A 0
+#define B_B 1
+#define B_C 0
+#define C_A 0
+#define C_B 0
+#define C_C 1
+#define __X(x, t) x##_##t
+#define X(x, t) __X(x, t)
+
+#define MASK_HELPER(x, t) (IF_ELSE(X(DISP_DRV_##t##_PIN_TYPE, x), 1<<DISP_DRV_##t##_PIN_NUM, 0))
+const static long MASKA = 0
+    | MASK_HELPER(A, B0) | MASK_HELPER(A, B1) | MASK_HELPER(A, B2)
+    | MASK_HELPER(A, B3) | MASK_HELPER(A, B4) | MASK_HELPER(A, B5)
+    | MASK_HELPER(A, B6) | MASK_HELPER(A, B7) | MASK_HELPER(A, B8)
+    | MASK_HELPER(A, B9) | MASK_HELPER(A, B10)| MASK_HELPER(A, B11);
+const static long MASKB = 0
+    | MASK_HELPER(B, B0) | MASK_HELPER(B, B1) | MASK_HELPER(B, B2)
+    | MASK_HELPER(B, B3) | MASK_HELPER(B, B4) | MASK_HELPER(B, B5)
+    | MASK_HELPER(B, B6) | MASK_HELPER(B, B7) | MASK_HELPER(B, B8)
+    | MASK_HELPER(B, B9) | MASK_HELPER(B, B10)| MASK_HELPER(B, B11);
+const static long MASKC = 0
+    | MASK_HELPER(C, B0) | MASK_HELPER(C, B1) | MASK_HELPER(C, B2)
+    | MASK_HELPER(C, B3) | MASK_HELPER(C, B4) | MASK_HELPER(C, B5)
+    | MASK_HELPER(C, B6) | MASK_HELPER(C, B7) | MASK_HELPER(C, B8)
+    | MASK_HELPER(C, B9) | MASK_HELPER(C, B10)| MASK_HELPER(C, B11);
+
 void disp_init() {
     /* Set segment-driver outputs */
     _SEG_DRV_TRIS(SDI) = 0;
@@ -111,33 +141,29 @@ void disp_init() {
     disp_lightup(0);
 
     /* Set display-driver outputs */
-    _DISP_DRV_TRIS(B0) = 0;
-    _DISP_DRV_TRIS(B1) = 0;
-    _DISP_DRV_TRIS(B2) = 0;
-    _DISP_DRV_TRIS(B3) = 0;
-    _DISP_DRV_TRIS(B4) = 0;
-    _DISP_DRV_TRIS(B5) = 0;
-    _DISP_DRV_TRIS(B6) = 0;
-    _DISP_DRV_TRIS(B7) = 0;
-    _DISP_DRV_TRIS(B8) = 0;
-    _DISP_DRV_TRIS(B9) = 0;
-    _DISP_DRV_TRIS(B10) = 0;
-    _DISP_DRV_TRIS(B11) = 0;
+    TRISA &= ~MASKA;
+    TRISB &= ~MASKB;
+    TRISC &= ~MASKC;
 }
 
 void _set_disp_direct(uint8_t num) {
-    _DISP_DRV_LATCH(B0) = num != 0;
-    _DISP_DRV_LATCH(B1) = num != 1;
-    _DISP_DRV_LATCH(B2) = num != 2;
-    _DISP_DRV_LATCH(B3) = num != 3;
-    _DISP_DRV_LATCH(B4) = num != 4;
-    _DISP_DRV_LATCH(B5) = num != 5;
-    _DISP_DRV_LATCH(B6) = num != 6;
-    _DISP_DRV_LATCH(B7) = num != 7;
-    _DISP_DRV_LATCH(B8) = num != 8;
-    _DISP_DRV_LATCH(B9) = num != 9;
-    _DISP_DRV_LATCH(B10) = num != 10;
-    _DISP_DRV_LATCH(B11) = num != 11;
+    LATA |= MASKA;
+    LATB |= MASKB;
+    LATC |= MASKC;
+    switch(num) {
+        case 0: _DISP_DRV_LATCH(B0) = 0; break;
+        case 1: _DISP_DRV_LATCH(B1) = 0; break;
+        case 2: _DISP_DRV_LATCH(B2) = 0; break;
+        case 3: _DISP_DRV_LATCH(B3) = 0; break;
+        case 4: _DISP_DRV_LATCH(B4) = 0; break;
+        case 5: _DISP_DRV_LATCH(B5) = 0; break;
+        case 6: _DISP_DRV_LATCH(B6) = 0; break;
+        case 7: _DISP_DRV_LATCH(B7) = 0; break;
+        case 8: _DISP_DRV_LATCH(B8) = 0; break;
+        case 9: _DISP_DRV_LATCH(B9) = 0; break;
+        case 10:_DISP_DRV_LATCH(B10)= 0; break;
+        case 11:_DISP_DRV_LATCH(B11)= 0; break;
+    }
 }
 
 void set_disp_num(uint8_t num) {
