@@ -30,6 +30,9 @@
 // remove the section after disabling the module
 #define APP_USE_RTSP            1
 
+// Enable bootloader functionality
+#define APP_USE_BOOTLOADER   0
+
 // Use LED display extensions (segmentation, rounding, scrolling, string display)
 #define APP_USE_LED_DISP        1
 
