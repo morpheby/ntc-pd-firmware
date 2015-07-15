@@ -42,13 +42,17 @@ void disp_draw() {
     int i, j;
     static char display[DISPLAY_COUNT+1];
     static int sharedDispStart = -1, sharedDispEnd = 0;
+#if APP_USE_LED_ANIMATIONS
     static _Bool aniInProgress = 0, aniFlag = 0;
-
+#endif
+    
 //    display[DISPLAY_COUNT] = 0;
     if(dispChngFlag) {
         dispChngFlag = 0;
 
+#if APP_USE_LED_ANIMATIONS
         aniInProgress = 0;
+#endif
 
         for(i = 0; i < SECTION_COUNT; ++i) {
             if(dispStr) {
@@ -70,6 +74,7 @@ void disp_draw() {
         return;
     }
 
+#if APP_USE_LED_ANIMATIONS
     if(dispAniActive) {
         if(!aniInProgress) {
 //            dispShowState = -dispAniActive *
@@ -91,16 +96,20 @@ void disp_draw() {
         aniInProgress = 0;
         aniFlag = 0;
     }
+#endif
 
     if(dispStr)
         for(i = sharedDispStart, j = dispShowState; i < sharedDispEnd; ++i, ++j)
             if( 0 <= j && j < dispStrSz )
                 display[i] = dispStr[j];
+#if APP_USE_LED_ANIMATIONS
             else if(!aniInProgress)
                 display[i] = ' ';
+#endif
 
     display_set(display);
 
+#if APP_USE_LED_ANIMATIONS
     if(dispAniActive) {
         if(dispShowState != 0) {
             if(dispCounter >= STR_SCROLLFAST_COUNT) {
@@ -130,6 +139,7 @@ void disp_draw() {
         dispShowState = 0;
         dispCounter = 0;
     }
+#endif
 }
 
 void itoa_s4(char *buf, int val) {
