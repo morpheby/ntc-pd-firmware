@@ -3,6 +3,7 @@
 #include "app_connector.h"
 #include "string.h"
 #include "board-config.h"
+#include <libpic30.h>
 
 #if HAS_LED_DISPLAY
 
@@ -194,7 +195,6 @@ void _set_segment_pattern(uint8_t pattern) {
 
 void display_update(_Bool fullFlag) {
     static int i;
-    unsigned k;
     _Bool eol = 0;
     
     if (fullFlag) i = 0;
@@ -215,7 +215,7 @@ void display_update(_Bool fullFlag) {
 
         set_disp_num(i);
         disp_lightup(1);
-        for (k = 0; k < 50; ++k);
+        __delay32(100);
         if (!fullFlag) break;
     }
     disp_lightup(0);
