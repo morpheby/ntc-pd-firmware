@@ -148,19 +148,19 @@ void ADC_Init(_Bool ad_12b) {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-//   MB.A0=doFilter(ADC1BUF0,0);
-//   MB.A1=doFilter(ADC1BUF1,1);
-//   MB.A2=doFilter(ADC1BUF2,2);
-//   MB.A3=doFilter(ADC1BUF3,3);
-//   MB.A4=doFilter(ADC1BUF4,4);
-//   MB.A5=doFilter(ADC1BUF5,5);
-//   MB.A6=doFilter(ADC1BUF6,6);
+   MB.A0=doFilter(ADC1BUF0,0);
+   MB.A1=doFilter(ADC1BUF1,1);
+   MB.A2=doFilter(ADC1BUF2,2);
+   MB.A3=doFilter(ADC1BUF3,3);
+   MB.A4=doFilter(ADC1BUF4,4);
+   MB.A5=doFilter(ADC1BUF5,5);
+   MB.A6=doFilter(ADC1BUF6,6);
 
 //   uint8_t i = 0;
 //   for(i = 0; i < MAX_ADC_CHANNEL_COUNT; ++i) {
 //       adc[i].sourceValue=doFilter(*adc[i].bufferPointer,adc[i].channelIndex);
 //   }
-//
+
 //   MB.ADC0=((int)adc[0].sourceValue - MB.OFS_ADC0)*MB.K0;   //AN6
 //   MB.ADC1=((int)adc[1].sourceValue - MB.OFS_ADC1)*MB.K1;   //AN3
 //   MB.ADC2=((int)adc[2].sourceValue - MB.OFS_ADC2)*MB.K2;   //AN4
