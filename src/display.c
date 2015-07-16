@@ -192,31 +192,36 @@ void _set_segment_pattern(uint8_t pattern) {
     SEG_DRV_LE = 0;
 }
 
-void display_update() {
-    static int i = 0;
+void display_update(_Bool fullFlag) {
+    static int i;
     unsigned k;
     _Bool eol = 0;
     
-    disp_lightup(0);
+    if (fullFlag) i = 0;
+    for (; i < DISPLAY_COUNT; ++i) {
+        disp_lightup(0);
 
-    char c = dispBuff[i];
-    if(!c) {
-        // EOL reached
-        eol = 1;
+        char c = dispBuff[i];
+        if(!c) {
+            // EOL reached
+            eol = 1;
+        }
+
+        if(eol) {
+            set_seg_char(' ');
+        } else {
+            set_seg_char(c);
+        }
+
+        set_disp_num(i);
+        disp_lightup(1);
+        for (k = 0; k < 50; ++k);
+        if (!fullFlag) break;
     }
-
-    if(eol) {
-        set_seg_char(' ');
-    } else {
-        set_seg_char(c);
-    }
-
-    set_disp_num(i);
-    disp_lightup(1);
-    for (k = 0; k < 100; ++k);
     disp_lightup(0);
     
-    i = (i+1)%DISPLAY_COUNT;
+    if (!fullFlag)
+        i = (i+1)%DISPLAY_COUNT;
 }
 
 void display_set(const char *str) {

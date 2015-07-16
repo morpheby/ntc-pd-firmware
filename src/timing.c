@@ -4,7 +4,7 @@
 #include "menu.h"
 #include "util.h"
 
-#define MAIN_TIMER_PERIOD_DFLT 8192
+#define MAIN_TIMER_PERIOD_DFLT 65535
 
 // System time in nanoseconds
 static _SystemTime _systemTime = {0, 0};
@@ -17,7 +17,7 @@ void timing_init() {
     T1CONbits.TGATE = 0;    // Don't use Gated Timer mode
     T1CONbits.TSYNC = 0;    // 1 - Synchronize external clock input, 0 - Don't synchronize
                             // When TCS=0 - unused
-    T1CONbits.TCKPS = 0b00; // Prescaler:
+    T1CONbits.TCKPS = 0b01; // Prescaler:
                             // 00 - 1:1
                             // 01 - 1:8
                             // 10 - 1:64
@@ -242,7 +242,6 @@ void _ISR_NOPSV _T1Interrupt(void) {
     
     disp_draw();
     menu_worker();
-    display_update();
     IFS0bits.T1IF = 0;
 }
 

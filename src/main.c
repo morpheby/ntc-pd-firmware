@@ -157,6 +157,9 @@ int16_t main() {
         // Call application-end function
         MAIN_CALL_LOOP_FN();
         
+        // Update display
+        display_update(1);
+        
         // Clear WDT flag to indicate normal operation
         wdt_clr();
     }
