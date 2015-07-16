@@ -36,5 +36,5 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
     MB.QEI_POS = POSCNT;
-    disp_puti(0, POSCNT);
+    disp_puti(0, timing_get_time_msecs()%10000);
 }
