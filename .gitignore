@@ -2,6 +2,7 @@ Makefile
 
 build/
 dist/
+disassembly/
 
 #ignore thumbnails created by windows
 Thumbs.db
@@ -36,4 +37,5 @@ src/nbproject/*.mk
 src/nbproject/Makefile*
 src/nbproject/*.bash
 src/nbproject/private/
+
 

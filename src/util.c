@@ -5,7 +5,7 @@ unsigned pow_fast(unsigned val, unsigned pow) {
 	unsigned res = 1;
 	while (pow>0) {
 		if (pow%2 == 0) {
-			pow >> 1;
+			pow >>= 1;
 			val *= val;
 		} else {
 			pow -= 1;
