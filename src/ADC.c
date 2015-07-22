@@ -2,31 +2,17 @@
 #include "ADC.h"
 #include "system.h"
 #include "board-config.h"
+#include <math.h>
 
-struct ADC
-{
-    unsigned int *bufferPointer;
-    uint8_t channelIndex;
-    uint16_t sourceValue;
-    float processedValue;
-};
+static float ADC4Sum;
+static float ADC5Sum;
+static float ADC6Sum;
 
-static struct ADC adc[MAX_ADC_CHANNEL_COUNT];
+static float ADC4SumSq;
+static float ADC5SumSq;
+static float ADC6SumSq;
 
-void configureADC() {
-    adc[0].bufferPointer = &ADC1BUF0;
-    adc[1].bufferPointer = &ADC1BUF1;
-    adc[2].bufferPointer = &ADC1BUF2;
-    adc[3].bufferPointer = &ADC1BUF3;
-    adc[4].bufferPointer = &ADC1BUF4;
-    adc[5].bufferPointer = &ADC1BUF5;
-    adc[6].bufferPointer = &ADC1BUF6;
-
-    uint8_t i = 0;
-    for(i = 0; i < MAX_ADC_CHANNEL_COUNT; ++i) {
-        adc[i].channelIndex = i;
-    }
-}
+int iterationsCount;
 
 void ADC_Init(_Bool ad_12b) {
     // Setup pins as inputs
@@ -93,7 +79,7 @@ void ADC_Init(_Bool ad_12b) {
     AD1CSSLbits.CSS4 = ADC_4_ENABLE;
     AD1CSSLbits.CSS5 = ADC_5_ENABLE;
     AD1CSSLbits.CSS6 = ADC_6_ENABLE;
-
+    
     if (ad_12b) {
         //SCAN AN0-AN6
         AD1CON2bits.CSCNA = 1; 
@@ -144,30 +130,53 @@ void ADC_Init(_Bool ad_12b) {
     AD1CON1bits.ADON=1;
 
     setFilterType(AVG_VALUE_FILTER);
-    configureADC();
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-   MB.A0=doFilter(ADC1BUF0,0);
-   MB.A1=doFilter(ADC1BUF1,1);
-   MB.A2=doFilter(ADC1BUF2,2);
-   MB.A3=doFilter(ADC1BUF3,3);
-   MB.A4=doFilter(ADC1BUF4,4);
-   MB.A5=doFilter(ADC1BUF5,5);
-   MB.A6=doFilter(ADC1BUF6,6);
-
-//   uint8_t i = 0;
-//   for(i = 0; i < MAX_ADC_CHANNEL_COUNT; ++i) {
-//       adc[i].sourceValue=doFilter(*adc[i].bufferPointer,adc[i].channelIndex);
-//   }
-
-//   MB.ADC0=((int)adc[0].sourceValue - MB.OFS_ADC0)*MB.K0;   //AN6
-//   MB.ADC1=((int)adc[1].sourceValue - MB.OFS_ADC1)*MB.K1;   //AN3
-//   MB.ADC2=((int)adc[2].sourceValue - MB.OFS_ADC2)*MB.K2;   //AN4
-//   MB.ADC3=((int)adc[3].sourceValue - MB.OFS_ADC3)*MB.K3;   //AN5
-//   MB.ADC4=((int)adc[4].sourceValue - MB.OFS_ADC4)*MB.K4;   //AN0
-//   MB.ADC5=((int)adc[5].sourceValue - MB.OFS_ADC5)*MB.K5;   //AN1
-//   MB.ADC6=((int)adc[6].sourceValue - MB.OFS_ADC6)*MB.K6;   //AN2
-
+    MB.A0=doFilter(ADC1BUF0,0);
+    MB.A1=doFilter(ADC1BUF1,1);
+    MB.A2=doFilter(ADC1BUF2,2);
+    MB.A3=doFilter(ADC1BUF3,3);
+    MB.A4=doFilter(ADC1BUF4,4);
+    MB.A5=doFilter(ADC1BUF5,5);
+    MB.A6=doFilter(ADC1BUF6,6);
+   
+    MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
+    MB.ADC1 = (MB.A1 - MB.OFS_ADC1)*MB.K1;
+    MB.ADC2 = (MB.A2 - MB.OFS_ADC2)*MB.K2;
+    MB.ADC3 = (MB.A3 - MB.OFS_ADC3)*MB.K3;
+    MB.ADC4 = (MB.A4 - MB.OFS_ADC4)*MB.K4;
+    MB.ADC5 = (MB.A5 - MB.OFS_ADC5)*MB.K5;
+    MB.ADC6 = (MB.A6 - MB.OFS_ADC6)*MB.K6;
+        
+    ADC4Sum += MB.ADC4;
+    ADC5Sum += MB.ADC5;
+    ADC6Sum += MB.ADC6;
+    
+    ADC4SumSq += (MB.ADC4*MB.ADC4);
+    ADC5SumSq += (MB.ADC5*MB.ADC5);
+    ADC6SumSq += (MB.ADC6*MB.ADC6);
+    
+    iterationsCount++;
+    if(iterationsCount>MB.N)
+    {
+        MB.AD4_AVG = ADC4Sum / MB.N;
+        MB.AD5_AVG = ADC5Sum / MB.N;
+        MB.AD6_AVG = ADC6Sum / MB.N;
+                
+        MB.AD4_RMS = sqrt(ADC4SumSq / MB.N);
+        MB.AD5_RMS = sqrt(ADC5SumSq / MB.N);
+        MB.AD6_RMS = sqrt(ADC6SumSq / MB.N);
+        
+        iterationsCount = 0;
+        ADC4Sum = 0;
+        ADC5Sum = 0;
+        ADC6Sum = 0;
+        
+        ADC4SumSq = 0;
+        ADC5SumSq = 0;
+        ADC6SumSq = 0;
+    }
+      
    IFS0bits.AD1IF=0;
 }
