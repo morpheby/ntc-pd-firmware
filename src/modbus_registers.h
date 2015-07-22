@@ -142,21 +142,21 @@ void modbus_mmap_free();
 
 #define REG_channel_num_U      107, i16
 #define REG_imp_kol            108, i16
-#define REG_V                  109, i16
-#define REG_D_Out_Init         110, i16
-#define REG_AD_12b             111, i16
+#define REG_V                  109, f
+#define REG_D_Out_Init         111, i16
+#define REG_AD_12b             112, i16
 
-#define REG_Control0           112, i16
-#define REG_Status0            113, i16
+#define REG_Control0           113, i16
+#define REG_Status0            114, i16
 
-#define REG_Power0             114, i16
-#define REG_Position0          115, i16
-#define REG_Position1          116, i16
-#define REG_PositionK0         117, f
+#define REG_Power0             115, i16
+#define REG_Position0          116, i16
+#define REG_Position1          117, i16
+#define REG_PositionK0         118, f
 
-#define REG_QEI_POS         119, u16
+#define REG_QEI_POS         120, u16
 
-#define MODBUS_DATA_END        120
+#define MODBUS_DATA_END        121
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
