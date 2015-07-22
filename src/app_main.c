@@ -19,6 +19,8 @@
 
 #include "quadrature_encoder.h"
 #include  "menu-base.h"
+#include "PWM.h"
+#include "ind_profiles.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -30,11 +32,11 @@ void app_init() {
         //set up default values
     }
     initQEI();
+    initPWM();
 }
 
 MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
-    MB.QEI_POS = POSCNT;
-    disp_puti(0, timing_get_time_msecs()%10000);
+    ind_showValues();
 }
