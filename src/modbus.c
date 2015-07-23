@@ -98,7 +98,6 @@ void RS_Send(uint16_t offset, unsigned char size, unsigned char ADR, char Op_Cod
        modbus_get_reg_data(i, sz, chunkHold, 1);
        CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz*2);
        uart_send(0, (uint8_t *)chunkHold, sz*2);
-       while (!uart_tx_empty()) {};
    }
    
    CRC_16_Lo = CRC_data_Out & 0xFF;
@@ -221,7 +220,7 @@ void Modbus_RTU() {
                         break;
 
                     case PRESET_MULTIPLE_REGISTERS:
-                        ptr = gc_malloc(count * 2);
+                        ptr = gc_malloct(count * 2);
                         memcpy(ptr, data+7, count*2);
                         modbus_set_reg_data(start, count, (uint16_t *)ptr, 1);
                         gc_free(ptr);

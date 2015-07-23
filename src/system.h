@@ -129,8 +129,9 @@ void garbage_collect_do();
 
 void garbage_collect_reg(void (*gcFuncPtr)());
 
-void *gc_malloc(size_t size);
-void *gc_realloc(void *mem, size_t size);
+void *gc_malloct(size_t size); // Crashes system in case no more memory available
+void *gc_malloc(size_t size); // Returns 0 if no more memory available
+void *gc_realloc(void *mem, size_t size); // Returns 0 if no more memory available
 void gc_free(void *mem);
 
 

@@ -32,7 +32,7 @@ _PERSISTENT uint8_t
 #endif
         *uartTransmitData,
         *uartTransmitPos;
-_PERSISTENT unsigned int uartTransmitLen;
+_PERSISTENT unsigned int uartTransmitLen, uartTransmitBufferSize;
 _Bool uartTXLock;
 _Bool uartSlowModeOn = 0;
 
@@ -89,14 +89,14 @@ void uart_garbage_collect() {
         if(uartBufLen) {
             unsigned char *tmpBuff;
             unsigned int i;
-            tmpBuff = gc_malloc(newSize);
+            tmpBuff = gc_malloct(newSize);
 
             // Copy data to temp buffer
             for(i = 0; uartBufferR != uartBufferW; ++uartBufferR, ++i)
                 tmpBuff[i] = *uartBufferR;
 
             gc_free(uartBufferStart);
-            uartBufferStart = gc_malloc(newSize);
+            uartBufferStart = gc_malloct(newSize);
             /* # - allocated mem; @ - other mem
              *     uartBufferStart       uartBufferEnd
              *     v       <-- newSize -->           v
@@ -117,6 +117,15 @@ void uart_garbage_collect() {
             gc_free(tmpBuff);
         }
     uart_rx_unlock();
+    
+    uart_tx_lock();
+        if (uartTransmitLen == 0 && uartTransmitData) {
+            gc_free(uartTransmitData);
+            uartTransmitBufferSize = 0;
+            uartTransmitData = 0;
+            uartTransmitPos = 0;
+        }
+    uart_tx_unlock();
 }
 
 void uart_start_recieve() {
@@ -188,7 +197,7 @@ void _uart_read_byte() {
             uart_stop_recieve();
             uartBufLen = 0;
             gc_free(bufStartNew);
-            uartBufferStart = gc_malloc(UART_MIN_BUFF_SIZE);
+            uartBufferStart = gc_malloct(UART_MIN_BUFF_SIZE);
             // Reset pointers
             uartBufferEnd = UART_MIN_BUFF_SIZE +
                     (uartBufferR = uartBufferW = uartBufferStart);
@@ -215,7 +224,7 @@ void _uart_read_byte() {
 }
 
 void uart_write_byte() {
-    if(!uartTransmitData)
+    if(!uartTransmitLen)
         // No data. Ignore
         return;
     while(uartTransmitPos < uartTransmitData + uartTransmitLen &&
@@ -233,8 +242,7 @@ void uart_write_byte() {
         // All data was successfully transferred
         // Free the buffer
         uart_tx_lock();
-            gc_free(uartTransmitData);
-            uartTransmitData = uartTransmitPos = 0;
+            uartTransmitPos = uartTransmitData;
             uartTransmitLen = 0;
         uart_tx_unlock();
     }    
@@ -298,6 +306,8 @@ void uart_recieve(unsigned char *data, size_t len) {
 void uart_send(uint8_t addr, const unsigned char *data, size_t len) {
     size_t oldDataLen = uartTransmitLen;
     ptrdiff_t dataPosOffset = uartTransmitPos - uartTransmitData;
+    uint8_t *uartTransmitDataNew;
+    size_t uartTransmitBufferSizeNew;
 
     // Expand (or allocate) buffer to hold new data
     uart_tx_lock();
@@ -305,13 +315,31 @@ void uart_send(uint8_t addr, const unsigned char *data, size_t len) {
 #if UART_USE_9BIT_MODE
         uartTransmitLen += 3;
 #endif
-        uartTransmitData = gc_realloc(uartTransmitData,
+        if (uartTransmitBufferSize < uartTransmitLen) {
+            do {
+                uartTransmitBufferSizeNew = uartTransmitLen;
+                uartTransmitDataNew = gc_realloc(uartTransmitData,
 #if UART_USE_9BIT_MODE
-                uartTransmitLen*sizeof(uint16_t));
+                    uartTransmitBufferSizeNew*sizeof(uint16_t));
 #else
-                uartTransmitLen*sizeof(uint8_t));
+                    uartTransmitBufferSizeNew*sizeof(uint8_t));
 #endif
-        uartTransmitPos = uartTransmitData + dataPosOffset;
+                if (!uartTransmitDataNew) {
+                    if (oldDataLen != 0) {
+                        uart_tx_unlock();
+                        while(!uart_tx_empty()) {}
+                        uart_tx_lock();
+                    } else {
+                        system_fail(_StrNoMemory);
+                    }
+                }
+            } while (!uartTransmitDataNew);
+            
+            uartTransmitData = uartTransmitDataNew;
+            uartTransmitBufferSize = uartTransmitBufferSizeNew;
+            
+            uartTransmitPos = uartTransmitData + dataPosOffset;
+        }
         
 #if UART_USE_9BIT_MODE
         // Put address (twice)
@@ -418,7 +446,7 @@ void uart_init() {
         uart_set_addr(UART_NO_ADDR);
 
         // allocate buffer
-        uartBufferStart = gc_malloc(UART_MIN_BUFF_SIZE);
+        uartBufferStart = gc_malloct(UART_MIN_BUFF_SIZE);
         uartBufferEnd = UART_MIN_BUFF_SIZE +
                 (uartBufferR = uartBufferW = uartBufferStart);
         uartBufLen = 0;
@@ -441,7 +469,7 @@ void uart_init() {
         gc_free(uartTransmitData);
     if(reset_is_cold() || uartTXLock) {
         uartTransmitData = uartTransmitPos = 0;
-        uartTransmitLen = 0;
+        uartTransmitLen = uartTransmitBufferSize = 0;
 
         uartTXLock = 0;
     }

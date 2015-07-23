@@ -8,7 +8,7 @@
 #include "system.h"
 #include <stdlib.h>
 
-#define LIST_MALLOC   gc_malloc
+#define LIST_MALLOC   gc_malloct
 #define LIST_REALLOC gc_realloc
 #define LIST_FREE    gc_free
 

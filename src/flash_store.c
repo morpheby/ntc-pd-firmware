@@ -86,7 +86,7 @@ void SECURE _flash_preconf_erase() {
 }
 
 void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
-    _FlashOp *operation = gc_malloc(sizeof(_FlashOp));
+    _FlashOp *operation = gc_malloct(sizeof(_FlashOp));
     operation->pageNum = page;
     operation->offset  = offset;
     operation->value   = value;
@@ -208,7 +208,7 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
     } while(list_iterate_fwd(j));
     list_iterator_free(j);
 
-    ops = gc_malloc(sizeof(_FlashOp)*k);
+    ops = gc_malloct(sizeof(_FlashOp)*k);
 
     k = 0;
     j = list_begin(pageGroup);
@@ -301,7 +301,7 @@ void _flashop_free(_FlashOp *op) {
 }
 
 _FlashOp *_flashop_copy(const _FlashOp *op) {
-    _FlashOp *newOp = gc_malloc(sizeof(_FlashOp));
+    _FlashOp *newOp = gc_malloct(sizeof(_FlashOp));
     *newOp = *op;
     return newOp;
 }
