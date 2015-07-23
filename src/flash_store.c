@@ -69,7 +69,7 @@ void SECURE _flash_start() {
     );
 }
 
-inline _Bool _flash_ok() {
+SECURE _Bool _flash_ok() {
     return !NVMCONbits.WRERR;
 }
 
@@ -79,7 +79,7 @@ void SECURE _flash_preconf_row() {
     NVMCONbits.NVMOP = 0b0001;  // Single row write
 }
 
-void _flash_preconf_erase() {
+void SECURE _flash_preconf_erase() {
     NVMCONbits.WREN = 1;        // Enable write
     NVMCONbits.ERASE = 1;       // Erase
     NVMCONbits.NVMOP = 0b0010;  // Single page erase
@@ -101,13 +101,13 @@ int SECURE _flash_program_row() {
 }
 
 /* Returns 0 if successful */
-int _flash_erase_page() {
+int SECURE _flash_erase_page() {
     _flash_preconf_erase();   // Configure flashing operation
     _flash_start();           // Flash
     return !_flash_ok();
 }
 
-int flash_erase_page(unsigned char page, unsigned int offset) {
+int SECURE flash_erase_page(unsigned char page, unsigned int offset) {
     TBLPAG = page;
     __builtin_tblwtl(offset, 0);
     return _flash_erase_page();
