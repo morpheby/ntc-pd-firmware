@@ -3,6 +3,9 @@
 #include "util.h"
 #include <stdlib.h>
 #include <string.h>
+#include "app_connector.h"
+
+#if APP_USE_LED_DISP
 
 #define STR_STILL_COUNT_MLT 290
 #define STR_SCROLL_COUNT 250
@@ -39,13 +42,17 @@ void disp_draw() {
     int i, j;
     static char display[DISPLAY_COUNT+1];
     static int sharedDispStart = -1, sharedDispEnd = 0;
+#if APP_USE_LED_ANIMATIONS
     static _Bool aniInProgress = 0, aniFlag = 0;
-
+#endif
+    
 //    display[DISPLAY_COUNT] = 0;
     if(dispChngFlag) {
         dispChngFlag = 0;
 
+#if APP_USE_LED_ANIMATIONS
         aniInProgress = 0;
+#endif
 
         for(i = 0; i < SECTION_COUNT; ++i) {
             if(dispStr) {
@@ -67,6 +74,7 @@ void disp_draw() {
         return;
     }
 
+#if APP_USE_LED_ANIMATIONS
     if(dispAniActive) {
         if(!aniInProgress) {
 //            dispShowState = -dispAniActive *
@@ -88,16 +96,20 @@ void disp_draw() {
         aniInProgress = 0;
         aniFlag = 0;
     }
+#endif
 
     if(dispStr)
         for(i = sharedDispStart, j = dispShowState; i < sharedDispEnd; ++i, ++j)
             if( 0 <= j && j < dispStrSz )
                 display[i] = dispStr[j];
+#if APP_USE_LED_ANIMATIONS
             else if(!aniInProgress)
                 display[i] = ' ';
+#endif
 
     display_set(display);
 
+#if APP_USE_LED_ANIMATIONS
     if(dispAniActive) {
         if(dispShowState != 0) {
             if(dispCounter >= STR_SCROLLFAST_COUNT) {
@@ -127,6 +139,7 @@ void disp_draw() {
         dispShowState = 0;
         dispCounter = 0;
     }
+#endif
 }
 
 void itoa_s4(char *buf, int val) {
@@ -255,3 +268,26 @@ void disp_putd(uint8_t dispNum, double d) {
 void disp_putld(uint8_t dispNum, long double ld) {
     disp_putd(dispNum, ld);
 }
+
+#else
+
+void disp_config() {}
+void disp_draw() {}
+
+void disp_cls() {}
+void disp_set_fixed(uint8_t dispNum) {}
+void disp_set_shareable(uint8_t dispNum) {}
+void disp_fix_point(uint8_t dispNum, int fp) {}
+void disp_puts(const char *str) {}
+void disp_puts_ani(const char *str, int ani) {}
+void disp_puti(uint8_t dispNum, int i) {}
+void disp_putsi(uint8_t dispNum, short int si) {}
+void disp_putli(uint8_t dispNum, long int li) {}
+void disp_putu(uint8_t dispNum, unsigned u) {}
+void disp_putsu(uint8_t dispNum, short unsigned su) {}
+void disp_putlu(uint8_t dispNum, long unsigned lu) {}
+void disp_putf(uint8_t dispNum, float f) {}
+void disp_putd(uint8_t dispNum, double d) {}
+void disp_putld(uint8_t dispNum, long double ld) {}
+
+#endif

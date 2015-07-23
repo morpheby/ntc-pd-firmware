@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <reset.h>
 #include "board-config.h"
+#include <libpic30.h>
 
 #include "mem_pool.h"
 
@@ -118,9 +119,9 @@ void osccon_set_bit(_Bool value, uint8_t bitNum) {
     if(bitNum>7)
         return;
     if(value)
-        val |= value << bitNum;
+        val |= 1 << bitNum;
     else
-        val &= ~ (value << bitNum);
+        val &= ~ (1 << bitNum);
     __builtin_write_OSCCONL(val);
 }
 
@@ -165,7 +166,7 @@ _Bool reset_is_cold() {
 
 void system_lock(uint16_t cycles) {
     SYSHANDLE hPriority = high_priority_enter();
-    while(--cycles);
+    __delay32(cycles);
     high_priority_exit(hPriority);
 }
 
@@ -209,7 +210,10 @@ void *gc_realloc(void *mem, size_t size) {
         newMem = GC_REALLOC(mem, size);
     if(!newMem) {
         garbage_collect_do();
-        newMem = GC_REALLOC(mem, size);
+        if (!mem)
+            newMem = GC_MALLOC(size);
+        else
+            newMem = GC_REALLOC(mem, size);
         if(!newMem)
             system_fail(_StrNoMemory);
     }
@@ -291,13 +295,12 @@ void led_change() {
 
 void led_flash(uint32_t t) {
     t /= 2; // flash-on flash-off
-    t /= 12; // instructions in counter
     uint32_t counter = t;
     if(counter == 0)
         return;
     led_change();
-    while(--counter);
+    __delay32(t);
     led_change();
     counter = t;
-    while(--counter);
+    __delay32(t);
 }

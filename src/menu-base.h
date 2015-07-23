@@ -9,6 +9,7 @@
 #define	MENU_BASE_H
 
 #include "system.h"
+#include "board-config.h"
 #include "display.h"
 
 #define SECTION_COUNT DISPLAY_COUNT/CHARS_IN_SECTION

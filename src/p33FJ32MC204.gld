@@ -158,7 +158,7 @@ SECTIONS
   /*
   ** Separate code section, for use with RTSP operations
   */
-  fixed BLOCK(2048) :
+  .fixed BLOCK(2048) :
   {
         *(.fixed);
         . = ALIGN(2048);

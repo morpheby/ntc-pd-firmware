@@ -1,26 +1,49 @@
 
 #include "display.h"
+#include "app_connector.h"
 #include "string.h"
+#include "board-config.h"
+#include <libpic30.h>
 
-#define SEG_DRV_SDI_PIN_TYPE    B
-#define SEG_DRV_SDI_PIN_NUM     14
-#define SEG_DRV_CLK_PIN_TYPE    A
-#define SEG_DRV_CLK_PIN_NUM     7
-#define SEG_DRV_OE_PIN_TYPE     B
-#define SEG_DRV_OE_PIN_NUM      15
-#define SEG_DRV_LE_PIN_TYPE     A
-#define SEG_DRV_LE_PIN_NUM      10
+#if HAS_LED_DISPLAY
+
+#define SEG_DRV_SDI_PIN_TYPE    C
+#define SEG_DRV_SDI_PIN_NUM     9
+#define SEG_DRV_CLK_PIN_TYPE    C
+#define SEG_DRV_CLK_PIN_NUM     8
+//#define SEG_DRV_OE_PIN_TYPE     B
+//#define SEG_DRV_OE_PIN_NUM      15
+#define SEG_DRV_LE_PIN_TYPE     B
+#define SEG_DRV_LE_PIN_NUM      9
 
 #define SEG_DRV_5V 0
 
-#define DISP_DRV_A_PIN_TYPE     B
-#define DISP_DRV_A_PIN_NUM      13
-#define DISP_DRV_B_PIN_TYPE     B
-#define DISP_DRV_B_PIN_NUM      12
-#define DISP_DRV_C_PIN_TYPE     B
-#define DISP_DRV_C_PIN_NUM      11
-#define DISP_DRV_D_PIN_TYPE     B
-#define DISP_DRV_D_PIN_NUM      10
+
+#define DISP_DRV_B0_PIN_TYPE     B
+#define DISP_DRV_B0_PIN_NUM      8
+#define DISP_DRV_B1_PIN_TYPE     B
+#define DISP_DRV_B1_PIN_NUM      7
+#define DISP_DRV_B2_PIN_TYPE     B
+#define DISP_DRV_B2_PIN_NUM      6
+#define DISP_DRV_B3_PIN_TYPE     B
+#define DISP_DRV_B3_PIN_NUM      5
+#define DISP_DRV_B4_PIN_TYPE     A
+#define DISP_DRV_B4_PIN_NUM      9
+#define DISP_DRV_B5_PIN_TYPE     A
+#define DISP_DRV_B5_PIN_NUM      4
+#define DISP_DRV_B6_PIN_TYPE     B
+#define DISP_DRV_B6_PIN_NUM      4
+#define DISP_DRV_B7_PIN_TYPE     A
+#define DISP_DRV_B7_PIN_NUM      8
+#define DISP_DRV_B8_PIN_TYPE     A
+#define DISP_DRV_B8_PIN_NUM      7
+#define DISP_DRV_B9_PIN_TYPE     A
+#define DISP_DRV_B9_PIN_NUM      10
+#define DISP_DRV_B10_PIN_TYPE    B
+#define DISP_DRV_B10_PIN_NUM     13
+#define DISP_DRV_B11_PIN_TYPE    B
+#define DISP_DRV_B11_PIN_NUM     12
+
 
 #define _SEG_DRV_TRIS(type) TRIS_BIT(SEG_DRV_##type##_PIN_TYPE, \
                                   SEG_DRV_##type##_PIN_NUM)
@@ -39,51 +62,75 @@
 #define SEG_DRV_OE     _SEG_DRV_LATCH(OE)
 #define SEG_DRV_LE     _SEG_DRV_LATCH(LE)
 
-#define DISP_DRV_A     _DISP_DRV_LATCH(A)
-#define DISP_DRV_B     _DISP_DRV_LATCH(B)
-#define DISP_DRV_C     _DISP_DRV_LATCH(C)
-#define DISP_DRV_D     _DISP_DRV_LATCH(D)
-
 void set_disp_num(uint8_t num);
 void disp_lightup(_Bool on);
 void set_seg_char(char c);
 void _set_disp_direct(uint8_t num);
 void _set_segment_pattern(uint8_t pattern);
 
-const uint8_t _dispMap[DISPLAY_COUNT] = {
-//0  1  2  3  4  5  6   7   8  9 10  11
-  9, 3, 5, 7, 6, 4, 1, 15, 10, 0, 2, 8
+const uint8_t _dispMap[] = {
+//0  1  2  3  4  5  6  7  8  9  10  11
+  1, 2, 3, 0, 4, 5, 6, 7, 8, 9, 10, 11
 };
 
 const uint8_t _segMap[256] = {
     /*  0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F  */
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 0
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 1
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x20, 0x00, // 2
-       0xDB, 0x82, 0x9D, 0x9E, 0xC6, 0x5E, 0x5F, 0x8A, 0xDF, 0xDE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 3
-       0x00, 0xCF, 0x57, 0x59, 0x97, 0x5D, 0x4D, 0x5B, 0x47, 0x41, 0x92, 0xC7, 0x51, 0xCB, 0x07, 0x17, // 4
-       0xCD, 0xCE, 0x05, 0x5E, 0x55, 0xD3, 0x13, 0xD7, 0xC3, 0xD6, 0x9D, 0x00, 0x00, 0x00, 0x00, 0x10, // 5
-       0x00, 0xCF, 0x57, 0x59, 0x97, 0x5D, 0x4D, 0x5B, 0x47, 0x41, 0x92, 0xC7, 0x51, 0xCB, 0x07, 0x17, // 6
-       0xCD, 0xCE, 0x05, 0x5E, 0x55, 0x13, 0xD3, 0xD7, 0xC3, 0xD6, 0x9D, 0x00, 0x00, 0x00, 0x00, 0x00, // 7
-         /* All ASCII chars higher than 0x80 are substituted by equal chars from 0x00-0x7F plus dot */
-       0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 9
-       0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x20, 0x00, // A
-       0xFB, 0xA2, 0xBD, 0xBE, 0xE6, 0x7E, 0x7F, 0xAA, 0xFF, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // B
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // C
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // D
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // E
-       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // F
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x01, 0x00,
+    0xF6, 0x24, 0xBA, 0x3E, 0x6C, 0x5E, 0xDE, 0x34, 0xFE, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0xFC, 0xCE, 0xD2, 0xAE, 0xDA, 0xD8, 0xD6, 0xCC, 0xC0, 0x26, 0xEC, 0xC2, 0xF4, 0x8C, 0x8E,
+    0xF8, 0x7C, 0x88, 0x5E, 0xCA, 0xE6, 0x86, 0xEE, 0xE4, 0x6E, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x02,
+    0x00, 0xFC, 0xCE, 0xD2, 0xAE, 0xDA, 0xD8, 0xD6, 0xCC, 0xC0, 0x26, 0xEC, 0xC2, 0xF4, 0x8C, 0x8E,
+    0xF8, 0x7C, 0x88, 0x5E, 0xCA, 0x86, 0xE6, 0xEE, 0xE4, 0x6E, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00,
+     /* All ASCII chars higher than 0x80 are substituted by equal chars from 0x00-0x7F plus dot */
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09, 0x01, 0x00,
+    0xF7, 0x25, 0xBB, 0x3F, 0x6D, 0x5F, 0xDF, 0x35, 0xFF, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     /*  0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F  */
 };
 
-char dispBuff[24] = "OPQRSTUVWXYZ";
+char dispBuff[24] = "4567STUVWXYZ";
+
+#define A_A 1
+#define A_B 0
+#define A_C 0
+#define B_A 0
+#define B_B 1
+#define B_C 0
+#define C_A 0
+#define C_B 0
+#define C_C 1
+#define __X(x, t) x##_##t
+#define X(x, t) __X(x, t)
+
+#define MASK_HELPER(x, t) (IF_ELSE(X(DISP_DRV_##t##_PIN_TYPE, x), 1<<DISP_DRV_##t##_PIN_NUM, 0))
+const static long MASKA = 0
+    | MASK_HELPER(A, B0) | MASK_HELPER(A, B1) | MASK_HELPER(A, B2)
+    | MASK_HELPER(A, B3) | MASK_HELPER(A, B4) | MASK_HELPER(A, B5)
+    | MASK_HELPER(A, B6) | MASK_HELPER(A, B7) | MASK_HELPER(A, B8)
+    | MASK_HELPER(A, B9) | MASK_HELPER(A, B10)| MASK_HELPER(A, B11);
+const static long MASKB = 0
+    | MASK_HELPER(B, B0) | MASK_HELPER(B, B1) | MASK_HELPER(B, B2)
+    | MASK_HELPER(B, B3) | MASK_HELPER(B, B4) | MASK_HELPER(B, B5)
+    | MASK_HELPER(B, B6) | MASK_HELPER(B, B7) | MASK_HELPER(B, B8)
+    | MASK_HELPER(B, B9) | MASK_HELPER(B, B10)| MASK_HELPER(B, B11);
+const static long MASKC = 0
+    | MASK_HELPER(C, B0) | MASK_HELPER(C, B1) | MASK_HELPER(C, B2)
+    | MASK_HELPER(C, B3) | MASK_HELPER(C, B4) | MASK_HELPER(C, B5)
+    | MASK_HELPER(C, B6) | MASK_HELPER(C, B7) | MASK_HELPER(C, B8)
+    | MASK_HELPER(C, B9) | MASK_HELPER(C, B10)| MASK_HELPER(C, B11);
 
 void disp_init() {
     /* Set segment-driver outputs */
     _SEG_DRV_TRIS(SDI) = 0;
     _SEG_DRV_TRIS(CLK) = 0;
-    _SEG_DRV_TRIS(OE) = 0;
+//    _SEG_DRV_TRIS(OE) = 0;
     _SEG_DRV_TRIS(LE) = 0;
 #if SEG_DRV_5V
     _SEG_DRV_ODC(SDI) = 1;
@@ -95,17 +142,29 @@ void disp_init() {
     disp_lightup(0);
 
     /* Set display-driver outputs */
-    _DISP_DRV_TRIS(A) = 0;
-    _DISP_DRV_TRIS(B) = 0;
-    _DISP_DRV_TRIS(C) = 0;
-    _DISP_DRV_TRIS(D) = 0;
+    TRISA &= ~MASKA;
+    TRISB &= ~MASKB;
+    TRISC &= ~MASKC;
 }
 
 void _set_disp_direct(uint8_t num) {
-    DISP_DRV_A = (num & 1) != 0;
-    DISP_DRV_B = (num & 2) != 0;
-    DISP_DRV_C = (num & 4) != 0;
-    DISP_DRV_D = (num & 8) != 0;
+    LATA |= MASKA;
+    LATB |= MASKB;
+    LATC |= MASKC;
+    switch(num) {
+        case 0: _DISP_DRV_LATCH(B0) = 0; break;
+        case 1: _DISP_DRV_LATCH(B1) = 0; break;
+        case 2: _DISP_DRV_LATCH(B2) = 0; break;
+        case 3: _DISP_DRV_LATCH(B3) = 0; break;
+        case 4: _DISP_DRV_LATCH(B4) = 0; break;
+        case 5: _DISP_DRV_LATCH(B5) = 0; break;
+        case 6: _DISP_DRV_LATCH(B6) = 0; break;
+        case 7: _DISP_DRV_LATCH(B7) = 0; break;
+        case 8: _DISP_DRV_LATCH(B8) = 0; break;
+        case 9: _DISP_DRV_LATCH(B9) = 0; break;
+        case 10:_DISP_DRV_LATCH(B10)= 0; break;
+        case 11:_DISP_DRV_LATCH(B11)= 0; break;
+    }
 }
 
 void set_disp_num(uint8_t num) {
@@ -113,7 +172,9 @@ void set_disp_num(uint8_t num) {
 }
 
 void disp_lightup(_Bool on) {
-    SEG_DRV_OE = !on;
+    if (!on) {
+        _set_disp_direct(-1);
+    }
 }
 
 void set_seg_char(char c) {
@@ -132,26 +193,35 @@ void _set_segment_pattern(uint8_t pattern) {
     SEG_DRV_LE = 0;
 }
 
-void display_update() {
-    int i;
-    unsigned k;
+void display_update(_Bool fullFlag) {
+    static int i;
     _Bool eol = 0;
-    for(i = 0; i < DISPLAY_COUNT; ++i) {
+    
+    if (fullFlag) i = 0;
+    for (; i < DISPLAY_COUNT; ++i) {
         disp_lightup(0);
-        set_disp_num(i);
 
         char c = dispBuff[i];
-        if(!c) // EOL reached
+        if(!c) {
+            // EOL reached
             eol = 1;
-        
-        if(eol)
+        }
+
+        if(eol) {
             set_seg_char(' ');
-        else
+        } else {
             set_seg_char(c);
-        
+        }
+
+        set_disp_num(i);
         disp_lightup(1);
-        for(k = 0; k < 50; ++k);
+        __delay32(100);
+        if (!fullFlag) break;
     }
+    disp_lightup(0);
+    
+    if (!fullFlag)
+        i = (i+1)%DISPLAY_COUNT;
 }
 
 void display_set(const char *str) {
@@ -159,22 +229,22 @@ void display_set(const char *str) {
 }
 
 /******************************************************************************/
-/*                      bit 3
+/*                      bit 4
  *                 ==============
  *               //            //
  *              //            //
- *        bit 6//            //bit 7
+ *        bit 6//            //bit 5
  *            //            //
- *           //    bit 2   //
+ *           //    bit 3   //
  *           ==============
  *         //            //
  *        //            //
- *  bit 0//            //bit 1
+ *  bit 7//            //bit 2
  *      //            //
- *     //   bit 4    //
+ *     //   bit 1    //
  *     ==============
  *   O                O
- *  unused           bit 5
+ *  unused           bit 0
  * 
  *   _      _  _       _   _  _   _   _
  *  | |  |  _| _| |_| |_  |_   | |_| |_| _
@@ -189,5 +259,11 @@ void display_set(const char *str) {
  */
  /*****************************************************************************/
 
+#else
 
+void disp_init() {}
+void display_update() {}
+void display_set(const char *str) {}
+
+#endif
 

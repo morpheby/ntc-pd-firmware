@@ -9,13 +9,14 @@
 #define	DISPLAY_H
 
 #include "system.h"
+#include "board-config.h"
 
-#define DISPLAY_COUNT   12
-#define CHARS_IN_SECTION 4
 
 void disp_init();
 
-void display_update();
+// fullFlag = true -- perform full display redraw
+// fullFlag = false -- perform single-char update
+void display_update(_Bool fullFlag);
 
 // Accepts 12-char strings
 void display_set(const char *str);
