@@ -66,7 +66,7 @@ void ind_showValues()
         disp_puti(0, modbus_get_reg_i16(ind0_regNumber));
     }
     
-    if(DISPLAY_COUNT > 1) {
+    if(DISPLAY_COUNT/CHARS_IN_SECTION > 1) {
         //show value on display #1
         if(ind1_reg_type == REG_TYPE_FLOAT) {
             uint8_t ind1_point = ind1_profile & 0x000F;
@@ -83,7 +83,7 @@ void ind_showValues()
         }        
     }
     
-    if(DISPLAY_COUNT > 2) {
+    if(DISPLAY_COUNT/CHARS_IN_SECTION > 2) {
         //show value on display #2
         if(ind2_reg_type == REG_TYPE_FLOAT) {
             uint8_t ind2_point = ind2_profile & 0x000F;
