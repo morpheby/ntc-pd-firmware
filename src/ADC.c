@@ -2,6 +2,7 @@
 #include "ADC.h"
 #include "system.h"
 #include "board-config.h"
+#include "ipl-config.h"
 #include <math.h>
 
 static float ADC4Sum;
@@ -124,7 +125,7 @@ void ADC_Init(_Bool ad_12b) {
     IFS0bits.AD1IF=0;
     
     // Set interrupt priority
-    IPC3bits.AD1IP=7;
+    IPC3bits.AD1IP=IPL_ADC_DATAR;
     
     // Start ADC
     AD1CON1bits.ADON=1;

@@ -38,5 +38,4 @@ void app_init() {
 MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
-    ind_showValues();
 }
