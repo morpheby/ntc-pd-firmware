@@ -47,7 +47,7 @@ CNI_DECL_PROC_FN(29, on) {
     static int counter = 0;
     static long int last_time = 0xEFFFFFFFL;
     
-    if (!on && (counter || timing_get_time_low() > last_time+1000000L)) {
+    if (!on && (counter || timing_get_time_low() > last_time+150000000L)) {
         value |= discrete_get_input_bit(3) << counter;
         ++counter;
         if (counter == 24) {

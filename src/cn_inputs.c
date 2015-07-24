@@ -4,7 +4,7 @@
 #include "board-config.h"
 #include "app_connector.h"
 
-#define CNI_THRESHOLD            0
+#define CNI_THRESHOLD            20
 
 #define CNI_0_PIN_NUM            4
 #define CNI_0_PIN_TYPE           A
