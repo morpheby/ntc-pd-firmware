@@ -91,7 +91,7 @@ uint8_t cpu_ipl_set(int ipl) {
 }
 
 SYSHANDLE high_priority_enter() {
-    uint16_t *i = gc_malloc(sizeof(uint16_t));
+    uint16_t *i = gc_malloct(sizeof(uint16_t));
     uint8_t prevIPL = cpu_ipl_set(HIGHEST_PRIORITY);
     *i = ((MAGIC ^ prevIPL) << 8) | prevIPL; // secure handle
     return i;
@@ -180,7 +180,7 @@ void garbage_collect_do() {
 }
 
 void garbage_collect_reg(void (*gcFuncPtr)()) {
-    _GCFuncList *newElem = gc_malloc(sizeof(_GCFuncList));
+    _GCFuncList *newElem = gc_malloct(sizeof(_GCFuncList));
 
     newElem->gcFPtr = gcFuncPtr;
     newElem->prev   = gcFuncs;
@@ -192,16 +192,23 @@ void garbage_collect_init() {
     gcFuncs = 0;
 }
 
+void *gc_malloct(size_t size) {
+    void *mem = gc_malloc(size);
+    if(!mem)
+        system_fail(_StrNoMemory);
+    else
+        return mem;
+}
+
 void *gc_malloc(size_t size) {
     void *mem = GC_MALLOC(size);
     if(!mem) {
         garbage_collect_do();
         mem = GC_MALLOC(size);
-        if(!mem)
-            system_fail(_StrNoMemory);
     }
     return mem;
 }
+
 void *gc_realloc(void *mem, size_t size) {
     void *newMem;
     if(!mem)
@@ -214,8 +221,6 @@ void *gc_realloc(void *mem, size_t size) {
             newMem = GC_MALLOC(size);
         else
             newMem = GC_REALLOC(mem, size);
-        if(!newMem)
-            system_fail(_StrNoMemory);
     }
     return newMem;
 }

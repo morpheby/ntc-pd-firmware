@@ -10,5 +10,10 @@
 
 void initQEI();
 
-#endif	/* QUADRATURE_ENCODER_H */
+//get mesured speed in radians per second;
+float getSpeedRadS();
 
+//get mesured speed in rotations per second;
+float getSpeedRotS();
+
+#endif	/* QUADRATURE_ENCODER_H */

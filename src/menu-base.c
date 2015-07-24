@@ -186,7 +186,7 @@ void _disp_puts(const char *str) {
     if(dispStr)
         gc_free(dispStr);
     dispStrSz = strlen(str);
-    dispStr = gc_malloc(dispStrSz+1);
+    dispStr = gc_malloct(dispStrSz+1);
     strcpy(dispStr, str);
 }
 

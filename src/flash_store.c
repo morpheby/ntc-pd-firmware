@@ -69,7 +69,7 @@ void SECURE _flash_start() {
     );
 }
 
-inline _Bool _flash_ok() {
+SECURE _Bool _flash_ok() {
     return !NVMCONbits.WRERR;
 }
 
@@ -79,14 +79,14 @@ void SECURE _flash_preconf_row() {
     NVMCONbits.NVMOP = 0b0001;  // Single row write
 }
 
-void _flash_preconf_erase() {
+void SECURE _flash_preconf_erase() {
     NVMCONbits.WREN = 1;        // Enable write
     NVMCONbits.ERASE = 1;       // Erase
     NVMCONbits.NVMOP = 0b0010;  // Single page erase
 }
 
 void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
-    _FlashOp *operation = gc_malloc(sizeof(_FlashOp));
+    _FlashOp *operation = gc_malloct(sizeof(_FlashOp));
     operation->pageNum = page;
     operation->offset  = offset;
     operation->value   = value;
@@ -101,13 +101,13 @@ int SECURE _flash_program_row() {
 }
 
 /* Returns 0 if successful */
-int _flash_erase_page() {
+int SECURE _flash_erase_page() {
     _flash_preconf_erase();   // Configure flashing operation
     _flash_start();           // Flash
     return !_flash_ok();
 }
 
-int flash_erase_page(unsigned char page, unsigned int offset) {
+int SECURE flash_erase_page(unsigned char page, unsigned int offset) {
     TBLPAG = page;
     __builtin_tblwtl(offset, 0);
     return _flash_erase_page();
@@ -208,7 +208,7 @@ int SECURE flash_writepage(_ListHandle pageGroup) {
     } while(list_iterate_fwd(j));
     list_iterator_free(j);
 
-    ops = gc_malloc(sizeof(_FlashOp)*k);
+    ops = gc_malloct(sizeof(_FlashOp)*k);
 
     k = 0;
     j = list_begin(pageGroup);
@@ -301,7 +301,7 @@ void _flashop_free(_FlashOp *op) {
 }
 
 _FlashOp *_flashop_copy(const _FlashOp *op) {
-    _FlashOp *newOp = gc_malloc(sizeof(_FlashOp));
+    _FlashOp *newOp = gc_malloct(sizeof(_FlashOp));
     *newOp = *op;
     return newOp;
 }
