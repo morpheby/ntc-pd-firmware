@@ -47,6 +47,7 @@ MAIN_DECL_LOOP_FN() {
     }
     
     discrete_set_output_bit((_Bool)(MB.Control0 & 0x02), 2);
+    MB.Control0 = 0;
     
     if (MB.D_Out & 0x80) {
         // Override mode
