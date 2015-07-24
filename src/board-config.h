@@ -142,7 +142,7 @@
 // Define to 1 if the display is present, to 0 otherwise
 // Note, that display module is quite heavy, so excluding it will save
 // a lot of memory
-#define HAS_LED_DISPLAY      1
+#define HAS_LED_DISPLAY      0
 // Total character count in LED display module
 #define DISPLAY_COUNT        4
 // Number characters in a single section of LED display module
