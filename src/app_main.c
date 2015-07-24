@@ -36,10 +36,22 @@ void app_init() {
 }
 
 MAIN_DECL_LOOP_FN() {
-    discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
     MB.QEI_POS = POSCNT;
     disp_puti(0, MB.Position0);
+    
+    if (MB.Control0 & 0x01) {
+        PWM_on(MB.Power0);
+    } else {
+        PWM_off();
+    }
+    
+    discrete_set_output_bit((_Bool)(MB.Control0 & 0x02), 2);
+    
+    if (MB.D_Out & 0x80) {
+        // Override mode
+        discrete_set_output(MB.D_Out);
+    }
 }
 
 CNI_DECL_PROC_FN(29, on) {
