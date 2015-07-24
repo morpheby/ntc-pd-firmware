@@ -35,7 +35,6 @@ void app_init() {
     initPWM();
 }
 
-static int ttt = 0;
 MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
@@ -49,7 +48,7 @@ CNI_DECL_PROC_FN(29, on) {
     static long int last_time = 0xEFFFFFFFL;
     
     if (!on && (counter || timing_get_time_low() > last_time+1000000L)) {
-        value |= discrete_get_input_bit(1) << counter;
+        value |= discrete_get_input_bit(3) << counter;
         ++counter;
         if (counter == 24) {
             value = (~value) & 0x0FFFFFFFL;
@@ -60,7 +59,6 @@ CNI_DECL_PROC_FN(29, on) {
 	}
 
     if (!on) {
-        ++ttt;
         last_time = timing_get_time_low();
     }
 }
