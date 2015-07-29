@@ -8,7 +8,9 @@
 #ifndef FILTER_H
 #define	FILTER_H
 
-#include <stdint.h>
+#include "system.h"
+#include "app_connector.h"
+
 
 typedef unsigned int (*FilterFunction_t)(unsigned int, uint8_t);
 
@@ -16,7 +18,8 @@ typedef unsigned int (*FilterFunction_t)(unsigned int, uint8_t);
 unsigned int filter (unsigned int value, uint8_t channel_num);
 
 typedef enum {
-    AVG_VALUE_FILTER
+    AVG_VALUE_FILTER,
+    MEDIAN_FILTER,
 } FilterType;
 
 void setFilterType(FilterType type);

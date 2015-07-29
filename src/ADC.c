@@ -118,8 +118,6 @@ void ADC_Init(_Bool ad_12b) {
     
     // Start ADC
     AD1CON1bits.ADON=1;
-
-    setFilterType(AVG_VALUE_FILTER);
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {

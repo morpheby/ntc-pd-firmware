@@ -1,3 +1,4 @@
+#include "system.h"
 #include "filter.h"
 
 // Input filtering
@@ -18,7 +19,7 @@ unsigned int filter (unsigned int  value, uint8_t channel_num) {
     }
 }
 
-static FilterFunction_t filterFunction = 0;
+static _PERSISTENT FilterFunction_t filterFunction = 0;
 
 void setFilterType(FilterType type) {
     switch(type) {
