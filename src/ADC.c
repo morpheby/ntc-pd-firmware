@@ -3,6 +3,9 @@
 #include "system.h"
 #include "board-config.h"
 #include "ipl-config.h"
+#include "app_connector.h"
+
+ADC_DECL_VALUE_FN(a,b);
 
 void ADC_Init(_Bool ad_12b) {
     // Setup pins as inputs
@@ -121,13 +124,13 @@ void ADC_Init(_Bool ad_12b) {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-    filter_put(ADC1BUF0,0);
-    filter_put(ADC1BUF1,1);
-    filter_put(ADC1BUF2,2);
-    filter_put(ADC1BUF3,3);
-    filter_put(ADC1BUF4,4);
-    filter_put(ADC1BUF5,5);
-    filter_put(ADC1BUF6,6);
+    ADC_CALL_VALUE_FN(0, ADC1BUF0);
+    ADC_CALL_VALUE_FN(1, ADC1BUF1);
+    ADC_CALL_VALUE_FN(2, ADC1BUF2);
+    ADC_CALL_VALUE_FN(3, ADC1BUF3);
+    ADC_CALL_VALUE_FN(4, ADC1BUF4);
+    ADC_CALL_VALUE_FN(5, ADC1BUF5);
+    ADC_CALL_VALUE_FN(6, ADC1BUF6);
       
     IFS0bits.AD1IF=0;
 }

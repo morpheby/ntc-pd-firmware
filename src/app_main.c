@@ -31,13 +31,14 @@
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
-        filter_set_type(FilterTypeMovingMean);
+        filter_set_type(FilterTypeMovingMedian);
     }
     initQEI();
     initPWM();
 }
 
 MAIN_DECL_LOOP_FN() {
+    
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
     
@@ -58,7 +59,7 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC4 = (MB.A4 - MB.OFS_ADC4)*MB.K4;
     MB.ADC5 = (MB.A5 - MB.OFS_ADC5)*MB.K5;
     MB.ADC6 = (MB.A6 - MB.OFS_ADC6)*MB.K6;
-//        
+        
 //    ADC4Sum += MB.ADC4;
 //    ADC5Sum += MB.ADC5;
 //    ADC6Sum += MB.ADC6;
@@ -87,4 +88,8 @@ MAIN_DECL_LOOP_FN() {
 //        ADC5SumSq = 0;
 //        ADC6SumSq = 0;
 //    }
+}
+
+ADC_DECL_VALUE_FN(channel, value) {
+    filter_put(channel, value);
 }

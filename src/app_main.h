@@ -58,6 +58,8 @@
 // Custom processing of discrete outputs. See DIO_DECL_UPDATE_FN
 #define DIO_UPDATE_FN_ENABLE    0
 
+// Custom processing of ADC values. See ADC_DECL_VALUE_FN
+#define ADC_VALUE_FN_ENABLE     1
 
 /*
  * Internal function declarations
