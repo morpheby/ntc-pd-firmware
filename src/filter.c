@@ -1,132 +1,147 @@
 #include "system.h"
-#include "filter.h"
 #include "median.h"
 
-#define CHANNEL_COUNT 7
+#define FILTER_C
+#include "filter.h"
 
-// Input filtering
-static _PERSISTENT long unsigned meanArr[CHANNEL_COUNT];
-static _PERSISTENT Mediator *medians[CHANNEL_COUNT];
-static _PERSISTENT long int rawValue[CHANNEL_COUNT];
 
-typedef void(*FilterInputFunction_t)(unsigned int, uint8_t);
-typedef unsigned int(*FilterOutputFunction_t)(uint8_t);
+typedef void(*FilterInputFunction_t)(Filter *, unsigned int, uint8_t);
+typedef unsigned int(*FilterOutputFunction_t)(Filter *, uint8_t);
+typedef void(*FilterInitFunction_t)(Filter *);
 
-static _PERSISTENT FilterInputFunction_t fFilterInput;
-static _PERSISTENT FilterOutputFunction_t fFilterOutput;
+#define FILTER_T                            \
+    uint8_t channelCount;                   \
+    uint16_t param;                         \
+    FilterInputFunction_t fFilterInput;     \
+    FilterOutputFunction_t fFilterOutput
 
-#define FILTER_COUNT 1024
-#define FILTER_COUNT_2 10
-#define MEDIAN_FILTER_COUNT 15
+struct Filter_t {
+    FILTER_T;
+};
+
+typedef struct MedianFilter_t {
+    FILTER_T;
+    Mediator *medians[0];
+} MedianFilter;
+#define MedianFilterSize(count) (sizeof(MedianFilter)+sizeof(Mediator)*count)
+
+typedef struct MeanFilter_t {
+    FILTER_T;
+    long unsigned arr[0];
+} MeanFilter;
+#define MeanFilterSize(count) (sizeof(MeanFilter)+sizeof(long unsigned)*count)
+
+typedef struct RawFilter_t {
+    FILTER_T;
+    unsigned int arr[0];
+} RawFilter;
+#define RawFilterSize(count) (sizeof(RawFilter)+sizeof(unsigned int)*count)
+
 
 /* Moving median */
 
-static void moving_median_gc() {
-    int i;
-    for (i = 0; i < CHANNEL_COUNT; ++i) {
-        MediatorFree(medians[i]);
-        medians[i] = 0;
-    }
-}
-
-static void moving_median_init() {
+static void moving_median_init(MedianFilter *filter) {
     int i;
     
-    if (reset_is_cold()) {
-        for (i = 0; i < CHANNEL_COUNT; ++i) {
-            medians[i] = 0;
-        }
-        garbage_collect_reg(moving_median_gc);
+    for (i = 0; i < filter->channelCount; ++i) {
+        filter->medians[i] = MediatorNew(filter->param);
     }
 }
 
-static void moving_median_input(unsigned int value, uint8_t channel_num) {
-    if (!medians[channel_num]) {
-        medians[channel_num] = MediatorNew(MEDIAN_FILTER_COUNT);
-    }
-    MediatorInsert(medians[channel_num], value);
+static void moving_median_input(MedianFilter *filter, unsigned int value,
+        uint8_t channel_num) {
+    MediatorInsert(filter->medians[channel_num], value);
 }
 
-static unsigned int moving_median_output(uint8_t channel_num) {
-    if (medians[channel_num]) {
-        return MediatorMedian(medians[channel_num]);
-    } else {
-        return 0;
-    }
+static unsigned int moving_median_output(MedianFilter *filter,
+        uint8_t channel_num) {
+    return MediatorMedian(filter->medians[channel_num]);
 }
 
 /* Moving mean */
 
-static void moving_mean_init() {
+static void moving_mean_init(MeanFilter *filter) {
     int i;
     
-    if (reset_is_cold()) {
-        for (i = 0; i < CHANNEL_COUNT; ++i) {
-            meanArr[i] = 0;
-        }
+    for (i = 0; i < filter->channelCount; ++i) {
+        filter->arr[i] = 0;
     }
 }
 
-static void moving_mean_input (unsigned int value, uint8_t channel_num) {
-    meanArr[channel_num] += (-(meanArr[channel_num]>>FILTER_COUNT_2) + value);
+static void moving_mean_input (MeanFilter *filter, unsigned int value,
+        uint8_t channel_num) {
+    filter->arr[channel_num] +=
+            (-(filter->arr[channel_num]>>filter->param) + value);
 }
 
-static unsigned int moving_mean_output(uint8_t channel_num) {
-    return (meanArr[channel_num]>>FILTER_COUNT_2);
+static unsigned int moving_mean_output(MeanFilter *filter,
+        uint8_t channel_num) {
+    return (filter->arr[channel_num]>>filter->param);
 }
 
 /* Raw filter */
 
-static void raw_filter_init() {
+static void raw_filter_init(RawFilter *filter) {
     int i;
     
-    if (reset_is_cold()) {
-        for (i = 0; i < CHANNEL_COUNT; ++i) {
-            rawValue[i] = 0;
-        }
+    for (i = 0; i < filter->channelCount; ++i) {
+        filter->arr[i] = 0;
     }
 }
 
-static void raw_filter_input(unsigned int value, uint8_t channel_num) {
-    rawValue[channel_num] = value;
+static void raw_filter_input(RawFilter *filter, unsigned int value,
+        uint8_t channel_num) {
+    filter->arr[channel_num] = value;
 }
 
-static unsigned int raw_filter_output(uint8_t channel_num) {
-    return rawValue[channel_num];
+static unsigned int raw_filter_output(RawFilter *filter, uint8_t channel_num) {
+    return filter->arr[channel_num];
 }
 
-void filter_set_type(FilterType type) {
+Filter *filter_create(uint8_t channelCount, FilterType type, uint16_t param) {
+    size_t allocSize;
+    Filter *filter;
+    FilterInputFunction_t fInput;
+    FilterOutputFunction_t fOutput;
+    FilterInitFunction_t fInit;
+    
     switch(type) {
-        case FilterTypeMovingMean:
-            fFilterInput = moving_mean_input;
-            fFilterOutput = moving_mean_output;
-            break;
         case FilterTypeMovingMedian:
-            fFilterInput = moving_median_input;
-            fFilterOutput = moving_median_output;
-            break;
+            allocSize = MedianFilterSize(channelCount);
+            fInput = (FilterInputFunction_t)moving_median_input;
+            fOutput = (FilterOutputFunction_t)moving_median_output;
+            fInit = (FilterInitFunction_t)moving_median_init;
+        case FilterTypeMovingMean:
+            allocSize = MeanFilterSize(channelCount);
+            fInput = (FilterInputFunction_t)moving_mean_input;
+            fOutput = (FilterOutputFunction_t)moving_mean_output;
+            fInit = (FilterInitFunction_t)moving_mean_init;
         case FilterTypeNone:
         default:
-            fFilterInput = raw_filter_input;
-            fFilterOutput = raw_filter_output;
+            allocSize = RawFilterSize(channelCount);
+            fInput = (FilterInputFunction_t)raw_filter_input;
+            fOutput = (FilterOutputFunction_t)raw_filter_output;
+            fInit = (FilterInitFunction_t)raw_filter_init;
             break;
     }
+    
+    filter = gc_malloct(allocSize);
+    filter->channelCount = channelCount;
+    filter->param = param;
+    filter->fFilterInput = fInput;
+    filter->fFilterOutput = fOutput;
+    fInit(filter);
+    
+    return filter;
 }
 
-void filter_put(unsigned int value, uint8_t channel_num) {
-    fFilterInput(value, channel_num);
+void filter_put(Filter *filter, unsigned int value, uint8_t channel_num) {
+    filter->fFilterInput(filter, value, channel_num);
 }
 
-unsigned int filter_get(uint8_t channel_num) {
-    return fFilterOutput(channel_num);
+unsigned int filter_get(Filter *filter, uint8_t channel_num) {
+    return filter->fFilterOutput(filter, channel_num);
 }
 
 void filter_init() {
-    raw_filter_init();
-    moving_median_init();
-    moving_mean_init();
-    
-    if (reset_is_cold()) {
-        filter_set_type(FilterTypeNone);
-    }
 }

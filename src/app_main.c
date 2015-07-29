@@ -31,7 +31,6 @@
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
-        filter_set_type(FilterTypeMovingMedian);
     }
     initQEI();
     initPWM();
@@ -43,14 +42,14 @@ MAIN_DECL_LOOP_FN() {
     MB.D_In = discrete_get_input();
     
     // Extract ADC values and push to modbus
-    MB.A0 = filter_get(0);
-    MB.A1 = filter_get(1);
-    MB.A2 = filter_get(2);
-    MB.A3 = filter_get(3);
-    MB.A4 = filter_get(4);
-    MB.A5 = filter_get(5);
-    MB.A6 = filter_get(6);
-    
+//    MB.A0 = filter_get(0);
+//    MB.A1 = filter_get(1);
+//    MB.A2 = filter_get(2);
+//    MB.A3 = filter_get(3);
+//    MB.A4 = filter_get(4);
+//    MB.A5 = filter_get(5);
+//    MB.A6 = filter_get(6);
+//    
     // Process ADC values
     MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1)*MB.K1;
@@ -91,5 +90,5 @@ MAIN_DECL_LOOP_FN() {
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
-    filter_put(channel, value);
+//    filter_put(channel, value);
 }
