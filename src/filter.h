@@ -11,17 +11,23 @@
 #include "system.h"
 #include "app_connector.h"
 
-typedef unsigned int (*FilterFunction_t)(unsigned int, uint8_t);
-
 typedef enum {
-    _movingMeanFilterType,
-    _movingMedianFilterType,
+    FilterTypeMovingMean,
+    FilterTypeMovingMedian,
+    FilterTypeNone,
 } FilterType;
 
-void setFilterType(FilterType type);
+// Initialize filter module
+void filter_init();
 
-unsigned int doFilter (unsigned int value, uint8_t channel_num);
+// Set filter type
+void filter_set_type(FilterType type);
 
+// Stores value for the filter
+void filter_put(unsigned int value, uint8_t channel_num);
+
+// Gets current value from the filter
+unsigned int filter_get(uint8_t channel_num);
 
 #endif	/* FILTER_H */
 

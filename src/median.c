@@ -104,7 +104,10 @@ Mediator* MediatorNew(int nItems)
    }
    return m;
 }
- 
+
+void MediatorFree(Mediator *m) {
+    gc_free(m);
+}
  
 //Inserts item, maintains median in O(lg nItems)
 void MediatorInsert(Mediator* m, Item v)
