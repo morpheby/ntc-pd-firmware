@@ -31,7 +31,7 @@
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
-        setFilterType(AVG_VALUE_FILTER);
+        setFilterType(_movingMeanFilterType);
     }
     initQEI();
     initPWM();

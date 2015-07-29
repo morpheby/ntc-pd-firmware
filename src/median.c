@@ -5,13 +5,14 @@
 #define MEDIAN_C
 
 #include "system.h"
+#include "median.h"
 
 //Customize for your data Item type
-typedef int Item;
+typedef MediatorItem Item;
 #define ItemLess(a,b)  ((a)<(b))
 #define ItemMean(a,b)  (((a)+(b))/2)
  
-typedef struct Mediator_t
+struct Mediator_t
 {
    Item* data;  //circular queue of values
    int*  pos;   //index into `heap` for each value
@@ -19,9 +20,7 @@ typedef struct Mediator_t
    int   N;     //allocated size.
    int   idx;   //position in circular queue
    int   ct;    //count of items in queue
-} Mediator;
-
-#include "median.h"
+};
  
 /*--- Helper Functions ---*/
  

@@ -11,15 +11,11 @@
 #include "system.h"
 #include "app_connector.h"
 
-
 typedef unsigned int (*FilterFunction_t)(unsigned int, uint8_t);
 
-// Filters ADC input data
-unsigned int filter (unsigned int value, uint8_t channel_num);
-
 typedef enum {
-    AVG_VALUE_FILTER,
-    MEDIAN_FILTER,
+    _movingMeanFilterType,
+    _movingMedianFilterType,
 } FilterType;
 
 void setFilterType(FilterType type);
