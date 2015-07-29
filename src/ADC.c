@@ -47,9 +47,7 @@ void ADC_Init(_Bool ad_12b) {
     AD1CON2bits.CHPS = 0b11;
 
     if (ad_12b) {
-        AD1CON2bits.SMPI = ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE
-                         + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE
-                         + ADC_6_ENABLE;
+        AD1CON2bits.SMPI = ADC_CHANNEL_COUNT;
     } else {
         //Increments the DMA address or generates interrupt after completion
         // of every 2nd sample/conversion operation
@@ -124,13 +122,30 @@ void ADC_Init(_Bool ad_12b) {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
+#if ADC_0_ENABLE
     ADC_CALL_VALUE_FN(0, ADC1BUF0);
-    ADC_CALL_VALUE_FN(1, ADC1BUF1);
-    ADC_CALL_VALUE_FN(2, ADC1BUF2);
-    ADC_CALL_VALUE_FN(3, ADC1BUF3);
-    ADC_CALL_VALUE_FN(4, ADC1BUF4);
-    ADC_CALL_VALUE_FN(5, ADC1BUF5);
-    ADC_CALL_VALUE_FN(6, ADC1BUF6);
+#endif
+#if ADC_1_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE, ADC1BUF1);
+#endif
+#if ADC_2_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE + ADC_1_ENABLE, ADC1BUF2);
+#endif
+#if ADC_3_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE, ADC1BUF3);
+#endif
+#if ADC_4_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE
+                    + ADC_3_ENABLE, ADC1BUF4);
+#endif
+#if ADC_5_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE
+                    + ADC_3_ENABLE + ADC_4_ENABLE, ADC1BUF5);
+#endif
+#if ADC_6_ENABLE
+    ADC_CALL_VALUE_FN(ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE
+                    + ADC_3_ENABLE + ADC_5_ENABLE, ADC1BUF6);
+#endif
       
     IFS0bits.AD1IF=0;
 }

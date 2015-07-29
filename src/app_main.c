@@ -28,9 +28,15 @@
  * events. Use this module for all application-specific tasks.
  */
 
+_PERSISTENT static Filter *adcInputFilter;
+_PERSISTENT static Filter *squaredFilter;
+
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
+        adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
+                FilterTypeMovingMedian, 15);
+        squaredFilter = filter_create(3, FilterTypeMovingMean, 10);
     }
     initQEI();
     initPWM();

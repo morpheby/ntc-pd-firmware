@@ -178,5 +178,9 @@
 #define ADC_5_ENABLE 1
 #define ADC_6_ENABLE 1
 
+#define ADC_CHANNEL_COUNT ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE    \
+                         + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE   \
+                         + ADC_6_ENABLE
+
 #endif	/* BOARD_CONFIG_H */
 
