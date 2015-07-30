@@ -36,7 +36,7 @@ void app_init() {
     if (reset_is_cold()) {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
-                FilterTypeMovingMedian, 15);
+                FilterTypeNone, 15);
         squaredFilter = filter_create(3, FilterTypeMovingMean, 10);
     }
     initQEI();
@@ -53,25 +53,25 @@ MAIN_DECL_LOOP_FN() {
     MB.A1 = filter_get(adcInputFilter, 1);
     MB.A2 = filter_get(adcInputFilter, 2);
     MB.A3 = filter_get(adcInputFilter, 3);
-    MB.A4 = filter_get(adcInputFilter, 4);
-    MB.A5 = filter_get(adcInputFilter, 5);
-    MB.A6 = filter_get(adcInputFilter, 6);
+    MB.A4 = filter_get(adcInputFilter, 4) - MB.OFS_ADC4;
+    MB.A5 = filter_get(adcInputFilter, 5) - MB.OFS_ADC5;
+    MB.A6 = filter_get(adcInputFilter, 6) - MB.OFS_ADC6;
     
     // Process ADC values
     MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1)*MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2)*MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3)*MB.K3;
-    MB.ADC4 = (MB.A4 - MB.OFS_ADC4)*MB.K4;
-    MB.ADC5 = (MB.A5 - MB.OFS_ADC5)*MB.K5;
-    MB.ADC6 = (MB.A6 - MB.OFS_ADC6)*MB.K6;
+    MB.ADC4 = MB.A4 * MB.K4;
+    MB.ADC5 = MB.A5 * MB.K5;
+    MB.ADC6 = MB.A6 * MB.K6;
     
     filter_put(squaredFilter, MB.A4*MB.A4, 0);
     filter_put(squaredFilter, MB.A5*MB.A5, 1);
     filter_put(squaredFilter, MB.A6*MB.A6, 2);
-    MB.AD4_RMS = sqrt((filter_get(squaredFilter, 0) - MB.OFS_ADC4)*MB.K4);
-    MB.AD5_RMS = sqrt((filter_get(squaredFilter, 1) - MB.OFS_ADC5)*MB.K5);
-    MB.AD6_RMS = sqrt((filter_get(squaredFilter, 2) - MB.OFS_ADC6)*MB.K6);
+    MB.M0_RMS = sqrt(filter_get(squaredFilter, 0)) * MB.K4;
+    MB.M1_RMS = sqrt(filter_get(squaredFilter, 1)) * MB.K5;
+    MB.M2_RMS = sqrt(filter_get(squaredFilter, 2)) * MB.K6;
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

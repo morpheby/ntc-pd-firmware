@@ -114,13 +114,13 @@ void modbus_mmap_free();
 #define REG_cos_f2              77, f
 #define REG_cos_f3              79, f
 
-#define REG_AD4_AVG             81, f
-#define REG_AD5_AVG             83, f
-#define REG_AD6_AVG             85, f
+#define REG_M0_AVG              81, f
+#define REG_M1_AVG              83, f
+#define REG_M2_AVG              85, f
 
-#define REG_AD4_RMS             87, f
-#define REG_AD5_RMS             89, f
-#define REG_AD6_RMS             91, f
+#define REG_M0_RMS              87, f
+#define REG_M1_RMS              89, f
+#define REG_M2_RMS              91, f
 
 #define REG_FLASH_WR            93, i16
 #define REG_FLASH_RD            94, i16
@@ -243,13 +243,13 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(cos_f2);
             _REG_DEFINE(cos_f3);
 
-            _REG_DEFINE(AD4_AVG);
-            _REG_DEFINE(AD5_AVG);
-            _REG_DEFINE(AD6_AVG);
+            _REG_DEFINE(M0_AVG);
+            _REG_DEFINE(M1_AVG);
+            _REG_DEFINE(M2_AVG);
 
-            _REG_DEFINE(AD4_RMS);
-            _REG_DEFINE(AD5_RMS);
-            _REG_DEFINE(AD6_RMS);
+            _REG_DEFINE(M0_RMS);
+            _REG_DEFINE(M1_RMS);
+            _REG_DEFINE(M2_RMS);
 
             _REG_DEFINE(FLASH_WR);
             _REG_DEFINE(FLASH_RD);
