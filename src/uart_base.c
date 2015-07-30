@@ -387,6 +387,7 @@ void uart_init() {
     RPOR_MAP(UART_TX_PIN, UART_TX_PIN2) = 0b00011;
 #if UART_HAS_RTS
     RPOR_MAP(UART_RTS_PIN, UART_RTS_PIN2) = 0b00100;
+//    ODC_BIT(UART_RTS_PIN_TYPE, UART_RTS_PIN_NUM) = 1;
 #endif
     
     pin_remap_enable(0);

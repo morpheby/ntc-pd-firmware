@@ -63,7 +63,7 @@
 // 1 if clear-to-send pin is used, 0 otherwise
 #define UART_HAS_CTS    0
 // 1 if request-to-send pin is used, 0 otherwise
-#define UART_HAS_RTS    0
+#define UART_HAS_RTS    1
 
 // RX pin number
 #define UART_RX_PIN     21
@@ -73,8 +73,8 @@
 // module. CTS latch is intended if Flow-control is not used as per nornal
 // UART operation)
 // NOTE: here and only here pin is used as in RAx, RBx, RCx pins, not as in RPx
-#define UART_CTS_PIN    9
-#define UART_CTS_PIN_T  B
+#define UART_CTS_PIN    3
+#define UART_CTS_PIN_T  C
 #define UART_CTS_LATCH  PIN_LATCH(UART_CTS_PIN_T, UART_CTS_PIN)
 
 // TX pin number
@@ -83,9 +83,11 @@
 #define UART_TX_PIN2    10
 
 // RTS pin number
-#define UART_RTS_PIN    23
+#define UART_RTS_PIN    19
 // RTS pin number divided by two, floored
-#define UART_RTS_PIN2   11
+#define UART_RTS_PIN2   9
+#define UART_RTS_PIN_NUM 3
+#define UART_RTS_PIN_TYPE C
 
 //QEI pin numbers. Digital inputs DI3 (RP17) and DI2(RP18) are available. Data sheet page 5.
 #define QEIA 17
