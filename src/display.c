@@ -262,7 +262,7 @@ void display_set(const char *str) {
 #else
 
 void disp_init() {}
-void display_update() {}
+void display_update(_Bool f) {}
 void display_set(const char *str) {}
 
 #endif
