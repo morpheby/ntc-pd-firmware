@@ -44,10 +44,10 @@ void filter_init();
 Filter *filter_create(uint8_t channelCount, FilterType type, uint16_t param);
 
 // Stores value for the filter
-void filter_put(Filter *filter, unsigned long value, uint8_t channel_num);
+void filter_put(Filter *filter, long value, uint8_t channel_num);
 
 // Gets current value from the filter
-unsigned long filter_get(Filter *filter, uint8_t channel_num);
+long filter_get(Filter *filter, uint8_t channel_num);
 
 #endif	/* FILTER_H */
 

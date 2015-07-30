@@ -127,13 +127,13 @@ void modbus_mmap_free();
 
 #define REG_PROF_CHANGE_SOURCE  95, i16
 
-#define REG_A0                  96, u16
-#define REG_A1                  97, u16
-#define REG_A2                  98, u16
-#define REG_A3                  99, u16
-#define REG_A4                 100, u16
-#define REG_A5                 101, u16
-#define REG_A6                 102, u16
+#define REG_A0                  96, i16
+#define REG_A1                  97, i16
+#define REG_A2                  98, i16
+#define REG_A3                  99, i16
+#define REG_A4                 100, i16
+#define REG_A5                 101, i16
+#define REG_A6                 102, i16
 
 #define REG_ind_off_1          103, i16
 #define REG_ind_off_2          104, i16
