@@ -111,11 +111,13 @@ Filter *filter_create(uint8_t channelCount, FilterType type, uint16_t param) {
             fInput = (FilterInputFunction_t)moving_median_input;
             fOutput = (FilterOutputFunction_t)moving_median_output;
             fInit = (FilterInitFunction_t)moving_median_init;
+            break;
         case FilterTypeMovingMean:
             allocSize = MeanFilterSize(channelCount);
             fInput = (FilterInputFunction_t)moving_mean_input;
             fOutput = (FilterOutputFunction_t)moving_mean_output;
             fInit = (FilterInitFunction_t)moving_mean_init;
+            break;
         case FilterTypeNone:
         default:
             allocSize = RawFilterSize(channelCount);
