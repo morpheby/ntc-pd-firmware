@@ -47,6 +47,10 @@
 // UART baudrate
 #define UART_BAUDRATE       19200
 
+/*
+ * Modbus configuration
+ */
+#define MODBUS_ADDRESS 0x01
 
 /* 
  * Event-based functions
