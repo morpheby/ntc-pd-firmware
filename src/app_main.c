@@ -37,7 +37,7 @@ void app_init() {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMedian, 15);
-        squaredFilter = filter_create(3, FilterTypeNone, 10);
+        squaredFilter = filter_create(3, FilterTypeMovingMean, 10);
     }
     initQEI();
     initPWM();
