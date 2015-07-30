@@ -23,7 +23,7 @@ typedef struct MedianFilter_t {
     FILTER_T;
     Mediator *medians[0];
 } MedianFilter;
-#define MedianFilterSize(count) (sizeof(MedianFilter)+sizeof(Mediator)*count)
+#define MedianFilterSize(count) (sizeof(MedianFilter)+sizeof(Mediator*)*count)
 
 typedef struct MeanFilter_t {
     FILTER_T;
@@ -40,7 +40,7 @@ typedef struct RawFilter_t {
 
 /* Moving median */
 
-static void moving_median_init(MedianFilter *filter) {
+void moving_median_init(MedianFilter *filter) {
     int i;
     
     for (i = 0; i < filter->channelCount; ++i) {
@@ -48,19 +48,19 @@ static void moving_median_init(MedianFilter *filter) {
     }
 }
 
-static void moving_median_input(MedianFilter *filter, long value,
+void moving_median_input(MedianFilter *filter, long value,
         uint8_t channel_num) {
     MediatorInsert(filter->medians[channel_num], value);
 }
 
-static long moving_median_output(MedianFilter *filter,
+long moving_median_output(MedianFilter *filter,
         uint8_t channel_num) {
     return MediatorMedian(filter->medians[channel_num]);
 }
 
 /* Moving mean */
 
-static void moving_mean_init(MeanFilter *filter) {
+void moving_mean_init(MeanFilter *filter) {
     int i;
     
     for (i = 0; i < filter->channelCount; ++i) {
@@ -68,20 +68,20 @@ static void moving_mean_init(MeanFilter *filter) {
     }
 }
 
-static void moving_mean_input (MeanFilter *filter, long value,
+void moving_mean_input (MeanFilter *filter, long value,
         uint8_t channel_num) {
     filter->arr[channel_num] +=
             (-(filter->arr[channel_num]>>filter->param) + value);
 }
 
-static long moving_mean_output(MeanFilter *filter,
+long moving_mean_output(MeanFilter *filter,
         uint8_t channel_num) {
     return filter->arr[channel_num]>>filter->param;
 }
 
 /* Raw filter */
 
-static void raw_filter_init(RawFilter *filter) {
+void raw_filter_init(RawFilter *filter) {
     int i;
     
     for (i = 0; i < filter->channelCount; ++i) {
@@ -89,12 +89,12 @@ static void raw_filter_init(RawFilter *filter) {
     }
 }
 
-static void raw_filter_input(RawFilter *filter, long value,
+void raw_filter_input(RawFilter *filter, long value,
         uint8_t channel_num) {
     filter->arr[channel_num] = value;
 }
 
-static long raw_filter_output(RawFilter *filter, uint8_t channel_num) {
+long raw_filter_output(RawFilter *filter, uint8_t channel_num) {
     return filter->arr[channel_num];
 }
 

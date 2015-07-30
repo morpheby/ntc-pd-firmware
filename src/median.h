@@ -14,7 +14,7 @@ typedef void Mediator;
 typedef struct Mediator_t Mediator;
 #endif
 
-typedef unsigned int MediatorItem;
+typedef long MediatorItem;
 
 //creates new Mediator: to calculate `nItems` running median. 
 //caller must call MediatorFree after use.
