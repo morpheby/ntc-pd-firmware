@@ -66,15 +66,14 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC5 = (MB.A5 - MB.OFS_ADC5)*MB.K5;
     MB.ADC6 = (MB.A6 - MB.OFS_ADC6)*MB.K6;
     
-    filter_put(squaredFilter, 0, MB.A4*MB.A4);
-    filter_put(squaredFilter, 1, MB.A5*MB.A5);
-    filter_put(squaredFilter, 2, MB.A6*MB.A6);
-    
+    filter_put(squaredFilter, MB.A4*MB.A4, 0);
+    filter_put(squaredFilter, MB.A5*MB.A5, 1);
+    filter_put(squaredFilter, MB.A6*MB.A6, 2);
     MB.AD4_RMS = sqrt((filter_get(squaredFilter, 0) - MB.OFS_ADC4)*MB.K4);
     MB.AD5_RMS = sqrt((filter_get(squaredFilter, 1) - MB.OFS_ADC5)*MB.K5);
     MB.AD6_RMS = sqrt((filter_get(squaredFilter, 2) - MB.OFS_ADC6)*MB.K6);
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
-    filter_put(adcInputFilter, channel, value);
+    filter_put(adcInputFilter, value, channel);
 }

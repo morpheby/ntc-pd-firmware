@@ -76,7 +76,7 @@ static void moving_mean_input (MeanFilter *filter, unsigned int value,
 
 static unsigned int moving_mean_output(MeanFilter *filter,
         uint8_t channel_num) {
-    return (filter->arr[channel_num]>>filter->param);
+    return filter->arr[channel_num]>>filter->param;
 }
 
 /* Raw filter */
