@@ -37,7 +37,7 @@ void app_init() {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMedian, 15);
-        squaredFilter = filter_create(3, FilterTypeMovingMean, 10);
+        squaredFilter = filter_create(3, FilterTypeNone, 10);
     }
     initQEI();
     initPWM();
@@ -66,9 +66,9 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC5 = MB.A5 * MB.K5;
     MB.ADC6 = MB.A6 * MB.K6;
     
-    filter_put(squaredFilter, MB.A0*MB.A0, 0);
-    filter_put(squaredFilter, MB.A1*MB.A1, 1);
-    filter_put(squaredFilter, MB.A2*MB.A2, 2);
+    filter_put(squaredFilter, ((unsigned long)MB.A0)*MB.A0, 0);
+    filter_put(squaredFilter, ((unsigned long)MB.A1)*MB.A1, 1);
+    filter_put(squaredFilter, ((unsigned long)MB.A2)*MB.A2, 2);
     MB.M0_RMS = sqrt(filter_get(squaredFilter, 0)) * MB.K0;
     MB.M1_RMS = sqrt(filter_get(squaredFilter, 1)) * MB.K1;
     MB.M2_RMS = sqrt(filter_get(squaredFilter, 2)) * MB.K2;
