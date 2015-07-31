@@ -122,28 +122,25 @@ void ADC_Init(_Bool ad_12b) {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-#if ADC_0_ENABLE  > 0
+#if ADC_CHANNEL_COUNT  > 0
     ADC_CALL_VALUE_FN(0, ADC1BUF0);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE > 1
+#if ADC_CHANNEL_COUNT > 1
     ADC_CALL_VALUE_FN(1, ADC1BUF1);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE > 2
+#if ADC_CHANNEL_COUNT > 2
     ADC_CALL_VALUE_FN(2, ADC1BUF2);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE + ADC_3_ENABLE > 3
+#if ADC_CHANNEL_COUNT > 3
     ADC_CALL_VALUE_FN(3, ADC1BUF3);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE + ADC_3_ENABLE                  \
-    + ADC_4_ENABLE > 4
+#if ADC_CHANNEL_COUNT > 4
     ADC_CALL_VALUE_FN(4, ADC1BUF4);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE + ADC_3_ENABLE                  \
-    + ADC_4_ENABLE + ADC_5_ENABLE > 5
+#if ADC_CHANNEL_COUNT > 5
     ADC_CALL_VALUE_FN(5, ADC1BUF5);
 #endif
-#if ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE + ADC_3_ENABLE                  \
-    + ADC_4_ENABLE + ADC_5_ENABLE + ADC_6_ENABLE > 6
+#if ADC_CHANNEL_COUNT > 6
     ADC_CALL_VALUE_FN(6, ADC1BUF6);
 #endif
       
