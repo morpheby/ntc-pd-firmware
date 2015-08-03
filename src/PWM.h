@@ -13,5 +13,6 @@
 void initPWM();
 void PWM_on(uint16_t value);
 void PWM_off();
+void set_PWM_output_inverted(_Bool flag);
 
 #endif	/* PWM_H */
