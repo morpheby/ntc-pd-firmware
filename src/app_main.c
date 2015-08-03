@@ -40,13 +40,23 @@ MAIN_DECL_LOOP_FN() {
     MB.QEI_POS = POSCNT;
     disp_puti(0, MB.Position0);
     
-    if (MB.Control0 & 0x01) {
+    //0 - switch off
+    //1 - 10 to output
+    //11 - 01 to output
+    uint16_t controlFlag = MB.Control0;
+    if ((controlFlag & 0x03) == 0x03) {
         PWM_on(MB.Power0);
-    } else {
+        discrete_set_output_bit(1, 1);
+        discrete_set_output_bit(0, 0);
+    } else if((controlFlag & 0x01) == 0x01) { 
+        PWM_on(MB.Power0);      
+        discrete_set_output_bit(1, 0);
+        discrete_set_output_bit(0, 1);
+    }  else if((controlFlag & 0x80) == 0x80) {   
+        discrete_set_output(0);
         PWM_off();
     }
     
-    discrete_set_output_bit((_Bool)(MB.Control0 & 0x02), 2);
     MB.Control0 = 0;
     
     if (MB.D_Out & 0x80) {
