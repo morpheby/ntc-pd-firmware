@@ -33,6 +33,7 @@ void app_init() {
     }
     initQEI();
     initPWM();
+    set_PWM_output_inverted(1);
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -41,8 +42,8 @@ MAIN_DECL_LOOP_FN() {
     disp_puti(0, MB.Position0);
     
     //0 - switch off
-    //1 - 10 to output
-    //11 - 01 to output
+    //1 - 01 to output
+    //11 - 10 to output
     PWM_on(MB.Power0);
         
     uint16_t controlFlag = MB.Control0;
