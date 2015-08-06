@@ -44,7 +44,6 @@ MAIN_DECL_LOOP_FN() {
     //0 - switch off
     //1 - 01 to output
     //11 - 10 to output
-    PWM_on(MB.Power0);
         
     uint16_t controlFlag = MB.Control0;
     if ((controlFlag & 0x03) == 0x03) {
@@ -55,7 +54,14 @@ MAIN_DECL_LOOP_FN() {
         discrete_set_output_bit(1, 1);
     }  else if((controlFlag & 0x80) == 0x80) {   
         discrete_set_output(0);
+    }
+        
+    if((discrete_get_output()==0x00)) {
+        //output is set to zero, motor is stopped. Switch off PWM
         PWM_off();
+    } else {
+        //motor is on. Switch on PWM
+        PWM_on(MB.Power0);
     }
     
     MB.Control0 = 0;
