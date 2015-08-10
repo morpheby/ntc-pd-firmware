@@ -142,13 +142,13 @@ void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
     MB.A5=doFilter(ADC1BUF5,5);
     MB.A6=doFilter(ADC1BUF6,6);
    
-//    MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
-//    MB.ADC1 = (MB.A1 - MB.OFS_ADC1)*MB.K1;
-//    MB.ADC2 = (MB.A2 - MB.OFS_ADC2)*MB.K2;
-//    MB.ADC3 = (MB.A3 - MB.OFS_ADC3)*MB.K3;
-//    MB.ADC4 = (MB.A4 - MB.OFS_ADC4)*MB.K4;
-//    MB.ADC5 = (MB.A5 - MB.OFS_ADC5)*MB.K5;
-//    MB.ADC6 = (MB.A6 - MB.OFS_ADC6)*MB.K6;
+    MB.ADC0 = ((int)MB.A0 - MB.OFS_ADC0)*MB.K0;
+    //MB.ADC1 = ((int)MB.A1 - MB.OFS_ADC1)*MB.K1;
+    //MB.ADC2 = ((int)MB.A2 - MB.OFS_ADC2)*MB.K2;
+    //MB.ADC3 = ((int)MB.A3 - MB.OFS_ADC3)*MB.K3;
+    //MB.ADC4 = ((int)MB.A4 - MB.OFS_ADC4)*MB.K4;
+    //MB.ADC5 = ((int)MB.A5 - MB.OFS_ADC5)*MB.K5;
+    //MB.ADC6 = ((int)MB.A6 - MB.OFS_ADC6)*MB.K6;
 //        
 //    ADC4Sum += MB.ADC4;
 //    ADC5Sum += MB.ADC5;
