@@ -134,15 +134,15 @@ void ADC_Init(_Bool ad_12b) {
 }
 
 void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-    MB.A0=doFilter(ADC1BUF0,0);
+    /*MB.A0=doFilter(ADC1BUF0,0);
     MB.A1=doFilter(ADC1BUF1,1);
     MB.A2=doFilter(ADC1BUF2,2);
     MB.A3=doFilter(ADC1BUF3,3);
     MB.A4=doFilter(ADC1BUF4,4);
     MB.A5=doFilter(ADC1BUF5,5);
     MB.A6=doFilter(ADC1BUF6,6);
-   
-    MB.ADC0 = ((int)MB.A0 - MB.OFS_ADC0)*MB.K0;
+   */
+   // MB.ADC0 = ((int)MB.A0 - MB.OFS_ADC0)*MB.K0;
     //MB.ADC1 = ((int)MB.A1 - MB.OFS_ADC1)*MB.K1;
     //MB.ADC2 = ((int)MB.A2 - MB.OFS_ADC2)*MB.K2;
     //MB.ADC3 = ((int)MB.A3 - MB.OFS_ADC3)*MB.K3;
