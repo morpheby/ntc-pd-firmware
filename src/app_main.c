@@ -31,31 +31,15 @@ void app_init() {
     if (reset_is_cold()) {
         //set up default values
     }
-    initQEI();
     initPWM();
     set_PWM_output_inverted(1);
 }
 
 MAIN_DECL_LOOP_FN() {
     MB.D_In = discrete_get_input();
-    MB.QEI_POS = POSCNT;
-    disp_puti(0, MB.Position0);
-    
-    //0 - switch off
-    //1 - 01 to output
-    //11 - 10 to output
-        
-    uint16_t controlFlag = MB.Control0;
-    if ((controlFlag & 0x03) == 0x03) {
-        discrete_set_output_bit(0, 1);
-        discrete_set_output_bit(1, 0);
-    } else if((controlFlag & 0x01) == 0x01) {
-        discrete_set_output_bit(0, 0);
-        discrete_set_output_bit(1, 1);
-    }  else if((controlFlag & 0x80) == 0x80) {   
-        discrete_set_output(0);
-    }
-        
+     
+    discrete_set_output(MB.Control0);
+            
     if((discrete_get_output()==0x00)) {
         //output is set to zero, motor is stopped. Switch off PWM
         PWM_off();
@@ -63,9 +47,7 @@ MAIN_DECL_LOOP_FN() {
         //motor is on. Switch on PWM
         PWM_on(MB.Power0);
     }
-    
-    MB.Control0 = 0;
-    
+        
     if (MB.D_Out & 0x80) {
         // Override mode
         discrete_set_output(MB.D_Out);
