@@ -82,6 +82,8 @@ CNI_DECL_PROC_FN(29, on) {
     if (!on) {
         last_time = timing_get_time_low();
     }
+}
+
 ADC_DECL_VALUE_FN(channel, value) {
     filter_put(adcInputFilter, value, channel);
 }
