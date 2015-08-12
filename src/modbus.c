@@ -2,6 +2,7 @@
 #include "modbus.h"
 #include "system.h"
 #include "uart_base.h"
+#include "app_connector.h"
 #include "timing.h"
 #include "modbus_registers.h"
 #include "util.h"
@@ -11,7 +12,7 @@
 #define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
-#define Address                     0x01
+#define Address                     MODBUS_ADDRESS
 
 // Modbus commands
 #define READ_HOLDING_REGISTERS		0x03

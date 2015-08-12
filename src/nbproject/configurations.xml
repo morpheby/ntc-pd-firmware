@@ -33,6 +33,7 @@
       <itemPath>quadrature_encoder.h</itemPath>
       <itemPath>PWM.h</itemPath>
       <itemPath>ind_profiles.h</itemPath>
+      <itemPath>median.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -81,6 +82,7 @@
       <itemPath>quadrature_encoder.c</itemPath>
       <itemPath>PWM.c</itemPath>
       <itemPath>ind_profiles.c</itemPath>
+      <itemPath>median.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

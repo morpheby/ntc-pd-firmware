@@ -8,21 +8,46 @@
 #ifndef FILTER_H
 #define	FILTER_H
 
-#include <stdint.h>
-
-typedef unsigned int (*FilterFunction_t)(unsigned int, uint8_t);
-
-// Filters ADC input data
-unsigned int filter (unsigned int value, uint8_t channel_num);
+#include "system.h"
+#include "app_connector.h"
 
 typedef enum {
-    AVG_VALUE_FILTER
+    /*
+     * Moving mean filter
+     * param = log2 of count of used values in buffer
+     */
+    FilterTypeMovingMean,
+    /*
+     * Moving median filter
+     * param = count of used values in buffer
+     */
+    FilterTypeMovingMedian,
+    /*
+     * Raw value filter
+     * Doesn't filter, provides last value raw
+     * param is unused
+     */
+    FilterTypeNone,
 } FilterType;
 
-void setFilterType(FilterType type);
+#ifndef FILTER_C
+typedef void Filter;
+#else
+typedef struct Filter_t Filter;
+#endif
 
-unsigned int doFilter (unsigned int value, uint8_t channel_num);
+// Initialize filter module
+void filter_init();
 
+// Create new filter with selected type and count of channels and
+// filtering characteristic (implementation defined)
+Filter *filter_create(uint8_t channelCount, FilterType type, uint16_t param);
+
+// Stores value for the filter
+void filter_put(Filter *filter, long value, uint8_t channel_num);
+
+// Gets current value from the filter
+long filter_get(Filter *filter, uint8_t channel_num);
 
 #endif	/* FILTER_H */
 

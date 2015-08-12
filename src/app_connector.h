@@ -66,5 +66,15 @@
 #define DIO_CALL_UPDATE_FN(dIn, dInOld, dOutPtr) \
     IF(DIO_UPDATE_FN_ENABLE, __dio_update_fn(dIn, dInOld, dOutPtr))
 
+/*
+ * Declares function body for a read ADC value, passed by ADC module each time 
+ * conversion is complete.
+ */
+#define ADC_DECL_VALUE_FN(varChannel, varValue)                                \
+    IF(ADC_VALUE_FN_ENABLE, void __adc_value_fn(uint8_t varChannel,            \
+                                                  unsigned int varValue))
+#define ADC_CALL_VALUE_FN(chan, value) \
+    IF(ADC_VALUE_FN_ENABLE, __adc_value_fn(chan, value))
+
 #endif	/* APP_CONNECTOR_H */
 

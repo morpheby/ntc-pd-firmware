@@ -19,6 +19,7 @@
 #include "math.h"
 #include "D_I_O.h"
 #include "modbus_registers.h"
+#include "filter.h"
 
 
 /******************************************************************************/
@@ -88,6 +89,9 @@ int16_t main() {
     
     /* Initialize modbus registers */
     modbus_regs_init();
+    
+    /* Initialize filters */
+    filter_init();
     
     ADC_Init(1);
     discrete_init();
