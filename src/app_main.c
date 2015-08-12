@@ -30,14 +30,12 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
-_PERSISTENT static Filter *squaredFilter;
 
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
-                FilterTypeMovingMedian, 5);
-        squaredFilter = filter_create(6, FilterTypeMovingMean, 8);
+                FilterTypeMovingMean, 10);
     }
     initPWM();
     set_PWM_output_inverted(1);
@@ -46,9 +44,12 @@ void app_init() {
 MAIN_DECL_LOOP_FN() {
     
     MB.D_In = discrete_get_input();
-     
+         
     discrete_set_output(MB.Control0);
-            
+    
+    MB.A0 = filter_get(adcInputFilter, 0);
+    MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
+                
     if((discrete_get_output()==0x00)) {
         //output is set to zero, motor is stopped. Switch off PWM
         PWM_off();
