@@ -30,11 +30,14 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
+_PERSISTENT static Filter *positionInputFilter;
 
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
+                FilterTypeMovingMean, 10);
+        positionInputFilter = filter_create(1,
                 FilterTypeMovingMean, 10);
     }
     initPWM();
@@ -49,6 +52,7 @@ MAIN_DECL_LOOP_FN() {
     
     MB.A0 = filter_get(adcInputFilter, 0);
     MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
+    MB.Position0 = filter_get(positionInputFilter, 0);
                 
     if((discrete_get_output()==0x00)) {
         //output is set to zero, motor is stopped. Switch off PWM
@@ -74,7 +78,7 @@ CNI_DECL_PROC_FN(29, on) {
         ++counter;
         if (counter == 24) {
             value = (~value) & 0x0FFFFFFFL;
-            MB.Position0 = value;
+            filter_put(positionInputFilter, value, 0);
             value = 0;
             counter = 0;
         }
