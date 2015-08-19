@@ -30,6 +30,7 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
+_PERSISTENT static Filter *forceValueFilter;
 _PERSISTENT static Filter *positionInputFilter;
 
 void app_init() {
@@ -37,8 +38,10 @@ void app_init() {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMean, 10);
+        forceValueFilter = filter_create(1,
+                FilterTypeMovingMedian, 5);
         positionInputFilter = filter_create(1,
-                FilterTypeMovingMean, 10);
+                FilterTypeMovingMedian, 5);
     }
     initPWM();
     set_PWM_output_inverted(1);
@@ -51,7 +54,8 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.Control0);
     
     MB.A0 = filter_get(adcInputFilter, 0);
-    MB.ADC0 = (MB.A0 - MB.OFS_ADC0)*MB.K0;
+    filter_put(forceValueFilter, (MB.A0 - MB.OFS_ADC0), 0);
+    MB.ADC0 = filter_get(forceValueFilter, 0)*MB.K0;
     MB.Position0 = filter_get(positionInputFilter, 0);
                 
     if((discrete_get_output()==0x00)) {
@@ -71,9 +75,9 @@ MAIN_DECL_LOOP_FN() {
 CNI_DECL_PROC_FN(29, on) {
     static uint32_t value = 0;
     static int counter = 0;
-    static long int last_time = 0xEFFFFFFFL;
+    static long int last_time = 0;
     
-    if (!on && (counter || timing_get_time_low() > last_time+150000000L)) {
+    if (!on && (counter || timing_get_time_msecs() > last_time+24)) {
         value |= discrete_get_input_bit(3) << counter;
         ++counter;
         if (counter == 24) {
@@ -85,7 +89,7 @@ CNI_DECL_PROC_FN(29, on) {
 	}
 
     if (!on) {
-        last_time = timing_get_time_low();
+        last_time = timing_get_time_msecs();
     }
 }
 
