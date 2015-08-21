@@ -41,7 +41,7 @@ void app_init() {
         forceValueFilter = filter_create(1,
                 FilterTypeMovingMedian, 5);
         positionInputFilter = filter_create(1,
-                FilterTypeMovingMedian, 5);
+                FilterTypeMovingMedian, 15);
     }
     initPWM();
     set_PWM_output_inverted(1);
