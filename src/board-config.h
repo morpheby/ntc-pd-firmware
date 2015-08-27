@@ -142,7 +142,7 @@
 // Define to 1 if the display is present, to 0 otherwise
 // Note, that display module is quite heavy, so excluding it will save
 // a lot of memory
-#define HAS_LED_DISPLAY      1
+#define HAS_LED_DISPLAY      0
 // Total character count in LED display module
 #define DISPLAY_COUNT        4
 // Number characters in a single section of LED display module
@@ -176,9 +176,9 @@
 #define ADC_1_ENABLE 1
 #define ADC_2_ENABLE 1
 #define ADC_3_ENABLE 1
-#define ADC_4_ENABLE 1
-#define ADC_5_ENABLE 1
-#define ADC_6_ENABLE 1
+#define ADC_4_ENABLE 0
+#define ADC_5_ENABLE 0
+#define ADC_6_ENABLE 0
 
 #define ADC_CHANNEL_COUNT ADC_0_ENABLE + ADC_1_ENABLE + ADC_2_ENABLE    \
                          + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE   \
