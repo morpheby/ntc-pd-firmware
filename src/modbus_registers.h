@@ -156,7 +156,9 @@ void modbus_mmap_free();
 
 #define REG_QEI_POS         120, u16
 
-#define MODBUS_DATA_END        121
+#define REG_DS1820_TEMP         121, f
+
+#define MODBUS_DATA_END        123
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -284,6 +286,7 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(PositionK0);
 
             _REG_DEFINE(QEI_POS);
+            _REG_DEFINE(DS1820_TEMP);
             
             uint16_t __last1;
         };

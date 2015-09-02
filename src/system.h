@@ -25,6 +25,10 @@ extern uint32_t sysFreq;
 #define SYS_FREQ        (sysFreq)
 #define FCY             (SYS_FREQ/2)
 
+#include <libpic30.h>
+#define delay_us(d ) \
+  { __delay32( (unsigned long) (((float) d)*(FCY)/1e6f)); }
+
 #define _ISR_NOPSV      __attribute__((interrupt,no_auto_psv))
 
 #define __RP_MAP(num) RP##num##R

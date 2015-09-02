@@ -23,6 +23,7 @@
 #include "PWM.h"
 #include "ind_profiles.h"
 #include "filter.h"
+#include "DS1820.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -38,13 +39,10 @@ void app_init() {
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMean, 10);
     }
+    DS1820_initROM();
 }
 
 MAIN_DECL_LOOP_FN() {
-    
-    discrete_set_output(MB.D_Out);
-    MB.D_In = discrete_get_input();
-    
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);
     MB.A1 = filter_get(adcInputFilter, 1);
@@ -56,8 +54,12 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
+   
+    DS1820_update();
+    MB.DS1820_TEMP = DS1820_temperature();
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
     filter_put(adcInputFilter, value, channel);
 }
+

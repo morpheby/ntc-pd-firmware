@@ -135,7 +135,6 @@
 #define CNI_29_ENABLE     0
 #define CNI_30_ENABLE     0
 
-
 /*
  * LED display configuration
  */
