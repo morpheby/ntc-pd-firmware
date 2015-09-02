@@ -33,6 +33,10 @@
 _PERSISTENT static Filter *adcInputFilter;
 _PERSISTENT static Filter *squaredFilter;
 
+static unsigned int DI0_counter = 0;
+static unsigned int DI1_counter = 0;
+static long int last_time;
+
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
@@ -40,6 +44,7 @@ void app_init() {
                 FilterTypeMovingMean, 10);
     }
     DS1820_initROM();
+    last_time = timing_get_time_msecs();
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -67,9 +72,34 @@ MAIN_DECL_LOOP_FN() {
     MB.DS1820_TEMP_9 = DS1820_temperature(8);
     MB.DS1820_TEMP_10 = DS1820_temperature(9);
     MB.DS1820_TEMP_11 = DS1820_temperature(10);
+    
+    long int dt = timing_get_time_msecs() - last_time;
+    
+    if(dt >= 1000) {
+        MB.DI0_ImpFrequency = 1000.0f*(float)DI0_counter / (float)dt;
+        MB.DI1_ImpFrequency = 1000.0f*(float)DI1_counter / (float)dt;
+        DI0_counter = 0;
+        DI1_counter = 0;
+        last_time = timing_get_time_msecs();
+    }
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
     filter_put(adcInputFilter, value, channel);
 }
 
+//DI0 impulse counter
+CNI_DECL_PROC_FN(29, on) {
+    if(!on) 
+    {
+        DI0_counter++;        
+    }
+}
+
+//DI1 impulse counter
+CNI_DECL_PROC_FN(30, on) {
+    if(!on) 
+    {
+        DI1_counter++;        
+    }
+}
