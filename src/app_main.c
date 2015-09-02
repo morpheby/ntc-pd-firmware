@@ -56,7 +56,17 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
    
     DS1820_update();
-    MB.DS1820_TEMP = DS1820_temperature();
+    MB.DS1820_TEMP_1 = DS1820_temperature(0);
+    MB.DS1820_TEMP_2 = DS1820_temperature(1);
+    MB.DS1820_TEMP_3 = DS1820_temperature(2);
+    MB.DS1820_TEMP_4 = DS1820_temperature(3);
+    MB.DS1820_TEMP_5 = DS1820_temperature(4);
+    MB.DS1820_TEMP_6 = DS1820_temperature(5);
+    MB.DS1820_TEMP_7 = DS1820_temperature(6);
+    MB.DS1820_TEMP_8 = DS1820_temperature(7);
+    MB.DS1820_TEMP_9 = DS1820_temperature(8);
+    MB.DS1820_TEMP_10 = DS1820_temperature(9);
+    MB.DS1820_TEMP_11 = DS1820_temperature(10);
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

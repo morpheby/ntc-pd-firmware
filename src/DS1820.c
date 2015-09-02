@@ -1,19 +1,22 @@
 #include "DS1820.h"
 #include "board-config.h"
 
-static float temperature;
-static bool init_ok;
+#define SENSOR_COUNT 11
 
 #define STATE_DEFAULT 0
 #define STATE_DATA_READ 1
-
-#define SENSOR_COUNT 11
 
 static uint8_t state = STATE_DEFAULT;
 static unsigned char LS_byte;
 static unsigned char MS_byte;
 
-static uint8_t ROM[8];
+static float temperature[SENSOR_COUNT];
+static bool init_ok;
+static unsigned int currentIndex = 0;
+
+static bool hasROMConflicts;
+static uint8_t lastROMConflictIndex;
+static uint8_t ROM[8*SENSOR_COUNT];
 
 bool DS1820_lineState() {
     return (PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM) == 1);
@@ -50,8 +53,9 @@ void DS1820_update()
                 if(init_ok) {
                     uint8_t i;
                     DS1820_TX(0x55);
+                    unsigned int offset = currentIndex*8;
                     for(i = 0; i < 8; ++i) {
-                        DS1820_TX(ROM[i]);
+                        DS1820_TX(ROM[i + offset]);
                     }
                     DS1820_TX(0xBE);
                     LS_byte = DS1820_RX();
@@ -60,7 +64,11 @@ void DS1820_update()
                     MS_byte += (LS_byte >> 5);
                     LS_byte = (LS_byte << 3);
                     int8_t temp = (MS_byte << 4) + (LS_byte >> 4);
-                    temperature = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);
+                    temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);
+                }
+                currentIndex++;
+                if(currentIndex >= SENSOR_COUNT) {
+                    currentIndex = 0;
                 }
                 state = STATE_DEFAULT;
             }
@@ -69,9 +77,9 @@ void DS1820_update()
     }
 }
 
-float DS1820_temperature()
+float DS1820_temperature(unsigned int index)
 {
-    return temperature;
+    return temperature[index];
 }
 
 void DS1820_init()
@@ -88,7 +96,6 @@ void DS1820_init()
     delay_us(500);
     high_priority_exit(handle);    
 }
-
 
 void DS1820_TX(unsigned char cmd)
 {
@@ -126,19 +133,20 @@ unsigned char DS1820_RX()
     return d;
 }
 
-void DS1820_initROM()
+void DS1820_findNextROM()
 {
-    uint8_t i;
-    for(i = 0; i < 8; ++i) {
-        ROM[i] = 0;
-    }
     SYSHANDLE handle;
+    unsigned int i;
+    unsigned int offset = currentIndex*8;
+    
+    hasROMConflicts = 0;
+    
     DS1820_init();
     if(init_ok) {
         bool bit_1 = 0;
         bool bit_2 = 0;
         DS1820_TX(0xF0);
-        
+                
         for(i = 0; i < 64; ++i) {
             handle = high_priority_enter();
             DS1820_setLineToZero();//прижимаем линию
@@ -157,36 +165,84 @@ void DS1820_initROM()
             bit_2 = DS1820_lineState();
             high_priority_exit(handle);
             delay_us(60);            //ждем до положенного времени
-        
-            ROM[0]>>=1;
-			if (ROM[1] & 0b00000001)ROM[0] |= 0b10000000;
-			ROM[1]>>=1;
-			if (ROM[2] & 0b00000001)ROM[1] |= 0b10000000;		
-			ROM[2]>>=1;
-			if (ROM[3] & 0b00000001)ROM[2] |= 0b10000000;
-			ROM[3]>>=1;
-			if (ROM[4] & 0b00000001)ROM[3] |= 0b10000000;
-			ROM[4]>>=1;
-			if (ROM[5] & 0b00000001)ROM[4] |= 0b10000000;
-			ROM[5]>>=1;
-			if (ROM[6] & 0b00000001)ROM[5] |= 0b10000000;		
-			ROM[6]>>=1;
-			if (ROM[7] & 0b00000001)ROM[6] |= 0b10000000;
-            ROM[7]>>=1;
-            
+           
+            bool ROM_bit = false;
             if(bit_1 && !bit_2) {
                 //на всех активных устройствах в разряде 1
-                ROM[7] |= 0x80;
-                DS1820_writeOne();
+                ROM_bit = true;
             } else if (!bit_1 && bit_2) {
                 //на всех активных устройствах в разряде 0
-                DS1820_writeZero();                
+                ROM_bit = 0;                
             } else if(!bit_1 && !bit_2) {
                 //конфликт 
+                if(i == lastROMConflictIndex) {
+                    ROM_bit = 1;
+                } else {
+                    hasROMConflicts = true;
+                    if(i > lastROMConflictIndex) {
+                        lastROMConflictIndex = i;
+                        ROM_bit = 0;
+                    } else {
+                        if(ROM[offset] & 0x01) {
+                            ROM_bit = 1;
+                        } else {
+                            ROM_bit = 0;
+                            lastROMConflictIndex = i;
+                        }
+                    }                    
+                }
+            }
+            
+            if(ROM_bit) {
+                DS1820_writeOne();
+            } else {
                 DS1820_writeZero();
+            }
+            
+            ROM[0 + offset]>>=1;
+			if (ROM[1 + offset] & 0b00000001)ROM[0 + offset] |= 0b10000000;
+			ROM[1 + offset]>>=1;
+			if (ROM[2 + offset] & 0b00000001)ROM[1 + offset] |= 0b10000000;		
+			ROM[2 + offset]>>=1;
+			if (ROM[3 + offset] & 0b00000001)ROM[2 + offset] |= 0b10000000;
+			ROM[3 + offset]>>=1;
+			if (ROM[4 + offset] & 0b00000001)ROM[3 + offset] |= 0b10000000;
+			ROM[4 + offset]>>=1;
+			if (ROM[5 + offset] & 0b00000001)ROM[4 + offset] |= 0b10000000;
+			ROM[5 + offset]>>=1;
+			if (ROM[6 + offset] & 0b00000001)ROM[5 + offset] |= 0b10000000;		
+			ROM[6 + offset]>>=1;
+			if (ROM[7 + offset] & 0b00000001)ROM[6 + offset] |= 0b10000000;
+            ROM[7 + offset]>>=1;
+            if(ROM_bit) {
+                ROM[7 + offset] |= 0x80;                
             }
         }
     }  
+}
+
+void DS1820_initROM()
+{
+    unsigned int i;
+    for(i = 0; i < 8 * SENSOR_COUNT; ++i) {
+        ROM[i] = 0;
+    }
+    
+    currentIndex = 0;
+    lastROMConflictIndex = 65;
+    
+    do {
+        DS1820_findNextROM();
+       // temperature[currentIndex] = (ROM[0 + currentIndex*8] << 24) + (ROM[1 + currentIndex*8] << 16) + (ROM[2 + currentIndex*8] << 8) + (ROM[3 + currentIndex*8]);
+        
+        currentIndex ++;
+                
+        if(currentIndex >= SENSOR_COUNT) {
+            break;
+        }
+    } while (hasROMConflicts);
+    
+    currentIndex = 0;
 }
 
 void DS1820_writeOne() 

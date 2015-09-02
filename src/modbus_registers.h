@@ -156,9 +156,21 @@ void modbus_mmap_free();
 
 #define REG_QEI_POS         120, u16
 
-#define REG_DS1820_TEMP         121, f
+#define REG_DS1820_TEMP_1         121, f
+#define REG_DS1820_TEMP_2         123, f
+#define REG_DS1820_TEMP_3         125, f
+#define REG_DS1820_TEMP_4         127, f
+#define REG_DS1820_TEMP_5         129, f
+#define REG_DS1820_TEMP_6         131, f
+#define REG_DS1820_TEMP_7         133, f
+#define REG_DS1820_TEMP_8         135, f
+#define REG_DS1820_TEMP_9         137, f
+#define REG_DS1820_TEMP_10         139, f
+#define REG_DS1820_TEMP_11         141, f
+#define REG_DI0_ImpFrequency         143, f
+#define REG_DI1_ImpFrequency         145, f
 
-#define MODBUS_DATA_END        123
+#define MODBUS_DATA_END        147
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -286,7 +298,19 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(PositionK0);
 
             _REG_DEFINE(QEI_POS);
-            _REG_DEFINE(DS1820_TEMP);
+            _REG_DEFINE(DS1820_TEMP_1);
+            _REG_DEFINE(DS1820_TEMP_2);
+            _REG_DEFINE(DS1820_TEMP_3);
+            _REG_DEFINE(DS1820_TEMP_4);
+            _REG_DEFINE(DS1820_TEMP_5);
+            _REG_DEFINE(DS1820_TEMP_6);
+            _REG_DEFINE(DS1820_TEMP_7);
+            _REG_DEFINE(DS1820_TEMP_8);
+            _REG_DEFINE(DS1820_TEMP_9);
+            _REG_DEFINE(DS1820_TEMP_10);
+            _REG_DEFINE(DS1820_TEMP_11);
+            _REG_DEFINE(DI0_ImpFrequency);
+            _REG_DEFINE(DI1_ImpFrequency);
             
             uint16_t __last1;
         };

@@ -17,7 +17,7 @@ void DS1820_setLineToOne();
 bool DS1820_lineState();
 
 void DS1820_update();
-float DS1820_temperature();
+float DS1820_temperature(unsigned int index);
 void DS1820_init();
 void DS1820_TX(unsigned char cmd);
 unsigned char DS1820_RX();
