@@ -36,7 +36,7 @@ void app_init() {
     if (reset_is_cold()) {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
-                FilterTypeMovingMedian, 5);
+                FilterTypeMovingMean, 10);
         squaredFilter = filter_create(6, FilterTypeMovingMean, 8);
     }
     initQEI();
