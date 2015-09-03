@@ -33,10 +33,25 @@ int imp_kol_temp = 0;
 int PARAM_SET;
 int ind_off = 0x07;
 
+#define DEFAULT_IND_PROFILE 0xFF00
+
 // Flash storage for permanent modbus registers
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current profile number
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE, 
+                                                                     DEFAULT_IND_PROFILE};
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -105,6 +120,7 @@ int16_t main() {
     uint16_t i = 0;
     float *adcCoeffPtr = &MB.K0;
     int *adcOffsetPtr = &MB.OFS_ADC0;
+    int *indProfilesPtr = &MB.profile;
     uint16_t *tmpPtr;
     RamData = &(MB.BRG_VAL);
 
@@ -114,6 +130,11 @@ int16_t main() {
         adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
     }
     MB.PositionK0 = flash_data_buf_PosK0;
+    
+    //Init permamnently stored values for ind profiles
+    for(i = 0; i < 13; ++i) {
+        indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
+    }
     
     // Initialize application-specific module
     app_init();
@@ -142,6 +163,13 @@ int16_t main() {
                             tmpPtr[0]);
                     flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
                             tmpPtr[1]);
+                }
+            }
+            for(i = 0; i < 13; ++i) {
+                if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i),
+                            indProfilesPtr[i]);                    
                 }
             }
             flash_write();
