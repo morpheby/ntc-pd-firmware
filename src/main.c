@@ -52,6 +52,7 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current p
                                                                      DEFAULT_IND_PROFILE,
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -135,6 +136,7 @@ int16_t main() {
     for(i = 0; i < 13; ++i) {
         indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
     }
+    MB.PROF_CHANGE_SOURCE = flash_data_buf_PROF_CHANGE_SOURCE;
     
     // Initialize application-specific module
     app_init();
@@ -171,6 +173,11 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i),
                             indProfilesPtr[i]);                    
                 }
+            }
+            if(MB.PROF_CHANGE_SOURCE != flash_data_buf_PROF_CHANGE_SOURCE) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE),
+                        MB.PROF_CHANGE_SOURCE);                 
             }
             flash_write();
             system_reset();

@@ -5,6 +5,7 @@
 #include "display.h"
 #include "menu-base.h"
 #include "modbus_registers.h"
+#include "D_I_O.h"
 
 #define REG_TYPE_INT 0
 #define REG_TYPE_UINT 1
@@ -22,6 +23,10 @@ void ind_showValues()
     uint16_t ind0_profile = MB.ind_0_1;
     uint16_t ind1_profile = MB.ind_1_1;   
     uint16_t ind2_profile = MB.ind_2_1;  
+    
+    if(MB.PROF_CHANGE_SOURCE == 1) {      
+        MB.profile = discrete_get_input();
+    }
     
     uint8_t currentProfile = MB.profile;
     
