@@ -73,14 +73,15 @@ MAIN_DECL_LOOP_FN() {
     MB.DS1820_TEMP_10 = DS1820_temperature(9);
     MB.DS1820_TEMP_11 = DS1820_temperature(10);
     
-    long int dt = timing_get_time_msecs() - last_time;
+    long int time = timing_get_time_msecs();
+    long int dt = time - last_time;
     
     if(dt >= 1000) {
         MB.DI0_ImpFrequency = 1000.0f*(float)DI0_counter / (float)dt;
         MB.DI1_ImpFrequency = 1000.0f*(float)DI1_counter / (float)dt;
         DI0_counter = 0;
         DI1_counter = 0;
-        last_time = timing_get_time_msecs();
+        last_time = time;
     }
 }
 
