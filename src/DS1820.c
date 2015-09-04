@@ -17,6 +17,7 @@ static unsigned int currentIndex = 0;
 static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
 static uint8_t ROM[8*SENSOR_COUNT];
+static unsigned int ROM_count;
 
 bool DS1820_lineState() {
     return (PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM) == 1);
@@ -143,6 +144,7 @@ void DS1820_findNextROM()
     
     DS1820_init();
     if(init_ok) {
+        ROM_count++;
         bool bit_1 = 0;
         bool bit_2 = 0;
         DS1820_TX(0xF0);
@@ -227,7 +229,7 @@ void DS1820_initROM()
     for(i = 0; i < 8 * SENSOR_COUNT; ++i) {
         ROM[i] = 0;
     }
-    
+    ROM_count = 0;    
     currentIndex = 0;
     lastROMConflictIndex = 65;
     
@@ -265,4 +267,8 @@ void DS1820_writeZero()
     DS1820_setLineToOne();
     delay_us(1);
     high_priority_exit(handle);
+}
+
+unsigned int DS1820_ROMCount() {
+    return ROM_count;
 }

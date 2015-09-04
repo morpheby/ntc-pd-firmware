@@ -11,6 +11,7 @@
 #include "system.h"
 
 void DS1820_initROM();
+unsigned int DS1820_ROMCount();
 
 void DS1820_setLineToZero();
 void DS1820_setLineToOne();

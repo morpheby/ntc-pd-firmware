@@ -59,6 +59,14 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
+    
+    switch(MB.Control0) {
+        case 0x01: {
+            DS1820_initROM();
+            break;
+        }
+    }
+    MB.Control0 = 0;
    
     DS1820_update();
     MB.DS1820_TEMP_1 = DS1820_temperature(0);
@@ -72,6 +80,8 @@ MAIN_DECL_LOOP_FN() {
     MB.DS1820_TEMP_9 = DS1820_temperature(8);
     MB.DS1820_TEMP_10 = DS1820_temperature(9);
     MB.DS1820_TEMP_11 = DS1820_temperature(10);
+    
+    MB.TermoCount = DS1820_ROMCount();
     
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;

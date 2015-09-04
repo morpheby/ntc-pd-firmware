@@ -146,8 +146,8 @@ void modbus_mmap_free();
 #define REG_D_Out_Init         111, i16
 #define REG_AD_12b             112, i16
 
-#define REG_Control0           113, i16
-#define REG_Status0            114, i16
+#define REG_Control0           113, u16
+#define REG_Status0            114, u16
 
 #define REG_Power0             115, i16
 #define REG_Position0          116, i16
@@ -167,10 +167,17 @@ void modbus_mmap_free();
 #define REG_DS1820_TEMP_9         137, f
 #define REG_DS1820_TEMP_10         139, f
 #define REG_DS1820_TEMP_11         141, f
+
 #define REG_DI0_ImpFrequency         143, f
 #define REG_DI1_ImpFrequency         145, f
 
-#define MODBUS_DATA_END        147
+#define REG_TermoId_bytes_0_1      147, u16
+#define REG_TermoId_bytes_2_3      148, u16
+#define REG_TermoId_bytes_4_5      149, u16
+#define REG_TermoId_bytes_6_7      150, u16
+#define REG_TermoCount             151, u16
+
+#define MODBUS_DATA_END        152
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -311,6 +318,12 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(DS1820_TEMP_11);
             _REG_DEFINE(DI0_ImpFrequency);
             _REG_DEFINE(DI1_ImpFrequency);
+            
+            _REG_DEFINE(TermoId_bytes_0_1);
+            _REG_DEFINE(TermoId_bytes_2_3);
+            _REG_DEFINE(TermoId_bytes_4_5);
+            _REG_DEFINE(TermoId_bytes_6_7);
+            _REG_DEFINE(TermoCount);
             
             uint16_t __last1;
         };
