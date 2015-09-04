@@ -45,6 +45,11 @@ void app_init() {
     }
     DS1820_initROM();
     MB.TermoCount = DS1820_ROMCount();
+    MB.TermoId_bytes_0_1 = DS1820_getIdWord(0,0);
+    MB.TermoId_bytes_2_3 = DS1820_getIdWord(0,1);
+    MB.TermoId_bytes_4_5 = DS1820_getIdWord(0,2);
+    MB.TermoId_bytes_6_7 = DS1820_getIdWord(0,3);
+    
     last_time = timing_get_time_msecs();
 }
 
@@ -64,14 +69,34 @@ MAIN_DECL_LOOP_FN() {
     unsigned int i;
     float *mbDS1820Termo = &MB.DS1820_TEMP_1;
     
-    switch(MB.Control0) {
+    uint8_t cmdCode = (uint8_t)(MB.Control0);
+    
+    switch(cmdCode) {
         case 0x01: {
             DS1820_initROM();
             MB.TermoCount = DS1820_ROMCount();
                
             for(i = 0; i < DS1820_SENSOR_COUNT; ++i) {
                 mbDS1820Termo[i] = 0;
-            }
+            }            
+            break;
+        }
+        case 0x02: {
+            DS1820_setMode(DS1820_PROCESS_SINGLE_SENSOR);  
+            break;
+        }
+        case 0x03: {
+            DS1820_setMode(DS1820_PROCESS_ALL_SENSORS);  
+            break;
+        } 
+        case 0x04:
+        {
+            uint8_t deviceIndex = (uint8_t)(MB.Control0 >> 8);
+            MB.TermoId_bytes_0_1 = DS1820_getIdWord(deviceIndex,0);
+            MB.TermoId_bytes_2_3 = DS1820_getIdWord(deviceIndex,1);
+            MB.TermoId_bytes_4_5 = DS1820_getIdWord(deviceIndex,2);
+            MB.TermoId_bytes_6_7 = DS1820_getIdWord(deviceIndex,3);
+            DS1820_setMode(DS1820_PROCESS_SINGLE_SENSOR);  
             break;
         }
     }
