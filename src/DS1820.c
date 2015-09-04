@@ -1,8 +1,6 @@
 #include "DS1820.h"
 #include "board-config.h"
 
-#define SENSOR_COUNT 11
-
 #define STATE_DEFAULT 0
 #define STATE_DATA_READ 1
 
@@ -10,13 +8,13 @@ static uint8_t state = STATE_DEFAULT;
 static unsigned char LS_byte;
 static unsigned char MS_byte;
 
-static float temperature[SENSOR_COUNT];
+static float temperature[DS1820_SENSOR_COUNT];
 static bool init_ok;
 static unsigned int currentIndex = 0;
 
 static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
-static uint8_t ROM[8*SENSOR_COUNT];
+static uint8_t ROM[8*DS1820_SENSOR_COUNT];
 static unsigned int ROM_count;
 
 bool DS1820_lineState() {
@@ -68,7 +66,7 @@ void DS1820_update()
                     temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);
                 }
                 currentIndex++;
-                if(currentIndex >= SENSOR_COUNT) {
+                if(currentIndex >= ROM_count) {
                     currentIndex = 0;
                 }
                 state = STATE_DEFAULT;
@@ -226,7 +224,7 @@ void DS1820_findNextROM()
 void DS1820_initROM()
 {
     unsigned int i;
-    for(i = 0; i < 8 * SENSOR_COUNT; ++i) {
+    for(i = 0; i < 8 * DS1820_SENSOR_COUNT; ++i) {
         ROM[i] = 0;
     }
     ROM_count = 0;    
@@ -239,7 +237,7 @@ void DS1820_initROM()
         
         currentIndex ++;
                 
-        if(currentIndex >= SENSOR_COUNT) {
+        if(currentIndex >= DS1820_SENSOR_COUNT) {
             break;
         }
     } while (hasROMConflicts);

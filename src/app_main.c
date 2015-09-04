@@ -44,6 +44,7 @@ void app_init() {
                 FilterTypeMovingMean, 10);
     }
     DS1820_initROM();
+    MB.TermoCount = DS1820_ROMCount();
     last_time = timing_get_time_msecs();
 }
 
@@ -59,29 +60,29 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
+        
+    unsigned int i;
+    float *mbDS1820Termo = &MB.DS1820_TEMP_1;
     
     switch(MB.Control0) {
         case 0x01: {
             DS1820_initROM();
+            MB.TermoCount = DS1820_ROMCount();
+               
+            for(i = 0; i < DS1820_SENSOR_COUNT; ++i) {
+                mbDS1820Termo[i] = 0;
+            }
             break;
         }
     }
     MB.Control0 = 0;
    
     DS1820_update();
-    MB.DS1820_TEMP_1 = DS1820_temperature(0);
-    MB.DS1820_TEMP_2 = DS1820_temperature(1);
-    MB.DS1820_TEMP_3 = DS1820_temperature(2);
-    MB.DS1820_TEMP_4 = DS1820_temperature(3);
-    MB.DS1820_TEMP_5 = DS1820_temperature(4);
-    MB.DS1820_TEMP_6 = DS1820_temperature(5);
-    MB.DS1820_TEMP_7 = DS1820_temperature(6);
-    MB.DS1820_TEMP_8 = DS1820_temperature(7);
-    MB.DS1820_TEMP_9 = DS1820_temperature(8);
-    MB.DS1820_TEMP_10 = DS1820_temperature(9);
-    MB.DS1820_TEMP_11 = DS1820_temperature(10);
+        
+    for(i = 0; i < MB.TermoCount; ++i) {
+        mbDS1820Termo[i] = DS1820_temperature(i);
+    }
     
-    MB.TermoCount = DS1820_ROMCount();
     
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;

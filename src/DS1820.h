@@ -10,6 +10,8 @@
 
 #include "system.h"
 
+#define DS1820_SENSOR_COUNT 11
+
 void DS1820_initROM();
 unsigned int DS1820_ROMCount();
 
