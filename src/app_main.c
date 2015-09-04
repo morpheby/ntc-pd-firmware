@@ -75,7 +75,12 @@ MAIN_DECL_LOOP_FN() {
         case 0x01: {
             DS1820_initROM();
             MB.TermoCount = DS1820_ROMCount();
-               
+            
+            MB.TermoId_bytes_0_1 = DS1820_getIdWord(0,0);
+            MB.TermoId_bytes_2_3 = DS1820_getIdWord(0,1);
+            MB.TermoId_bytes_4_5 = DS1820_getIdWord(0,2);
+            MB.TermoId_bytes_6_7 = DS1820_getIdWord(0,3);
+            
             for(i = 0; i < DS1820_SENSOR_COUNT; ++i) {
                 mbDS1820Termo[i] = 0;
             }            
