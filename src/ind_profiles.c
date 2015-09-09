@@ -57,22 +57,23 @@ void ind_showValues()
     uint8_t ind2_reg_type = (ind2_profile & 0x00F0)>>4;
     
     // show value on display #0
-    if(ind0_regNumber < 0xFF) { //0xFF(255) is used as indicator switch off command
-        if(ind0_reg_type == REG_TYPE_FLOAT) {
-            uint8_t ind0_point = ind0_profile & 0x000F;
-            disp_fix_point(0, ind0_point);
-            disp_putf(0, modbus_get_reg_f(ind0_regNumber));        
-        } else if(ind0_reg_type == REG_TYPE_UINT)
+    if(ind2_regNumber < 0xFF) { //0xFF(255) is used as indicator switch off command
+        if(ind2_reg_type == REG_TYPE_FLOAT) {
+            uint8_t ind2_point = ind2_profile & 0x000F;
+            disp_fix_point(0, ind2_point);
+            disp_putf(0, modbus_get_reg_f(ind2_regNumber));        
+        } else if(ind2_reg_type == REG_TYPE_UINT)
         {
             disp_fix_point(0, 0);
-            disp_putd(0, modbus_get_reg_u16(ind0_regNumber));
+            disp_putd(0, modbus_get_reg_u16(ind2_regNumber));
         }else
         {
             disp_fix_point(0, 0);
-            disp_puti(0, modbus_get_reg_i16(ind0_regNumber));
+            disp_puti(0, modbus_get_reg_i16(ind2_regNumber));
         }        
     } else {
-        disp_puts("OFF");
+        disp_fix_point(0, 0);
+        disp_putd(0,0);
     }
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 1) {
@@ -92,28 +93,30 @@ void ind_showValues()
                 disp_puti(1, modbus_get_reg_i16(ind1_regNumber));
             }
         } else {
-            disp_puts("OFF");
+            disp_fix_point(0, 0);
+            disp_putd(1,0);
         }        
     }
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 2) {
         //show value on display #2
-        if(ind2_regNumber < 0xFF) {//0xFF(255) is used as indicator switch off command       
-            if(ind2_reg_type == REG_TYPE_FLOAT) {
-                uint8_t ind2_point = ind2_profile & 0x000F;
-                disp_fix_point(2, ind2_point);
-                disp_putf(2, modbus_get_reg_f(ind2_regNumber));        
-                }else if(ind2_reg_type == REG_TYPE_UINT)
+        if(ind0_regNumber < 0xFF) {//0xFF(255) is used as indicator switch off command       
+            if(ind0_reg_type == REG_TYPE_FLOAT) {
+                uint8_t ind0_point = ind0_profile & 0x000F;
+                disp_fix_point(2, ind0_point);
+                disp_putf(2, modbus_get_reg_f(ind0_regNumber));        
+                }else if(ind0_reg_type == REG_TYPE_UINT)
             {
                 disp_fix_point(2, 0);
-                disp_putd(2, modbus_get_reg_u16(ind2_regNumber));
+                disp_putd(2, modbus_get_reg_u16(ind0_regNumber));
             } else 
             {
                 disp_fix_point(2, 0);
-                disp_puti(2, modbus_get_reg_i16(ind2_regNumber));
+                disp_puti(2, modbus_get_reg_i16(ind0_regNumber));
             }
         } else {
-            disp_puts("OFF");
+            disp_fix_point(2, 0);
+            disp_putd(2,0);
         }        
     }    
 }

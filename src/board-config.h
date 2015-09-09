@@ -144,7 +144,7 @@
 // a lot of memory
 #define HAS_LED_DISPLAY      1
 // Total character count in LED display module
-#define DISPLAY_COUNT        4
+#define DISPLAY_COUNT        12
 // Number characters in a single section of LED display module
 #define CHARS_IN_SECTION     4
 
