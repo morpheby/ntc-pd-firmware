@@ -11,12 +11,9 @@
 #include "system.h"
 
 #define DS1820_SENSOR_COUNT 11
-#define DS1820_PROCESS_SINGLE_SENSOR 0
-#define DS1820_PROCESS_ALL_SENSORS 1
 
 void DS1820_initROM();
 unsigned int DS1820_ROMCount();
-void DS1820_setMode(uint8_t mode);
 uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex);
 
 void DS1820_setLineToZero();

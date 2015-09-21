@@ -9,16 +9,14 @@ static uint8_t state = STATE_DEFAULT;
 static unsigned char LS_byte;
 static unsigned char MS_byte;
 
-static float temperature[DS1820_SENSOR_COUNT];
+static float *temperature;
 static bool init_ok;
 static unsigned int currentIndex = 0;
 
 static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
-static uint8_t ROM[8*DS1820_SENSOR_COUNT];
+static uint8_t *ROM;
 static unsigned int ROM_count;
-
-static uint8_t DS1820_processMode = DS1820_PROCESS_SINGLE_SENSOR;
 
 bool DS1820_lineState() {
     return (PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM) == 1);
@@ -55,24 +53,15 @@ void DS1820_update()
                 if(init_ok) {
                     uint8_t i;
                     DS1820_TX(0x55);
-                    if(DS1820_processMode == DS1820_PROCESS_ALL_SENSORS) {
-                        unsigned int offset = currentIndex*8;
-                        for(i = 0; i < 8; ++i) {
-                            DS1820_TX(ROM[i + offset]);
-                        }                    
-                        currentIndex++;
-                        if(currentIndex >= ROM_count) {
-                            currentIndex = 0;
-                        }                        
-                    } else {
-                        unsigned int *id = &MB.TermoId_bytes_0_1;
-                        for(i = 0; i < 4; ++i) {
-                            DS1820_TX((unsigned char)(id[i] >> 8));
-                            DS1820_TX((unsigned char)id[i]);
-                        }
+                    unsigned int offset = currentIndex*8;
+                    for(i = 0; i < 8; ++i) {
+                        DS1820_TX(ROM[i + offset]);
+                    }                    
+                    currentIndex++;
+                    if(currentIndex >= ROM_count) {
                         currentIndex = 0;
-                    }
-                
+                    }                        
+
                     DS1820_TX(0xBE);
                     LS_byte = DS1820_RX();
                     MS_byte = DS1820_RX();
@@ -237,6 +226,8 @@ void DS1820_findNextROM()
 void DS1820_initROM()
 {
     unsigned int i;
+    ROM = &MB.TermoId_0_bytes_0_1;
+    temperature = &MB.DS1820_TEMP_1;
     for(i = 0; i < 8 * DS1820_SENSOR_COUNT; ++i) {
         ROM[i] = 0;
     }
@@ -281,19 +272,6 @@ void DS1820_writeZero()
 unsigned int DS1820_ROMCount() {
     return ROM_count;
 }
-
-
-void DS1820_setMode(uint8_t mode)
-{
-    DS1820_processMode = mode;
-    if(mode == DS1820_PROCESS_SINGLE_SENSOR) {
-        uint8_t i;
-        for(i = 0; i < DS1820_SENSOR_COUNT; ++i) {
-            temperature[i] = 0;
-        }
-    }
-}
-
 
 uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex)
 {

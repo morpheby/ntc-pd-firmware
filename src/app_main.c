@@ -45,11 +45,7 @@ void app_init() {
     }
     DS1820_initROM();
     MB.TermoCount = DS1820_ROMCount();
-    MB.TermoId_bytes_0_1 = DS1820_getIdWord(0,0);
-    MB.TermoId_bytes_2_3 = DS1820_getIdWord(0,1);
-    MB.TermoId_bytes_4_5 = DS1820_getIdWord(0,2);
-    MB.TermoId_bytes_6_7 = DS1820_getIdWord(0,3);
-    
+  
     last_time = timing_get_time_msecs();
 }
 
@@ -65,54 +61,8 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
-        
-    unsigned int i;
-    float *mbDS1820Termo = &MB.DS1820_TEMP_1;
-    
-    uint8_t cmdCode = (uint8_t)(MB.Control0);
-    
-    switch(cmdCode) {
-        case 0x01: {
-            DS1820_initROM();
-            MB.TermoCount = DS1820_ROMCount();
-            
-            MB.TermoId_bytes_0_1 = DS1820_getIdWord(0,0);
-            MB.TermoId_bytes_2_3 = DS1820_getIdWord(0,1);
-            MB.TermoId_bytes_4_5 = DS1820_getIdWord(0,2);
-            MB.TermoId_bytes_6_7 = DS1820_getIdWord(0,3);
-            
-            for(i = 0; i < DS1820_SENSOR_COUNT; ++i) {
-                mbDS1820Termo[i] = 0;
-            }            
-            break;
-        }
-        case 0x02: {
-            DS1820_setMode(DS1820_PROCESS_SINGLE_SENSOR);  
-            break;
-        }
-        case 0x03: {
-            DS1820_setMode(DS1820_PROCESS_ALL_SENSORS);  
-            break;
-        } 
-        case 0x04:
-        {
-            uint8_t deviceIndex = (uint8_t)(MB.Control0 >> 8);
-            MB.TermoId_bytes_0_1 = DS1820_getIdWord(deviceIndex,0);
-            MB.TermoId_bytes_2_3 = DS1820_getIdWord(deviceIndex,1);
-            MB.TermoId_bytes_4_5 = DS1820_getIdWord(deviceIndex,2);
-            MB.TermoId_bytes_6_7 = DS1820_getIdWord(deviceIndex,3);
-            DS1820_setMode(DS1820_PROCESS_SINGLE_SENSOR);  
-            break;
-        }
-    }
-    MB.Control0 = 0;
    
     DS1820_update();
-        
-    for(i = 0; i < MB.TermoCount; ++i) {
-        mbDS1820Termo[i] = DS1820_temperature(i);
-    }
-    
     
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;

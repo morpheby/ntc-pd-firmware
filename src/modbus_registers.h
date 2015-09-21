@@ -171,13 +171,64 @@ void modbus_mmap_free();
 #define REG_DI0_ImpFrequency         143, f
 #define REG_DI1_ImpFrequency         145, f
 
-#define REG_TermoId_bytes_0_1      147, u16
-#define REG_TermoId_bytes_2_3      148, u16
-#define REG_TermoId_bytes_4_5      149, u16
-#define REG_TermoId_bytes_6_7      150, u16
-#define REG_TermoCount             151, u16
+#define REG_TermoId_0_bytes_0_1      147, u16
+#define REG_TermoId_0_bytes_2_3      148, u16
+#define REG_TermoId_0_bytes_4_5      149, u16
+#define REG_TermoId_0_bytes_6_7      150, u16
 
-#define MODBUS_DATA_END        152
+#define REG_TermoId_1_bytes_0_1      151, u16
+#define REG_TermoId_1_bytes_2_3      152, u16
+#define REG_TermoId_1_bytes_4_5      153, u16
+#define REG_TermoId_1_bytes_6_7      154, u16
+
+#define REG_TermoId_2_bytes_0_1      155, u16
+#define REG_TermoId_2_bytes_2_3      156, u16
+#define REG_TermoId_2_bytes_4_5      157, u16
+#define REG_TermoId_2_bytes_6_7      158, u16
+
+#define REG_TermoId_3_bytes_0_1      159, u16
+#define REG_TermoId_3_bytes_2_3      160, u16
+#define REG_TermoId_3_bytes_4_5      161, u16
+#define REG_TermoId_3_bytes_6_7      162, u16
+
+#define REG_TermoId_4_bytes_0_1      163, u16
+#define REG_TermoId_4_bytes_2_3      164, u16
+#define REG_TermoId_4_bytes_4_5      165, u16
+#define REG_TermoId_4_bytes_6_7      166, u16
+
+#define REG_TermoId_5_bytes_0_1      167, u16
+#define REG_TermoId_5_bytes_2_3      168, u16
+#define REG_TermoId_5_bytes_4_5      169, u16
+#define REG_TermoId_5_bytes_6_7      170, u16
+
+#define REG_TermoId_6_bytes_0_1      171, u16
+#define REG_TermoId_6_bytes_2_3      172, u16
+#define REG_TermoId_6_bytes_4_5      173, u16
+#define REG_TermoId_6_bytes_6_7      174, u16
+
+#define REG_TermoId_7_bytes_0_1      175, u16
+#define REG_TermoId_7_bytes_2_3      176, u16
+#define REG_TermoId_7_bytes_4_5      177, u16
+#define REG_TermoId_7_bytes_6_7      178, u16
+
+#define REG_TermoId_8_bytes_0_1      179, u16
+#define REG_TermoId_8_bytes_2_3      180, u16
+#define REG_TermoId_8_bytes_4_5      181, u16
+#define REG_TermoId_8_bytes_6_7      182, u16
+
+#define REG_TermoId_9_bytes_0_1      183, u16
+#define REG_TermoId_9_bytes_2_3      184, u16
+#define REG_TermoId_9_bytes_4_5      185, u16
+#define REG_TermoId_9_bytes_6_7      186, u16
+
+#define REG_TermoId_10_bytes_0_1      187, u16
+#define REG_TermoId_10_bytes_2_3      188, u16
+#define REG_TermoId_10_bytes_4_5      189, u16
+#define REG_TermoId_10_bytes_6_7      190, u16
+
+#define REG_TermoCount             191, u16
+
+#define MODBUS_DATA_END        192
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -319,10 +370,61 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(DI0_ImpFrequency);
             _REG_DEFINE(DI1_ImpFrequency);
             
-            _REG_DEFINE(TermoId_bytes_0_1);
-            _REG_DEFINE(TermoId_bytes_2_3);
-            _REG_DEFINE(TermoId_bytes_4_5);
-            _REG_DEFINE(TermoId_bytes_6_7);
+            _REG_DEFINE(TermoId_0_bytes_0_1);
+            _REG_DEFINE(TermoId_0_bytes_2_3);
+            _REG_DEFINE(TermoId_0_bytes_4_5);
+            _REG_DEFINE(TermoId_0_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_1_bytes_0_1);
+            _REG_DEFINE(TermoId_1_bytes_2_3);
+            _REG_DEFINE(TermoId_1_bytes_4_5);
+            _REG_DEFINE(TermoId_1_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_2_bytes_0_1);
+            _REG_DEFINE(TermoId_2_bytes_2_3);
+            _REG_DEFINE(TermoId_2_bytes_4_5);
+            _REG_DEFINE(TermoId_2_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_3_bytes_0_1);
+            _REG_DEFINE(TermoId_3_bytes_2_3);
+            _REG_DEFINE(TermoId_3_bytes_4_5);
+            _REG_DEFINE(TermoId_3_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_4_bytes_0_1);
+            _REG_DEFINE(TermoId_4_bytes_2_3);
+            _REG_DEFINE(TermoId_4_bytes_4_5);
+            _REG_DEFINE(TermoId_4_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_5_bytes_0_1);
+            _REG_DEFINE(TermoId_5_bytes_2_3);
+            _REG_DEFINE(TermoId_5_bytes_4_5);
+            _REG_DEFINE(TermoId_5_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_6_bytes_0_1);
+            _REG_DEFINE(TermoId_6_bytes_2_3);
+            _REG_DEFINE(TermoId_6_bytes_4_5);
+            _REG_DEFINE(TermoId_6_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_7_bytes_0_1);
+            _REG_DEFINE(TermoId_7_bytes_2_3);
+            _REG_DEFINE(TermoId_7_bytes_4_5);
+            _REG_DEFINE(TermoId_7_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_8_bytes_0_1);
+            _REG_DEFINE(TermoId_8_bytes_2_3);
+            _REG_DEFINE(TermoId_8_bytes_4_5);
+            _REG_DEFINE(TermoId_8_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_9_bytes_0_1);
+            _REG_DEFINE(TermoId_9_bytes_2_3);
+            _REG_DEFINE(TermoId_9_bytes_4_5);
+            _REG_DEFINE(TermoId_9_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_10_bytes_0_1);
+            _REG_DEFINE(TermoId_10_bytes_2_3);
+            _REG_DEFINE(TermoId_10_bytes_4_5);
+            _REG_DEFINE(TermoId_10_bytes_6_7);
+            
             _REG_DEFINE(TermoCount);
             
             uint16_t __last1;
