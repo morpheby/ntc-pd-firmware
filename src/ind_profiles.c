@@ -65,7 +65,7 @@ void ind_showValues()
         } else if(ind2_reg_type == REG_TYPE_UINT)
         {
             disp_fix_point(0, 0);
-            disp_putd(0, modbus_get_reg_u16(ind2_regNumber));
+            disp_putu(0, modbus_get_reg_u16(ind2_regNumber));
         }else
         {
             disp_fix_point(0, 0);
@@ -86,7 +86,7 @@ void ind_showValues()
             }else if(ind1_reg_type == REG_TYPE_UINT)
             {
                 disp_fix_point(1, 0);
-                disp_putd(1, modbus_get_reg_u16(ind1_regNumber));
+                disp_putu(1, modbus_get_reg_u16(ind1_regNumber));
             } else 
             {
                 disp_fix_point(1, 0);
@@ -108,7 +108,7 @@ void ind_showValues()
                 }else if(ind0_reg_type == REG_TYPE_UINT)
             {
                 disp_fix_point(2, 0);
-                disp_putd(2, modbus_get_reg_u16(ind0_regNumber));
+                disp_putu(2, modbus_get_reg_u16(ind0_regNumber));
             } else 
             {
                 disp_fix_point(2, 0);
