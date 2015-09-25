@@ -72,91 +72,86 @@ void modbus_mmap_free();
 #define REG_OFS_ADC5            34, i16
 #define REG_OFS_ADC6            35, i16
 
-#define REG_n_a                 36, i16
-#define REG_n_b                 37, i16
-#define REG_n_c                 38, i16
-#define REG_ind_off             39, i16
+#define REG_N                   36, i16
 
-#define REG_N                   40, i16
+#define REG_D_In                37, i16
+#define REG_D_Out               38, i16
 
-#define REG_D_In                41, i16
-#define REG_D_Out               42, i16
+#define REG_Ind_Delay           39, i16
 
-#define REG_Ind_Delay           43, i16
+#define REG_profile             40, i16
+#define REG_ind_0_1             41, i16
+#define REG_ind_1_1             42, i16
+#define REG_ind_2_1             43, i16
+#define REG_ind_0_2             44, i16
+#define REG_ind_1_2             45, i16
+#define REG_ind_2_2             46, i16
+#define REG_ind_0_3             47, i16
+#define REG_ind_1_3             48, i16
+#define REG_ind_2_3             49, i16
+#define REG_ind_0_4             50, i16
+#define REG_ind_1_4             51, i16
+#define REG_ind_2_4             52, i16
 
-#define REG_profile             44, i16
-#define REG_ind_0_1             45, i16
-#define REG_ind_1_1             46, i16
-#define REG_ind_2_1             47, i16
-#define REG_ind_0_2             48, i16
-#define REG_ind_1_2             49, i16
-#define REG_ind_2_2             50, i16
-#define REG_ind_0_3             51, i16
-#define REG_ind_1_3             52, i16
-#define REG_ind_2_3             53, i16
-#define REG_ind_0_4             54, i16
-#define REG_ind_1_4             55, i16
-#define REG_ind_2_4             56, i16
+#define REG_P1                  53, f
+#define REG_P2                  55, f
+#define REG_P3                  57, f
 
-#define REG_P1                  57, f
-#define REG_P2                  59, f
-#define REG_P3                  61, f
+#define REG_Q1                  59, f
+#define REG_Q2                  61, f
+#define REG_Q3                  63, f
 
-#define REG_Q1                  63, f
-#define REG_Q2                  65, f
-#define REG_Q3                  67, f
+#define REG_S1                  65, f
+#define REG_S2                  67, f
+#define REG_S3                  69, f
 
-#define REG_S1                  69, f
-#define REG_S2                  71, f
-#define REG_S3                  73, f
+#define REG_cos_f1              71, f
+#define REG_cos_f2              73, f
+#define REG_cos_f3              75, f
 
-#define REG_cos_f1              75, f
-#define REG_cos_f2              77, f
-#define REG_cos_f3              79, f
+#define REG_M0_AVG              77, f
+#define REG_M1_AVG              79, f
+#define REG_M2_AVG              81, f
 
-#define REG_M0_AVG              81, f
-#define REG_M1_AVG              83, f
-#define REG_M2_AVG              85, f
+#define REG_M0_RMS              83, f
+#define REG_M1_RMS              85, f
+#define REG_M2_RMS              87, f
 
-#define REG_M0_RMS              87, f
-#define REG_M1_RMS              89, f
-#define REG_M2_RMS              91, f
+#define REG_FLASH_WR            89, i16
+#define REG_FLASH_RD            90, i16
 
-#define REG_FLASH_WR            93, i16
-#define REG_FLASH_RD            94, i16
+#define REG_PROF_CHANGE_SOURCE  91, i16
 
-#define REG_PROF_CHANGE_SOURCE  95, i16
+#define REG_A0                  92, i16
+#define REG_A1                  93, i16
+#define REG_A2                  94, i16
+#define REG_A3                  95, i16
+#define REG_A4                 96, i16
+#define REG_A5                 97, i16
+#define REG_A6                 98, i16
 
-#define REG_A0                  96, i16
-#define REG_A1                  97, i16
-#define REG_A2                  98, i16
-#define REG_A3                  99, i16
-#define REG_A4                 100, i16
-#define REG_A5                 101, i16
-#define REG_A6                 102, i16
+#define REG_ind_off_1          99, i16
+#define REG_ind_off_2          100, i16
+#define REG_ind_off_3          101, i16
+#define REG_ind_off_4          102, i16
 
-#define REG_ind_off_1          103, i16
-#define REG_ind_off_2          104, i16
-#define REG_ind_off_3          105, i16
-#define REG_ind_off_4          106, i16
+#define REG_channel_num_U      103, i16
+#define REG_imp_kol            104, i16
+#define REG_V                  105, f
+#define REG_D_Out_Init         107, i16
+#define REG_AD_12b             108, i16
 
-#define REG_channel_num_U      107, i16
-#define REG_imp_kol            108, i16
-#define REG_V                  109, f
-#define REG_D_Out_Init         111, i16
-#define REG_AD_12b             112, i16
+#define REG_Control0           109, i16
+#define REG_Status0            110, i16
 
-#define REG_Control0           113, i16
-#define REG_Status0            114, i16
+#define REG_Power0             111, i16
+#define REG_Position0          112, i16
+#define REG_Position1          113, i16
+#define REG_PositionK0         114, f
 
-#define REG_Power0             115, i16
-#define REG_Position0          116, i16
-#define REG_Position1          117, i16
-#define REG_PositionK0         118, f
+#define REG_QEI_POS         116, u16
 
-#define REG_QEI_POS         120, u16
-
-#define MODBUS_DATA_END        121
+#define MODBUS_DATA_END        117
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -200,11 +195,6 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(OFS_ADC4);
             _REG_DEFINE(OFS_ADC5);
             _REG_DEFINE(OFS_ADC6);
-
-            _REG_DEFINE(n_a);
-            _REG_DEFINE(n_b);
-            _REG_DEFINE(n_c);
-            _REG_DEFINE(ind_off);
 
             _REG_DEFINE(N);
 
