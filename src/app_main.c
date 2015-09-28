@@ -32,11 +32,14 @@
 _PERSISTENT static Filter *adcInputFilter;
 static float P1Sum = 0;
 static float P2Sum = 0;
-static float A0sum = 0;
-static float A1sum = 0;
-static float A2sum = 0;
+static float P3Sum = 0;
+static float A0Sum = 0;
+static float A1Sum = 0;
+static float A2Sum = 0;
+static float A0SquareSum = 0;
+static float A1SquareSum = 0;
+static float A2SquareSum = 0;
 static uint16_t counter = 0;
-long int last_time;
 
 void app_init() {
     if (reset_is_cold()) {
@@ -44,8 +47,6 @@ void app_init() {
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeNone, 10);
     }
-    
-    last_time = timing_get_time_msecs();
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -57,36 +58,59 @@ MAIN_DECL_LOOP_FN() {
     MB.A0 = filter_get(adcInputFilter, 0);
     MB.A1 = filter_get(adcInputFilter, 1);
     MB.A2 = filter_get(adcInputFilter, 2);
+    MB.A3 = filter_get(adcInputFilter, 3);
+    MB.A4 = filter_get(adcInputFilter, 4);
+    MB.A5 = filter_get(adcInputFilter, 5);
+    MB.A6 = filter_get(adcInputFilter, 6);
         
     MB.ADC0 = (MB.A0 - MB.OFS_ADC0) * MB.K0;
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
+    MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
+    MB.ADC4 = (MB.A4 - MB.OFS_ADC4) * MB.K4;
+    MB.ADC5 = (MB.A5 - MB.OFS_ADC5) * MB.K5;
+    MB.ADC6 = (MB.A6 - MB.OFS_ADC6) * MB.K6;
     
-    A0sum += MB.ADC0*MB.ADC0;
-    A1sum += MB.ADC1*MB.ADC1;
-    A2sum += MB.ADC2*MB.ADC2;
+    A0SquareSum += MB.ADC0*MB.ADC0;
+    A1SquareSum += MB.ADC1*MB.ADC1;
+    A2SquareSum += MB.ADC2*MB.ADC2;
+    
+    A0Sum += MB.ADC0;
+    A1Sum += MB.ADC1;
+    A2Sum += MB.ADC2;
     
     P1Sum+=MB.ADC0*MB.ADC1;
     P2Sum+=MB.ADC0*MB.ADC2;
+    P3Sum+=MB.ADC1*MB.ADC2;
     
     counter++;    
-    
-    long int time = timing_get_time_msecs();
-    long int dt = time - last_time;
-    
-    if(dt >= 1000) {
+        
+    if(counter >= MB.N) {
         MB.P1 = P1Sum / counter;
         MB.P2 = P2Sum / counter;
-        MB.M0_RMS = sqrt(A0sum / counter);
-        MB.M1_RMS = sqrt(A1sum / counter);
-        MB.M2_RMS = sqrt(A2sum / counter);
-        A0sum = 0;
-        A1sum = 0;
-        A2sum = 0;
+        MB.P3 = P3Sum / counter;
+        
+        MB.M0_RMS = sqrt(A0SquareSum / counter);
+        MB.M1_RMS = sqrt(A1SquareSum / counter);
+        MB.M2_RMS = sqrt(A2SquareSum / counter);
+        
+        MB.M0_AVG = (A0Sum / counter);
+        MB.M1_AVG = (A1Sum / counter);
+        MB.M2_AVG = (A2Sum / counter);
+        
+        A0SquareSum = 0;
+        A1SquareSum = 0;
+        A2SquareSum = 0;
+        
+        A0Sum = 0;
+        A1Sum = 0;
+        A2Sum = 0;
+        
         P1Sum = 0;
         P2Sum = 0;
+        P3Sum = 0;
+        
         counter = 0;
-        last_time = time;
     }
 }
 
