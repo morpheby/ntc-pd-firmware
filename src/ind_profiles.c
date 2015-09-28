@@ -80,7 +80,7 @@ void ind_showValues()
         }        
     } else {
         disp_fix_point(0, 0);
-        disp_putd(0,0);
+        disp_putd(0,10000);
     }
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 1) {
@@ -101,7 +101,7 @@ void ind_showValues()
             }
         } else {
             disp_fix_point(0, 0);
-            disp_putd(1,0);
+            disp_putd(1,10000);
         }        
     }
     
@@ -123,7 +123,7 @@ void ind_showValues()
             }
         } else {
             disp_fix_point(2, 0);
-            disp_putd(2,0);
+            disp_putd(2,10000);
         }        
     }    
 }
