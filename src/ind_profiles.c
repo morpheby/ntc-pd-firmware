@@ -11,8 +11,15 @@
 #define REG_TYPE_UINT 1
 #define REG_TYPE_FLOAT 2
 
+static uint16_t indDelayCounter = 0;
+
 void ind_showValues()
 {
+    if(indDelayCounter ++ < MB.Ind_Delay) {
+        return;
+    }
+    indDelayCounter = 0;
+    
     if(DISPLAY_COUNT == 0)
     {
         //no displays connected
