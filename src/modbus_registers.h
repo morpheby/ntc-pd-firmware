@@ -138,7 +138,7 @@ void modbus_mmap_free();
 #define REG_channel_num_U      103, i16
 #define REG_imp_kol            104, i16
 #define REG_V                  105, f
-#define REG_D_Out_Init         107, i16
+#define REG_D_Out_Init         107, u16
 #define REG_AD_12b             108, i16
 
 #define REG_Control0           109, i16
