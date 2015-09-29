@@ -53,6 +53,7 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current p
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -115,7 +116,7 @@ int16_t main() {
     MB.FLASH_WR = 0;
     
     MB.Ind_Delay = 100; 
-    MB.N = 4000;
+    MB.N = flash_data_buf_N;
     MB.BRG_VAL = 19200;
    
     uint16_t i = 0;
@@ -178,6 +179,11 @@ int16_t main() {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE),
                         MB.PROF_CHANGE_SOURCE);                 
+            }
+            if(MB.N != flash_data_buf_N) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N),
+                        MB.N);                 
             }
             flash_write();
             system_reset();

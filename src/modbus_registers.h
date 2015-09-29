@@ -72,7 +72,7 @@ void modbus_mmap_free();
 #define REG_OFS_ADC5            34, i16
 #define REG_OFS_ADC6            35, i16
 
-#define REG_N                   36, i16
+#define REG_N                   36, u16
 
 #define REG_D_In                37, i16
 #define REG_D_Out               38, i16
