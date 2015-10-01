@@ -44,20 +44,42 @@ void app_init() {
                 FilterTypeMovingMedian, 15);
     }
     initPWM();
-    set_PWM_output_inverted(1);
+    set_PWM_output_inverted(0);
 }
 
 MAIN_DECL_LOOP_FN() {
     
     MB.D_In = discrete_get_input();
          
-    discrete_set_output(MB.Control0);
+  /*  discrete_set_output(MB.Control0);
+    PWM_on(MB.Power0);*/
+    
+    if(discrete_get_output() == 0x00) {
+        PWM_off();
+    } else {
+        //PWM_on(4096);
+       PWM_on(MB.Power0);
+    }
+    
+    if(MB.Control0 == 0x01 || MB.Control0 == 0x02) {
+        if(discrete_get_output() != MB.Control0) {
+            if(discrete_get_output() == 0x00) {
+                discrete_set_output(MB.Control0);
+            } else {
+                PWM_off();
+                discrete_set_output(0x00);
+            }
+        }
+    } else {
+        PWM_off();
+        discrete_set_output(0x00);
+    }
     
     MB.A0 = filter_get(adcInputFilter, 0);
     filter_put(forceValueFilter, (MB.A0 - MB.OFS_ADC0), 0);
     MB.ADC0 = filter_get(forceValueFilter, 0)*MB.K0;
     MB.Position0 = filter_get(positionInputFilter, 0);
-                
+    /*            
     if((discrete_get_output()==0x00)) {
         //output is set to zero, motor is stopped. Switch off PWM
         PWM_off();
@@ -69,7 +91,7 @@ MAIN_DECL_LOOP_FN() {
     if (MB.D_Out & 0x80) {
         // Override mode
         discrete_set_output(MB.D_Out);
-    }
+    }*/
 }
 
 CNI_DECL_PROC_FN(29, on) {
