@@ -130,23 +130,22 @@ void modbus_mmap_free();
 #define REG_A5                 97, i16
 #define REG_A6                 98, i16
 
-#define REG_channel_num_U      99, i16
-#define REG_imp_kol            100, i16
-#define REG_V                  101, f
-#define REG_D_Out_Init         103, u16
-#define REG_AD_12b             104, i16
+#define REG_imp_kol            99, i16
+#define REG_V                  100, f
+#define REG_D_Out_Init         102, u16
+#define REG_AD_12b             103, i16
 
-#define REG_Control0           105, i16
-#define REG_Status0            106, i16
+#define REG_Control0           104, i16
+#define REG_Status0            105, i16
 
-#define REG_Power0             107, i16
-#define REG_Position0          108, i16
-#define REG_Position1          109, i16
-#define REG_PositionK0         110, f
+#define REG_Power0             106, i16
+#define REG_Position0          107, i16
+#define REG_Position1          108, i16
+#define REG_PositionK0         109, f
 
-#define REG_QEI_POS         112, u16
+#define REG_QEI_POS         111, u16
 
-#define MODBUS_DATA_END        113
+#define MODBUS_DATA_END        112
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -249,7 +248,6 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(A5);
             _REG_DEFINE(A6);
 
-            _REG_DEFINE(channel_num_U);
             _REG_DEFINE(imp_kol);
             _REG_DEFINE(V);
             _REG_DEFINE(D_Out_Init);

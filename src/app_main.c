@@ -47,6 +47,7 @@ void app_init() {
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeNone, 10);
     }
+    discrete_set_output(MB.D_Out_Init);
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -93,6 +94,43 @@ MAIN_DECL_LOOP_FN() {
         MB.M0_RMS = sqrt(A0SquareSum / counter);
         MB.M1_RMS = sqrt(A1SquareSum / counter);
         MB.M2_RMS = sqrt(A2SquareSum / counter);
+        
+        MB.S1 = MB.M0_RMS * MB.M1_RMS;
+        MB.S2 = MB.M0_RMS * MB.M2_RMS;
+        MB.S3 = MB.M1_RMS * MB.M2_RMS;
+                
+        if(MB.P1 >= MB.S1)
+        {
+            MB.Q1 = 0;
+            MB.cos_f1 = 1;
+        }
+        else
+        {
+            MB.Q1 = sqrt(MB.S1 * MB.S1 - MB.P1 * MB.P1); //значения реактивной мощности ?????
+            MB.cos_f1 = MB.P1 / MB.S1;
+        }
+        
+        if(MB.P2 >= MB.S2)
+        {
+            MB.Q2 = 0;
+            MB.cos_f2 = 1;
+        }
+        else
+        {
+            MB.Q2 = sqrt(MB.S2 * MB.S2 - MB.P2 * MB.P2); //значения реактивной мощности ?????
+            MB.cos_f2 = MB.P2 / MB.S2;
+        }
+        
+        if(MB.P3 >= MB.S3)
+        {
+            MB.Q3 = 0;
+            MB.cos_f3 = 1;
+        }
+        else
+        {
+            MB.Q3 = sqrt(MB.S3 * MB.S3 - MB.P3 * MB.P3); //значения реактивной мощности ?????
+            MB.cos_f3 = MB.P3 / MB.S3;
+        }
         
         MB.M0_AVG = (A0Sum / counter);
         MB.M1_AVG = (A1Sum / counter);
