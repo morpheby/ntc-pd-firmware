@@ -50,10 +50,7 @@ void app_init() {
 MAIN_DECL_LOOP_FN() {
     
     MB.D_In = discrete_get_input();
-         
-  /*  discrete_set_output(MB.Control0);
-    PWM_on(MB.Power0);*/
-    
+             
     if(discrete_get_output() == 0x00) {
         PWM_off();
     } else {
@@ -79,19 +76,6 @@ MAIN_DECL_LOOP_FN() {
     filter_put(forceValueFilter, (MB.A0 - MB.OFS_ADC0), 0);
     MB.ADC0 = filter_get(forceValueFilter, 0)*MB.K0;
     MB.Position0 = filter_get(positionInputFilter, 0);
-    /*            
-    if((discrete_get_output()==0x00)) {
-        //output is set to zero, motor is stopped. Switch off PWM
-        PWM_off();
-    } else {
-        //motor is on. Switch on PWM
-        PWM_on(MB.Power0);
-    }
-        
-    if (MB.D_Out & 0x80) {
-        // Override mode
-        discrete_set_output(MB.D_Out);
-    }*/
 }
 
 CNI_DECL_PROC_FN(29, on) {
