@@ -226,7 +226,9 @@ void _uart_read_byte() {
 void uart_write_byte() {
     if(!uartTransmitLen)
         // No data. Ignore
+        UART_CTS_LATCH = 0;
         return;
+    UART_CTS_LATCH = 1;
     while(uartTransmitPos < uartTransmitData + uartTransmitLen &&
             !U1STAbits.UTXBF) {
         // Fill in transmit buffer
@@ -405,7 +407,7 @@ void uart_init() {
     U1MODEbits.UEN = 0b10; // U1RX, U1TX, U1CTS and U1RTS are enabled
 #elif UART_HAS_CTS
     U1MODEbits.UEN = 0b11; // U1RX, U1TX and U1CTS are enabled
-#elif UART_HAS_RTS
+#elif UART_HAS_RTS && !UART_MANUAL_RTS
     U1MODEbits.UEN = 0b01; // U1RX, U1TX and U1RTS are enabled
 #else
     U1MODEbits.UEN = 0b00; // Only U1RX and U1TX are enabled

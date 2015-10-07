@@ -65,6 +65,8 @@
 // 1 if request-to-send pin is used, 0 otherwise
 #define UART_HAS_RTS    1
 
+#define UART_MANUAL_RTS 1
+
 // RX pin number
 #define UART_RX_PIN     21
 

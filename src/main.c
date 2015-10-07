@@ -97,6 +97,7 @@ int16_t main() {
     osc_select(oscBoosted);
     
     /* Initialize UART */
+    uart_slow_mode(1);
     uart_init();
     
     /* Initialize RTSP */
