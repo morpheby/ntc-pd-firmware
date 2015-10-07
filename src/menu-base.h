@@ -19,6 +19,7 @@
 void disp_config();
 void disp_draw();
 
+void disp_set_off(uint8_t dispNum, _Bool value);
 void disp_cls();
 void disp_set_fixed(uint8_t dispNum);
 void disp_set_shareable(uint8_t dispNum);

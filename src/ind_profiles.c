@@ -65,6 +65,7 @@ void ind_showValues()
     
     // show value on display #0
     if(ind2_regNumber < 0xFF) { //0xFF(255) is used as indicator switch off command
+        disp_set_off(0,0);
         if(ind2_reg_type == REG_TYPE_FLOAT) {
             uint8_t ind2_point = ind2_profile & 0x000F;
             disp_fix_point(0, ind2_point);
@@ -80,12 +81,13 @@ void ind_showValues()
         }        
     } else {
         disp_fix_point(0, 0);
-        disp_putd(0,10000);
+        disp_set_off(0,1);
     }
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 1) {
         //show value on display #1
         if(ind1_regNumber < 0xFF) {//0xFF(255) is used as indicator switch off command
+            disp_set_off(1,0);
             if(ind1_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind1_point = ind1_profile & 0x000F;
                 disp_fix_point(1, ind1_point);
@@ -101,13 +103,14 @@ void ind_showValues()
             }
         } else {
             disp_fix_point(0, 0);
-            disp_putd(1,10000);
+            disp_set_off(1,1);
         }        
     }
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 2) {
         //show value on display #2
-        if(ind0_regNumber < 0xFF) {//0xFF(255) is used as indicator switch off command       
+        if(ind0_regNumber < 0xFF) {//0xFF(255) is used as indicator switch off command  
+            disp_set_off(2,0);     
             if(ind0_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind0_point = ind0_profile & 0x000F;
                 disp_fix_point(2, ind0_point);
@@ -123,7 +126,7 @@ void ind_showValues()
             }
         } else {
             disp_fix_point(2, 0);
-            disp_putd(2,10000);
+            disp_set_off(2,1);
         }        
     }    
 }

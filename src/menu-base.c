@@ -16,6 +16,7 @@ void itoa_s4(char *buf, int val);
 
 struct {
     _Bool   isShareable;
+    _Bool isOff;
     int     FP;
     int     num;
     uint8_t pt;
@@ -35,6 +36,7 @@ void disp_config() {
         displayState[i].FP = -1;
         displayState[i].num = 0;
         displayState[i].pt = 0;
+        displayState[i].isOff = 1;
     }
 }
 
@@ -64,7 +66,12 @@ void disp_draw() {
                     continue;
                 }
             }
-            itoa_s4(display+i*CHARS_IN_SECTION, displayState[i].num);
+            if(displayState[i].isOff){
+                strcpy(display+i*CHARS_IN_SECTION, "----");
+            } else {
+                itoa_s4(display+i*CHARS_IN_SECTION, displayState[i].num);
+            }
+            
             display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
         }
     }
@@ -269,6 +276,12 @@ void disp_putld(uint8_t dispNum, long double ld) {
     disp_putd(dispNum, ld);
 }
 
+
+void disp_set_off(uint8_t dispNum, _Bool value)
+{
+    displayState[dispNum].isOff = value;    
+}
+
 #else
 
 void disp_config() {}
@@ -289,5 +302,6 @@ void disp_putlu(uint8_t dispNum, long unsigned lu) {}
 void disp_putf(uint8_t dispNum, float f) {}
 void disp_putd(uint8_t dispNum, double d) {}
 void disp_putld(uint8_t dispNum, long double ld) {}
+void disp_set_off(uint8_t dispNum, _Bool value){}
 
 #endif
