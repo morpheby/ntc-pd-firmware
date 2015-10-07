@@ -70,9 +70,8 @@ void disp_draw() {
                 strcpy(display+i*CHARS_IN_SECTION, "----");
             } else {
                 itoa_s4(display+i*CHARS_IN_SECTION, displayState[i].num);
+                display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
             }
-            
-            display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
         }
     }
     
@@ -279,7 +278,8 @@ void disp_putld(uint8_t dispNum, long double ld) {
 
 void disp_set_off(uint8_t dispNum, _Bool value)
 {
-    displayState[dispNum].isOff = value;    
+    displayState[dispNum].isOff = value;  
+    _disp_update();
 }
 
 #else

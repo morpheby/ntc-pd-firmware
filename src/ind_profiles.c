@@ -80,7 +80,6 @@ void ind_showValues()
             disp_puti(0, modbus_get_reg_i16(ind2_regNumber));
         }        
     } else {
-        disp_fix_point(0, 0);
         disp_set_off(0,1);
     }
     
@@ -102,7 +101,6 @@ void ind_showValues()
                 disp_puti(1, modbus_get_reg_i16(ind1_regNumber));
             }
         } else {
-            disp_fix_point(0, 0);
             disp_set_off(1,1);
         }        
     }
@@ -125,7 +123,6 @@ void ind_showValues()
                 disp_puti(2, modbus_get_reg_i16(ind0_regNumber));
             }
         } else {
-            disp_fix_point(2, 0);
             disp_set_off(2,1);
         }        
     }    
