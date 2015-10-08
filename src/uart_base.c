@@ -224,10 +224,11 @@ void _uart_read_byte() {
 }
 
 void uart_write_byte() {
-    if(!uartTransmitLen)
+    if(!uartTransmitLen){
         // No data. Ignore
         UART_CTS_LATCH = 0;
         return;
+    }
     UART_CTS_LATCH = 1;
     while(uartTransmitPos < uartTransmitData + uartTransmitLen &&
             !U1STAbits.UTXBF) {
