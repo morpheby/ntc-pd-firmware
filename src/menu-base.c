@@ -155,14 +155,9 @@ void itoa_s4(char *buf, int val) {
     if(val > 9999 || val < -999) 
         strcpy(buf, "1---");
     else {
-        int i, number, v = abs_fast(val);
+        int i, v = abs_fast(val);
         for(i = 3; i >= 0; --i) {
-            number = v%10;
-            if(number > 0) {
-                buf[i] = number + '0';
-            } else {
-                buf[i] = ' ';
-            }
+            buf[i] = v%10 + '0';
             v /= 10;
         }
         if(val < 0)
