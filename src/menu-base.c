@@ -106,12 +106,15 @@ void disp_draw() {
 
     if(dispStr)
         for(i = sharedDispStart, j = dispShowState; i < sharedDispEnd; ++i, ++j)
-            if( 0 <= j && j < dispStrSz )
+            if( 0 <= j && j < dispStrSz ) {
                 display[i] = dispStr[j];
 #if APP_USE_LED_ANIMATIONS
-            else if(!aniInProgress)
+            } else if(!aniInProgress) {
+#else
+            } else {
+#endif      
                 display[i] = ' ';
-#endif
+            }
 
     display_set(display);
 
