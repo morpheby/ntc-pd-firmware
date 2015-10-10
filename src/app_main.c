@@ -46,6 +46,9 @@ void app_init() {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeNone, 10);
+        disp_set_off(0, 1);
+        disp_set_off(1, 1);
+        disp_set_off(2, 1);
     }
     discrete_set_output(MB.D_Out_Init);
 }
