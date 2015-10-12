@@ -155,7 +155,7 @@ void itoa_s4(char *buf, int val) {
         int i, number, v = abs_fast(val);
         for(i = 3; i >= 0; --i) {
             number = v%10;
-            if(number > 0) {
+            if(number > 0 || i == 3) {
                 buf[i] = number + '0';
             } else {
                 buf[i] = ' ';
