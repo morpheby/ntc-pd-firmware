@@ -70,6 +70,15 @@ void disp_draw() {
                 strcpy(display+i*CHARS_IN_SECTION, "----");
             } else {
                 itoa_s4(display+i*CHARS_IN_SECTION, displayState[i].num);
+                //remove zeros in older digits
+                int j;
+                for(j = 0; j < 3-displayState[i].pt; ++j) {
+                    if(display[i*CHARS_IN_SECTION + j] == '0') {
+                        display[i*CHARS_IN_SECTION + j] = ' ';
+                    } else if(display[i*CHARS_IN_SECTION + j] != '-'){
+                        break;
+                    }
+                }
                 display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
             }
         }
