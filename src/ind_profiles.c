@@ -32,7 +32,7 @@ void ind_showValues()
     uint16_t ind2_profile = MB.ind_2_1;  
     
     if(MB.PROF_CHANGE_SOURCE == 1) {      
-        MB.profile = discrete_get_input();
+        MB.profile = (discrete_get_input() & 0x03)+1;
     }
     
     uint8_t currentProfile = MB.profile;
