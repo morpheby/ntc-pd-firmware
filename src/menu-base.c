@@ -79,7 +79,9 @@ void disp_draw() {
                         break;
                     }
                 }
-                display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
+                if(displayState[i].pt > 0) {
+                    display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
+                }
             }
         }
     }
