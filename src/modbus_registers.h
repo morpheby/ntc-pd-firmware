@@ -46,6 +46,7 @@ void modbus_mmap_set(void *ptr, uint16_t size);
 void modbus_mmap_free();
 #endif
 
+
 #define REG_BRG_VAL              0, i16
     
 #define REG_ADC0                 1, f
@@ -72,163 +73,152 @@ void modbus_mmap_free();
 #define REG_OFS_ADC5            34, i16
 #define REG_OFS_ADC6            35, i16
 
-#define REG_n_a                 36, i16
-#define REG_n_b                 37, i16
-#define REG_n_c                 38, i16
-#define REG_ind_off             39, i16
+#define REG_N                   36, u16
 
-#define REG_N                   40, i16
+#define REG_D_In                37, i16
+#define REG_D_Out               38, i16
 
-#define REG_D_In                41, i16
-#define REG_D_Out               42, i16
+#define REG_Ind_Delay           39, i16
 
-#define REG_Ind_Delay           43, i16
+#define REG_profile             40, i16
+#define REG_ind_0_1             41, i16
+#define REG_ind_1_1             42, i16
+#define REG_ind_2_1             43, i16
+#define REG_ind_0_2             44, i16
+#define REG_ind_1_2             45, i16
+#define REG_ind_2_2             46, i16
+#define REG_ind_0_3             47, i16
+#define REG_ind_1_3             48, i16
+#define REG_ind_2_3             49, i16
+#define REG_ind_0_4             50, i16
+#define REG_ind_1_4             51, i16
+#define REG_ind_2_4             52, i16
 
-#define REG_profile             44, i16
-#define REG_ind_0_1             45, i16
-#define REG_ind_1_1             46, i16
-#define REG_ind_2_1             47, i16
-#define REG_ind_0_2             48, i16
-#define REG_ind_1_2             49, i16
-#define REG_ind_2_2             50, i16
-#define REG_ind_0_3             51, i16
-#define REG_ind_1_3             52, i16
-#define REG_ind_2_3             53, i16
-#define REG_ind_0_4             54, i16
-#define REG_ind_1_4             55, i16
-#define REG_ind_2_4             56, i16
+#define REG_P1                  53, f
+#define REG_P2                  55, f
+#define REG_P3                  57, f
 
-#define REG_P1                  57, f
-#define REG_P2                  59, f
-#define REG_P3                  61, f
+#define REG_Q1                  59, f
+#define REG_Q2                  61, f
+#define REG_Q3                  63, f
 
-#define REG_Q1                  63, f
-#define REG_Q2                  65, f
-#define REG_Q3                  67, f
+#define REG_S1                  65, f
+#define REG_S2                  67, f
+#define REG_S3                  69, f
 
-#define REG_S1                  69, f
-#define REG_S2                  71, f
-#define REG_S3                  73, f
+#define REG_cos_f1              71, f
+#define REG_cos_f2              73, f
+#define REG_cos_f3              75, f
 
-#define REG_cos_f1              75, f
-#define REG_cos_f2              77, f
-#define REG_cos_f3              79, f
+#define REG_M0_AVG              77, f
+#define REG_M1_AVG              79, f
+#define REG_M2_AVG              81, f
 
-#define REG_M0_AVG              81, f
-#define REG_M1_AVG              83, f
-#define REG_M2_AVG              85, f
+#define REG_M0_RMS              83, f
+#define REG_M1_RMS              85, f
+#define REG_M2_RMS              87, f
 
-#define REG_M0_RMS              87, f
-#define REG_M1_RMS              89, f
-#define REG_M2_RMS              91, f
+#define REG_FLASH_WR            89, i16
+#define REG_FLASH_RD            90, i16
 
-#define REG_FLASH_WR            93, i16
-#define REG_FLASH_RD            94, i16
+#define REG_PROF_CHANGE_SOURCE  91, i16
 
-#define REG_PROF_CHANGE_SOURCE  95, i16
+#define REG_A0                  92, i16
+#define REG_A1                  93, i16
+#define REG_A2                  94, i16
+#define REG_A3                  95, i16
+#define REG_A4                 96, i16
+#define REG_A5                 97, i16
+#define REG_A6                 98, i16
 
-#define REG_A0                  96, i16
-#define REG_A1                  97, i16
-#define REG_A2                  98, i16
-#define REG_A3                  99, i16
-#define REG_A4                 100, i16
-#define REG_A5                 101, i16
-#define REG_A6                 102, i16
+#define REG_imp_kol            99, i16
+#define REG_V                  100, f
+#define REG_D_Out_Init         102, u16
+#define REG_AD_12b             103, i16
 
-#define REG_ind_off_1          103, i16
-#define REG_ind_off_2          104, i16
-#define REG_ind_off_3          105, i16
-#define REG_ind_off_4          106, i16
+#define REG_Control0           104, i16
+#define REG_Status0            105, i16
 
-#define REG_channel_num_U      107, i16
-#define REG_imp_kol            108, i16
-#define REG_V                  109, f
-#define REG_D_Out_Init         111, i16
-#define REG_AD_12b             112, i16
+#define REG_Power0             106, i16
+#define REG_Position0          107, i16
+#define REG_Position1          108, i16
+#define REG_PositionK0         109, f
 
-#define REG_Control0           113, u16
-#define REG_Status0            114, u16
+#define REG_QEI_POS         111, u16
 
-#define REG_Power0             115, i16
-#define REG_Position0          116, i16
-#define REG_Position1          117, i16
-#define REG_PositionK0         118, f
+#define REG_DS1820_TEMP_1         112, f
+#define REG_DS1820_TEMP_2         114, f
+#define REG_DS1820_TEMP_3         116, f
+#define REG_DS1820_TEMP_4         118, f
+#define REG_DS1820_TEMP_5         120, f
+#define REG_DS1820_TEMP_6         122, f
+#define REG_DS1820_TEMP_7         124, f
+#define REG_DS1820_TEMP_8         126, f
+#define REG_DS1820_TEMP_9         128, f
+#define REG_DS1820_TEMP_10         130, f
+#define REG_DS1820_TEMP_11         132, f
 
-#define REG_QEI_POS         120, u16
+#define REG_DI0_ImpFrequency         134, f
+#define REG_DI1_ImpFrequency         136, f
 
-#define REG_DS1820_TEMP_1         121, f
-#define REG_DS1820_TEMP_2         123, f
-#define REG_DS1820_TEMP_3         125, f
-#define REG_DS1820_TEMP_4         127, f
-#define REG_DS1820_TEMP_5         129, f
-#define REG_DS1820_TEMP_6         131, f
-#define REG_DS1820_TEMP_7         133, f
-#define REG_DS1820_TEMP_8         135, f
-#define REG_DS1820_TEMP_9         137, f
-#define REG_DS1820_TEMP_10         139, f
-#define REG_DS1820_TEMP_11         141, f
+#define REG_TermoId_0_bytes_0_1      138, u16
+#define REG_TermoId_0_bytes_2_3      139, u16
+#define REG_TermoId_0_bytes_4_5      140, u16
+#define REG_TermoId_0_bytes_6_7      141, u16
 
-#define REG_DI0_ImpFrequency         143, f
-#define REG_DI1_ImpFrequency         145, f
+#define REG_TermoId_1_bytes_0_1      142, u16
+#define REG_TermoId_1_bytes_2_3      143, u16
+#define REG_TermoId_1_bytes_4_5      144, u16
+#define REG_TermoId_1_bytes_6_7      145, u16
 
-#define REG_TermoId_0_bytes_0_1      147, u16
-#define REG_TermoId_0_bytes_2_3      148, u16
-#define REG_TermoId_0_bytes_4_5      149, u16
-#define REG_TermoId_0_bytes_6_7      150, u16
+#define REG_TermoId_2_bytes_0_1      146, u16
+#define REG_TermoId_2_bytes_2_3      147, u16
+#define REG_TermoId_2_bytes_4_5      148, u16
+#define REG_TermoId_2_bytes_6_7      149, u16
 
-#define REG_TermoId_1_bytes_0_1      151, u16
-#define REG_TermoId_1_bytes_2_3      152, u16
-#define REG_TermoId_1_bytes_4_5      153, u16
-#define REG_TermoId_1_bytes_6_7      154, u16
+#define REG_TermoId_3_bytes_0_1      150, u16
+#define REG_TermoId_3_bytes_2_3      151, u16
+#define REG_TermoId_3_bytes_4_5      152, u16
+#define REG_TermoId_3_bytes_6_7      153, u16
 
-#define REG_TermoId_2_bytes_0_1      155, u16
-#define REG_TermoId_2_bytes_2_3      156, u16
-#define REG_TermoId_2_bytes_4_5      157, u16
-#define REG_TermoId_2_bytes_6_7      158, u16
+#define REG_TermoId_4_bytes_0_1      154, u16
+#define REG_TermoId_4_bytes_2_3      155, u16
+#define REG_TermoId_4_bytes_4_5      156, u16
+#define REG_TermoId_4_bytes_6_7      157, u16
 
-#define REG_TermoId_3_bytes_0_1      159, u16
-#define REG_TermoId_3_bytes_2_3      160, u16
-#define REG_TermoId_3_bytes_4_5      161, u16
-#define REG_TermoId_3_bytes_6_7      162, u16
+#define REG_TermoId_5_bytes_0_1      158, u16
+#define REG_TermoId_5_bytes_2_3      159, u16
+#define REG_TermoId_5_bytes_4_5      160, u16
+#define REG_TermoId_5_bytes_6_7      161, u16
 
-#define REG_TermoId_4_bytes_0_1      163, u16
-#define REG_TermoId_4_bytes_2_3      164, u16
-#define REG_TermoId_4_bytes_4_5      165, u16
-#define REG_TermoId_4_bytes_6_7      166, u16
+#define REG_TermoId_6_bytes_0_1      162, u16
+#define REG_TermoId_6_bytes_2_3      163, u16
+#define REG_TermoId_6_bytes_4_5      164, u16
+#define REG_TermoId_6_bytes_6_7      165, u16
 
-#define REG_TermoId_5_bytes_0_1      167, u16
-#define REG_TermoId_5_bytes_2_3      168, u16
-#define REG_TermoId_5_bytes_4_5      169, u16
-#define REG_TermoId_5_bytes_6_7      170, u16
+#define REG_TermoId_7_bytes_0_1      166, u16
+#define REG_TermoId_7_bytes_2_3      167, u16
+#define REG_TermoId_7_bytes_4_5      168, u16
+#define REG_TermoId_7_bytes_6_7      169, u16
 
-#define REG_TermoId_6_bytes_0_1      171, u16
-#define REG_TermoId_6_bytes_2_3      172, u16
-#define REG_TermoId_6_bytes_4_5      173, u16
-#define REG_TermoId_6_bytes_6_7      174, u16
+#define REG_TermoId_8_bytes_0_1      170, u16
+#define REG_TermoId_8_bytes_2_3      171, u16
+#define REG_TermoId_8_bytes_4_5      172, u16
+#define REG_TermoId_8_bytes_6_7      173, u16
 
-#define REG_TermoId_7_bytes_0_1      175, u16
-#define REG_TermoId_7_bytes_2_3      176, u16
-#define REG_TermoId_7_bytes_4_5      177, u16
-#define REG_TermoId_7_bytes_6_7      178, u16
+#define REG_TermoId_9_bytes_0_1      174, u16
+#define REG_TermoId_9_bytes_2_3      175, u16
+#define REG_TermoId_9_bytes_4_5      176, u16
+#define REG_TermoId_9_bytes_6_7      177, u16
 
-#define REG_TermoId_8_bytes_0_1      179, u16
-#define REG_TermoId_8_bytes_2_3      180, u16
-#define REG_TermoId_8_bytes_4_5      181, u16
-#define REG_TermoId_8_bytes_6_7      182, u16
+#define REG_TermoId_10_bytes_0_1      178, u16
+#define REG_TermoId_10_bytes_2_3      179, u16
+#define REG_TermoId_10_bytes_4_5      180, u16
+#define REG_TermoId_10_bytes_6_7      181, u16
 
-#define REG_TermoId_9_bytes_0_1      183, u16
-#define REG_TermoId_9_bytes_2_3      184, u16
-#define REG_TermoId_9_bytes_4_5      185, u16
-#define REG_TermoId_9_bytes_6_7      186, u16
+#define REG_TermoCount             182, u16
 
-#define REG_TermoId_10_bytes_0_1      187, u16
-#define REG_TermoId_10_bytes_2_3      188, u16
-#define REG_TermoId_10_bytes_4_5      189, u16
-#define REG_TermoId_10_bytes_6_7      190, u16
-
-#define REG_TermoCount             191, u16
-
-#define MODBUS_DATA_END        192
+#define MODBUS_DATA_END        183
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -272,11 +262,6 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(OFS_ADC4);
             _REG_DEFINE(OFS_ADC5);
             _REG_DEFINE(OFS_ADC6);
-
-            _REG_DEFINE(n_a);
-            _REG_DEFINE(n_b);
-            _REG_DEFINE(n_c);
-            _REG_DEFINE(ind_off);
 
             _REG_DEFINE(N);
 
@@ -336,12 +321,6 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(A5);
             _REG_DEFINE(A6);
 
-            _REG_DEFINE(ind_off_1);
-            _REG_DEFINE(ind_off_2);
-            _REG_DEFINE(ind_off_3);
-            _REG_DEFINE(ind_off_4);
-
-            _REG_DEFINE(channel_num_U);
             _REG_DEFINE(imp_kol);
             _REG_DEFINE(V);
             _REG_DEFINE(D_Out_Init);
@@ -356,6 +335,7 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(PositionK0);
 
             _REG_DEFINE(QEI_POS);
+
             _REG_DEFINE(DS1820_TEMP_1);
             _REG_DEFINE(DS1820_TEMP_2);
             _REG_DEFINE(DS1820_TEMP_3);
