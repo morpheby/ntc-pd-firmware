@@ -43,9 +43,7 @@ void app_init() {
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMean, 10);
     }
-    DS1820_initROM();
-    MB.TermoCount = DS1820_ROMCount();
-  
+    DS1820_initROM();  
     last_time = timing_get_time_msecs();
 }
 
@@ -55,13 +53,23 @@ MAIN_DECL_LOOP_FN() {
     MB.A1 = filter_get(adcInputFilter, 1);
     MB.A2 = filter_get(adcInputFilter, 2);
     MB.A3 = filter_get(adcInputFilter, 3);
+    MB.A4 = filter_get(adcInputFilter, 4);
+    MB.A5 = filter_get(adcInputFilter, 5);
+    MB.A6 = filter_get(adcInputFilter, 6);
     
     // Process ADC values
     MB.ADC0 = (MB.A0- MB.OFS_ADC0) * MB.K0;
     MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
     MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
     MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
+    MB.ADC4 = (MB.A4 - MB.OFS_ADC4) * MB.K4;
+    MB.ADC5 = (MB.A5 - MB.OFS_ADC5) * MB.K5;
+    MB.ADC6 = (MB.A6 - MB.OFS_ADC6) * MB.K6;
    
+    if(MB.Control0 == 1) {
+        DS1820_initROM();
+        MB.Control0 = 0;   
+    }
     DS1820_update();
     
     long int time = timing_get_time_msecs();

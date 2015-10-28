@@ -13,7 +13,6 @@
 #define DS1820_SENSOR_COUNT 11
 
 void DS1820_initROM();
-unsigned int DS1820_ROMCount();
 uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex);
 
 void DS1820_setLineToZero();

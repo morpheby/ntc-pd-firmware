@@ -16,7 +16,6 @@ static unsigned int currentIndex = 0;
 static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
 static uint8_t *ROM;
-static unsigned int ROM_count;
 
 bool DS1820_lineState() {
     return (PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM) == 1);
@@ -58,7 +57,7 @@ void DS1820_update()
                         DS1820_TX(ROM[i + offset]);
                     }                    
                     currentIndex++;
-                    if(currentIndex >= ROM_count) {
+                    if(currentIndex >= MB.TermoCount) {
                         currentIndex = 0;
                     }                        
 
@@ -144,7 +143,7 @@ void DS1820_findNextROM()
     
     DS1820_init();
     if(init_ok) {
-        ROM_count++;
+        MB.TermoCount++;
         bool bit_1 = 0;
         bool bit_2 = 0;
         DS1820_TX(0xF0);
@@ -231,7 +230,7 @@ void DS1820_initROM()
     for(i = 0; i < 8 * DS1820_SENSOR_COUNT; ++i) {
         ROM[i] = 0;
     }
-    ROM_count = 0;    
+    MB.TermoCount = 0;    
     currentIndex = 0;
     lastROMConflictIndex = 65;
     
@@ -269,14 +268,10 @@ void DS1820_writeZero()
     high_priority_exit(handle);
 }
 
-unsigned int DS1820_ROMCount() {
-    return ROM_count;
-}
-
 uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex)
 {
     uint16_t result = 0;
-    if(deviceIndex < ROM_count && wordIndex < 4) {
+    if(deviceIndex < MB.TermoCount && wordIndex < 4) {
         uint8_t offset = deviceIndex * 8 + wordIndex*2;
         result = (((uint16_t)ROM[offset]) << 8) + ROM[offset + 1];
     }
