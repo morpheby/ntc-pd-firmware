@@ -87,9 +87,9 @@ MAIN_DECL_LOOP_FN() {
     counter++;    
         
     if(counter >= MB.N) {
-        MB.P1 = P1Sum / counter;
-        MB.P2 = P2Sum / counter;
-        MB.P3 = P3Sum / counter;
+        MB.P1 = P1Sum / counter * MB.P1_sign;
+        MB.P2 = P2Sum / counter * MB.P2_sign;
+        MB.P3 = P3Sum / counter * MB.P3_sign;
         
         MB.M0_RMS = sqrt(A0SquareSum / counter);
         MB.M1_RMS = sqrt(A1SquareSum / counter);
