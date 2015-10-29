@@ -15,6 +15,7 @@ static unsigned int currentIndex = 0;
 
 static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
+static uint8_t currentROMConflictIndex;
 static uint8_t *ROM;
 
 bool DS1820_lineState() {
@@ -140,6 +141,7 @@ void DS1820_findNextROM()
     unsigned int offset = currentIndex*8;
     
     hasROMConflicts = 0;
+    currentROMConflictIndex = 0;
     
     DS1820_init();
     if(init_ok) {
@@ -181,14 +183,14 @@ void DS1820_findNextROM()
                 } else {
                     hasROMConflicts = true;
                     if(i > lastROMConflictIndex) {
-                        lastROMConflictIndex = i;
+                        currentROMConflictIndex = i;
                         ROM_bit = 0;
                     } else {
                         if(ROM[offset] & 0x01) {
                             ROM_bit = 1;
                         } else {
                             ROM_bit = 0;
-                            lastROMConflictIndex = i;
+                            currentROMConflictIndex = i;
                         }
                     }                    
                 }
@@ -219,6 +221,8 @@ void DS1820_findNextROM()
                 ROM[7 + offset] |= 0x80;                
             }
         }
+	 	// определить текущее несоответствие последним
+		lastROMConflictIndex=currentROMConflictIndex;
     }  
 }
 
@@ -229,6 +233,7 @@ void DS1820_initROM()
     temperature = &MB.DS1820_TEMP_1;
     for(i = 0; i < 8 * DS1820_SENSOR_COUNT; ++i) {
         ROM[i] = 0;
+        temperature[i] = 0;
     }
     MB.TermoCount = 0;    
     currentIndex = 0;
