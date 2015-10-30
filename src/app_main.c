@@ -87,9 +87,9 @@ MAIN_DECL_LOOP_FN() {
     counter++;    
         
     if(counter >= MB.N) {
-        MB.P1 = P1Sum / counter * MB.P1_sign;
-        MB.P2 = P2Sum / counter * MB.P2_sign;
-        MB.P3 = P3Sum / counter * MB.P3_sign;
+        MB.P1 = P1Sum / counter * MB.P1_sign*0.99;
+        MB.P2 = P2Sum / counter * MB.P2_sign*0.99;
+        MB.P3 = P3Sum / counter * MB.P3_sign*0.99;
         
         MB.M0_RMS = sqrt(A0SquareSum / counter);
         MB.M1_RMS = sqrt(A1SquareSum / counter);
@@ -98,8 +98,8 @@ MAIN_DECL_LOOP_FN() {
         MB.S1 = MB.M0_RMS * MB.M1_RMS;
         MB.S2 = MB.M0_RMS * MB.M2_RMS;
         MB.S3 = MB.M1_RMS * MB.M2_RMS;
-                
-        if(MB.P1 >= MB.S1)
+                        
+        if(fabs(MB.P1) >= MB.S1)
         {
             MB.Q1 = 0;
             MB.cos_f1 = 1;
@@ -110,7 +110,7 @@ MAIN_DECL_LOOP_FN() {
             MB.cos_f1 = MB.P1 / MB.S1;
         }
         
-        if(MB.P2 >= MB.S2)
+        if(fabs(MB.P2) >= MB.S2)
         {
             MB.Q2 = 0;
             MB.cos_f2 = 1;
@@ -121,7 +121,7 @@ MAIN_DECL_LOOP_FN() {
             MB.cos_f2 = MB.P2 / MB.S2;
         }
         
-        if(MB.P3 >= MB.S3)
+        if(fabs(MB.P3) >= MB.S3)
         {
             MB.Q3 = 0;
             MB.cos_f3 = 1;
@@ -131,11 +131,11 @@ MAIN_DECL_LOOP_FN() {
             MB.Q3 = sqrt(MB.S3 * MB.S3 - MB.P3 * MB.P3); //значения реактивной мощности ?????
             MB.cos_f3 = MB.P3 / MB.S3;
         }
-        
+                
         MB.M0_AVG = (A0Sum / counter);
         MB.M1_AVG = (A1Sum / counter);
         MB.M2_AVG = (A2Sum / counter);
-        
+                 
         A0SquareSum = 0;
         A1SquareSum = 0;
         A2SquareSum = 0;
