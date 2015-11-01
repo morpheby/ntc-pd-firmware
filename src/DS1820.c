@@ -13,7 +13,6 @@ static float *temperature;
 static bool init_ok;
 static unsigned int currentIndex = 0;
 
-static bool hasROMConflicts;
 static uint8_t lastROMConflictIndex;
 static uint8_t currentROMConflictIndex;
 static uint8_t *ROM;
@@ -140,12 +139,10 @@ void DS1820_findNextROM()
     unsigned int i;
     unsigned int offset = currentIndex*8;
     
-    hasROMConflicts = 0;
     currentROMConflictIndex = 0;
     
     DS1820_init();
     if(init_ok) {
-        MB.TermoCount++;
         bool bit_1 = 0;
         bool bit_2 = 0;
         DS1820_TX(0xF0);
@@ -170,9 +167,14 @@ void DS1820_findNextROM()
             delay_us(60);            //ждем до положенного времени
            
             bool ROM_bit = false;
+            if(bit_1 && bit_2) {
+                //ошибка
+                lastROMConflictIndex = 0;
+                return;
+            }
             if(bit_1 && !bit_2) {
                 //на всех активных устройствах в разряде 1
-                ROM_bit = true;
+                ROM_bit = 1;
             } else if (!bit_1 && bit_2) {
                 //на всех активных устройствах в разряде 0
                 ROM_bit = 0;                
@@ -181,12 +183,12 @@ void DS1820_findNextROM()
                 if(i == lastROMConflictIndex) {
                     ROM_bit = 1;
                 } else {
-                    hasROMConflicts = true;
                     if(i > lastROMConflictIndex) {
                         currentROMConflictIndex = i;
                         ROM_bit = 0;
                     } else {
-                        if(ROM[offset] & 0x01) {
+                        uint8_t byteIndex = (uint8_t)(i/8);
+                        if((ROM[offset - 8 + byteIndex]&(0x01 << (i%8)))>0) {
                             ROM_bit = 1;
                         } else {
                             ROM_bit = 0;
@@ -218,7 +220,7 @@ void DS1820_findNextROM()
 			if (ROM[7 + offset] & 0b00000001)ROM[6 + offset] |= 0b10000000;
             ROM[7 + offset]>>=1;
             if(ROM_bit) {
-                ROM[7 + offset] |= 0x80;                
+                ROM[7 + offset] |= 0b10000000;                
             }
         }
 	 	// определить текущее несоответствие последним
@@ -237,7 +239,7 @@ void DS1820_initROM()
     }
     MB.TermoCount = 0;    
     currentIndex = 0;
-    lastROMConflictIndex = 65;
+    lastROMConflictIndex = 0;
     
     do {
         DS1820_findNextROM();        
@@ -246,8 +248,8 @@ void DS1820_initROM()
         if(currentIndex >= DS1820_SENSOR_COUNT) {
             break;
         }
-    } while (hasROMConflicts);
-    
+    } while (lastROMConflictIndex != 0);
+    MB.TermoCount = currentIndex;
     currentIndex = 0;
 }
 
