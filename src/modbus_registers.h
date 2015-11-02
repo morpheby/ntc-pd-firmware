@@ -218,7 +218,10 @@ void modbus_mmap_free();
 
 #define REG_TermoCount             182, u16
 
-#define MODBUS_DATA_END        183
+#define REG_T_hot_min         183, f
+#define REG_T_cold_max         185, f
+
+#define MODBUS_DATA_END        187
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -404,8 +407,11 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(TermoId_10_bytes_2_3);
             _REG_DEFINE(TermoId_10_bytes_4_5);
             _REG_DEFINE(TermoId_10_bytes_6_7);
-            
+                        
             _REG_DEFINE(TermoCount);
+            
+            _REG_DEFINE(T_hot_min);
+            _REG_DEFINE(T_cold_max);
             
             uint16_t __last1;
         };

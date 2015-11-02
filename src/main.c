@@ -37,6 +37,8 @@ int ind_off = 0x07;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 1.};
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_hot_min = 40.;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_cold_max = 20.;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -114,10 +116,12 @@ int16_t main() {
         adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
     }
     MB.PositionK0 = flash_data_buf_PosK0;
-    
+        
     // Initialize application-specific module
     app_init();
     
+    MB.T_hot_min = flash_data_buf_T_hot_min;
+    MB.T_cold_max = flash_data_buf_T_cold_max;
     // Main cycle
     while (1) {
         // Perform RTSP, if externally requested
@@ -136,13 +140,27 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_OFFSET), FLASH_GETAOFFSET(flash_data_buf_OFFSET, i),
                             adcOffsetPtr[i]);
                 }
-                if (flash_data_buf_PosK0 != MB.PositionK0) {
-                    tmpPtr = &MB.PositionK0;
-                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
-                            tmpPtr[1]);
-                }
+            }
+            if (flash_data_buf_PosK0 != MB.PositionK0) {
+                tmpPtr = &MB.PositionK0;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
+                        tmpPtr[1]);
+            }
+            if (flash_data_buf_T_cold_max != MB.T_cold_max) {
+                tmpPtr = &MB.T_cold_max;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_T_cold_max), FLASH_GETOFFSET(&flash_data_buf_T_cold_max),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_T_cold_max), FLASH_GETOFFSET(&flash_data_buf_T_cold_max)+2,
+                        tmpPtr[1]);
+            }
+            if (flash_data_buf_T_hot_min != MB.T_hot_min) {
+                tmpPtr = &MB.T_hot_min;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_T_hot_min), FLASH_GETOFFSET(&flash_data_buf_T_hot_min),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_T_hot_min), FLASH_GETOFFSET(&flash_data_buf_T_hot_min)+2,
+                        tmpPtr[1]);
             }
             flash_write();
             system_reset();
