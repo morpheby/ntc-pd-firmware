@@ -82,6 +82,9 @@ MAIN_DECL_LOOP_FN() {
         DI1_counter = 0;
         last_time = time;
     }
+    
+  /*  PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 1;
+    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 1;*/
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

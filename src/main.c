@@ -174,7 +174,7 @@ int16_t main() {
         RS_Update();
         
         // Update discrete outputs and resample discrete inputs
-        discrete_update();
+      //  discrete_update();
         
         // Call application-end function
         MAIN_CALL_LOOP_FN();
