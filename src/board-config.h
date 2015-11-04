@@ -131,12 +131,14 @@
 #define CNI_25_ENABLE     0
 #define CNI_26_ENABLE     0
 #define CNI_27_ENABLE     0
-#define CNI_28_ENABLE     0
+#define CNI_28_ENABLE     1
 #define CNI_29_ENABLE     1
 #define CNI_30_ENABLE     1
 
+
+#define CNI_28_NEEDSPU 0
 #define CNI_29_NEEDSPU 0
-#define CNI_30_NEEDSPU 1
+#define CNI_30_NEEDSPU 0
 
 /*
  * LED display configuration
