@@ -9,13 +9,13 @@ static uint8_t state = STATE_DEFAULT;
 static unsigned char LS_byte;
 static unsigned char MS_byte;
 
-static float *temperature;
+static float *temperature = &MB.DS1820_TEMP_1;
 static bool init_ok;
 static unsigned int currentIndex = 0;
 
 static uint8_t lastROMConflictIndex;
 static uint8_t currentROMConflictIndex;
-static uint8_t *ROM;
+static uint8_t *ROM = &MB.TermoId_0_bytes_0_1;
 
 bool DS1820_lineState() {
     return (PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM) == 1);
@@ -52,13 +52,14 @@ void DS1820_update()
                 if(init_ok) {
                     uint8_t i;
                     DS1820_TX(0x55);
+                    
+                    if(currentIndex >= MB.TermoCount) {
+                        currentIndex = 0;
+                    }
+                    
                     unsigned int offset = currentIndex*8;
                     for(i = 0; i < 8; ++i) {
                         DS1820_TX(ROM[i + offset]);
-                    }                    
-                    currentIndex++;
-                    if(currentIndex >= MB.TermoCount) {
-                        currentIndex = 0;
                     }                        
 
                     DS1820_TX(0xBE);
@@ -68,7 +69,8 @@ void DS1820_update()
                     MS_byte += (LS_byte >> 5);
                     LS_byte = (LS_byte << 3);
                     int8_t temp = (MS_byte << 4) + (LS_byte >> 4);
-                    temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);
+                    temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);      
+                    currentIndex++;
                 }
                 state = STATE_DEFAULT;
             }
@@ -143,6 +145,7 @@ void DS1820_findNextROM()
     
     DS1820_init();
     if(init_ok) {
+        MB.TermoCount++;
         bool bit_1 = 0;
         bool bit_2 = 0;
         DS1820_TX(0xF0);
@@ -231,11 +234,8 @@ void DS1820_findNextROM()
 void DS1820_initROM()
 {
     unsigned int i;
-    ROM = &MB.TermoId_0_bytes_0_1;
-    temperature = &MB.DS1820_TEMP_1;
     for(i = 0; i < 8 * DS1820_SENSOR_COUNT; ++i) {
         ROM[i] = 0;
-        temperature[i] = 0;
     }
     MB.TermoCount = 0;    
     currentIndex = 0;
@@ -249,7 +249,6 @@ void DS1820_initROM()
             break;
         }
     } while (lastROMConflictIndex != 0);
-    MB.TermoCount = currentIndex;
     currentIndex = 0;
 }
 

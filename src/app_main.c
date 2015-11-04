@@ -42,9 +42,15 @@ void app_init() {
         //set up default values
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMean, 10);
-    }
-    DS1820_initROM();  
+    } 
     last_time = timing_get_time_msecs();
+    int i = 0;
+    uint16_t *ROM = &MB.TermoId_0_bytes_0_1;
+    uint16_t *ROM_Storage = &MB.Env_TermoId_bytes_0_1;
+    for(i=0; i<12; ++i){
+        ROM[i] = ROM_Storage[i];
+    }
+    MB.TermoCount = 3;
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -83,8 +89,17 @@ MAIN_DECL_LOOP_FN() {
         last_time = time;
     }
     
-  /*  PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 1;
-    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 1;*/
+    if(MB.DS1820_TEMP_2 <= MB.T_hot_min){
+        PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 1;        
+    } else {
+        PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 0;        
+    }
+    
+    if(MB.DS1820_TEMP_3 >= MB.T_cold_max){
+        PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 1;      
+    } else {
+        PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 0;        
+    }
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

@@ -39,6 +39,9 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_hot_min = 40.;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_cold_max = 20.;
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_EnvTermoId[4] = {0, 0, 0, 0};
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_HotTermoId[4] = {0, 0, 0, 0};
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_ColdTermoId[4] = {0, 0, 0, 0};
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -116,12 +119,22 @@ int16_t main() {
         adcOffsetPtr[i] = flash_data_buf_OFFSET[i];
     }
     MB.PositionK0 = flash_data_buf_PosK0;
+            
+    MB.T_hot_min = flash_data_buf_T_hot_min;
+    MB.T_cold_max = flash_data_buf_T_cold_max;    
         
+    uint16_t *EnvTermoIdPtr = &MB.Env_TermoId_bytes_0_1;
+    uint16_t *HotTermoIdPtr = &MB.Hot_TermoId_bytes_0_1;
+    uint16_t *ColdTermoIdPtr = &MB.Cold_TermoId_bytes_0_1;
+    for(i = 0; i < 4; ++i) {
+        EnvTermoIdPtr[i] = flash_data_buf_EnvTermoId[i];
+        HotTermoIdPtr[i] = flash_data_buf_HotTermoId[i];
+        ColdTermoIdPtr[i] = flash_data_buf_ColdTermoId[i];
+    }
+    
     // Initialize application-specific module
     app_init();
     
-    MB.T_hot_min = flash_data_buf_T_hot_min;
-    MB.T_cold_max = flash_data_buf_T_cold_max;
     // Main cycle
     while (1) {
         // Perform RTSP, if externally requested
@@ -162,6 +175,24 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_T_hot_min), FLASH_GETOFFSET(&flash_data_buf_T_hot_min)+2,
                         tmpPtr[1]);
             }
+            for (i = 0; i < 4; i++) {
+                if (flash_data_buf_EnvTermoId[i] != EnvTermoIdPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_EnvTermoId), FLASH_GETAOFFSET(flash_data_buf_EnvTermoId, i),
+                            EnvTermoIdPtr[i]);
+                }
+                if (flash_data_buf_HotTermoId[i] != HotTermoIdPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_HotTermoId), FLASH_GETAOFFSET(flash_data_buf_HotTermoId, i),
+                            HotTermoIdPtr[i]);
+                }
+                if (flash_data_buf_ColdTermoId[i] != ColdTermoIdPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_ColdTermoId), FLASH_GETAOFFSET(flash_data_buf_ColdTermoId, i),
+                            ColdTermoIdPtr[i]);
+                }
+            }
+            
             flash_write();
             system_reset();
             MB.FLASH_WR = 0;

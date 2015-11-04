@@ -221,7 +221,22 @@ void modbus_mmap_free();
 #define REG_T_hot_min         183, f
 #define REG_T_cold_max         185, f
 
-#define MODBUS_DATA_END        187
+#define REG_Env_TermoId_bytes_0_1      187, u16
+#define REG_Env_TermoId_bytes_2_3      188, u16
+#define REG_Env_TermoId_bytes_4_5      189, u16
+#define REG_Env_TermoId_bytes_6_7      190, u16
+
+#define REG_Hot_TermoId_bytes_0_1      191, u16
+#define REG_Hot_TermoId_bytes_2_3      192, u16
+#define REG_Hot_TermoId_bytes_4_5      193, u16
+#define REG_Hot_TermoId_bytes_6_7      194, u16
+
+#define REG_Cold_TermoId_bytes_0_1      195, u16
+#define REG_Cold_TermoId_bytes_2_3      196, u16
+#define REG_Cold_TermoId_bytes_4_5      197, u16
+#define REG_Cold_TermoId_bytes_6_7      198, u16
+
+#define MODBUS_DATA_END        199
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -412,6 +427,21 @@ typedef struct _tagMODBUS_DATA {
             
             _REG_DEFINE(T_hot_min);
             _REG_DEFINE(T_cold_max);
+            
+            _REG_DEFINE(Env_TermoId_bytes_0_1);
+            _REG_DEFINE(Env_TermoId_bytes_2_3);
+            _REG_DEFINE(Env_TermoId_bytes_4_5);
+            _REG_DEFINE(Env_TermoId_bytes_6_7);
+            
+            _REG_DEFINE(Hot_TermoId_bytes_0_1);
+            _REG_DEFINE(Hot_TermoId_bytes_2_3);
+            _REG_DEFINE(Hot_TermoId_bytes_4_5);
+            _REG_DEFINE(Hot_TermoId_bytes_6_7);
+            
+            _REG_DEFINE(Cold_TermoId_bytes_0_1);
+            _REG_DEFINE(Cold_TermoId_bytes_2_3);
+            _REG_DEFINE(Cold_TermoId_bytes_4_5);
+            _REG_DEFINE(Cold_TermoId_bytes_6_7);
             
             uint16_t __last1;
         };
