@@ -109,10 +109,7 @@ void disp_draw() {
             if( 0 <= j && j < dispStrSz ) {
                 display[i] = dispStr[j];
 #if APP_USE_LED_ANIMATIONS
-            } else if(!aniInProgress) {
-#else
-            } else {
-#endif      
+            else if(!aniInProgress)
                 display[i] = ' ';
             }
 
