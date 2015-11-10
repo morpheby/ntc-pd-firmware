@@ -77,15 +77,15 @@ MAIN_DECL_LOOP_FN() {
         DS1820_initROM();
         MB.Control0 = 0;   
     }
-  //  DS1820_update();
+    DS1820_update();
     
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;
     
     if(dt >= 1000) {
-        MB.DI0_ImpFrequency = DI0_counter;//1000.0f*(float)DI0_counter / (float)dt/308.0f;
-        MB.DI1_ImpFrequency = DI1_counter;//1000.0f*(float)DI1_counter / (float)dt/308.0f;
-        MB.DI2_ImpFrequency = DI2_counter;//1000.0f*(float)DI2_counter / (float)dt/308.0f;
+        MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt/308.0f;
+        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt/308.0f;
+        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt*0.051044776;
         DI0_counter = 0;
         DI1_counter = 0;
         DI2_counter = 0;
@@ -111,23 +111,29 @@ ADC_DECL_VALUE_FN(channel, value) {
 
 //DI0 impulse counter
 CNI_DECL_PROC_FN(29, on) {
-    if(!on) 
+    static bool prev = 0;
+    if(on != prev) 
     {
-        DI0_counter++;        
+        DI0_counter++;    
+        prev = on;
     }
 }
 
 //DI1 impulse counter
 CNI_DECL_PROC_FN(30, on) {
-    if(!on) 
+    static bool prev = 0;
+    if(on != prev) 
     {
-        DI1_counter++;        
+        DI1_counter++;  
+        prev = on;
     }
 }
 //DI2 impulse counter
-CNI_DECL_PROC_FN(28, on) {
-    if(!on) 
+CNI_DECL_PROC_FN(10, on) {
+    static bool prev = 0;
+    if(on != prev) 
     {
-        DI2_counter++;        
+        DI2_counter++;  
+        prev = on;
     }
 }

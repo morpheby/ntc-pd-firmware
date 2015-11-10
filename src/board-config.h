@@ -113,7 +113,7 @@
 #define CNI_7_ENABLE      0
 #define CNI_8_ENABLE      0
 #define CNI_9_ENABLE      0
-#define CNI_10_ENABLE     0
+#define CNI_10_ENABLE     1
 #define CNI_11_ENABLE     0
 #define CNI_12_ENABLE     0
 #define CNI_13_ENABLE     0
@@ -131,12 +131,12 @@
 #define CNI_25_ENABLE     0
 #define CNI_26_ENABLE     0
 #define CNI_27_ENABLE     0
-#define CNI_28_ENABLE     1
+#define CNI_28_ENABLE     0
 #define CNI_29_ENABLE     1
 #define CNI_30_ENABLE     1
 
 
-#define CNI_28_NEEDSPU 0
+#define CNI_10_NEEDSPU 0
 #define CNI_29_NEEDSPU 0
 #define CNI_30_NEEDSPU 0
 
