@@ -56,9 +56,9 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 100;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_Out_Init = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_P1_sign = 1;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_P2_sign = 1;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_sign = 1;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P1_coef = 0.99;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P2_coef = 0.99;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -124,9 +124,9 @@ int16_t main() {
     MB.N = flash_data_buf_N;
     MB.D_Out_Init = flash_data_buf_D_Out_Init;
     MB.D_Out = MB.D_Out_Init;
-    MB.P1_sign = flash_data_buf_P1_sign;
-    MB.P2_sign = flash_data_buf_P2_sign;
-    MB.P3_sign = flash_data_buf_P3_sign;
+    MB.P1_coef = flash_data_buf_P1_coef;
+    MB.P2_coef = flash_data_buf_P2_coef;
+    MB.P3_coef = flash_data_buf_P3_coef;
     MB.BRG_VAL = 19200;
    
     uint16_t i = 0;
@@ -205,20 +205,26 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_Ind_Delay), FLASH_GETOFFSET(&flash_data_buf_Ind_Delay),
                         MB.Ind_Delay);                 
             }
-            if(MB.P1_sign != flash_data_buf_P1_sign) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_P1_sign), FLASH_GETOFFSET(&flash_data_buf_P1_sign),
-                        MB.P1_sign);                 
+            if(MB.P1_coef != flash_data_buf_P1_coef) {
+                tmpPtr = &MB.P1_coef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P1_coef), FLASH_GETOFFSET(&flash_data_buf_P1_coef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P1_coef), FLASH_GETOFFSET(&flash_data_buf_P1_coef)+2,
+                        tmpPtr[1]);             
             }
-            if(MB.P2_sign != flash_data_buf_P2_sign) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_P2_sign), FLASH_GETOFFSET(&flash_data_buf_P2_sign),
-                        MB.P2_sign);                 
+            if(MB.P2_coef != flash_data_buf_P2_coef) {
+                tmpPtr = &MB.P2_coef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P2_coef), FLASH_GETOFFSET(&flash_data_buf_P2_coef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P2_coef), FLASH_GETOFFSET(&flash_data_buf_P2_coef)+2,
+                        tmpPtr[1]);                 
             }
-            if(MB.P3_sign != flash_data_buf_P3_sign) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_P3_sign), FLASH_GETOFFSET(&flash_data_buf_P3_sign),
-                        MB.P3_sign);                 
+            if(MB.P3_coef != flash_data_buf_P3_coef) {
+                tmpPtr = &MB.P3_coef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P3_coef), FLASH_GETOFFSET(&flash_data_buf_P3_coef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_P3_coef), FLASH_GETOFFSET(&flash_data_buf_P3_coef)+2,
+                        tmpPtr[1]);              
             }
             flash_write();
             system_reset();
