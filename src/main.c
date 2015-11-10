@@ -56,9 +56,14 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 100;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_Out_Init = 0;
+
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P1_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P2_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
+
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 0.01;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 0.01;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 0.01;
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -124,9 +129,15 @@ int16_t main() {
     MB.N = flash_data_buf_N;
     MB.D_Out_Init = flash_data_buf_D_Out_Init;
     MB.D_Out = MB.D_Out_Init;
+    
     MB.P1_coef = flash_data_buf_P1_coef;
     MB.P2_coef = flash_data_buf_P2_coef;
     MB.P3_coef = flash_data_buf_P3_coef;
+    
+    MB.M0_RMS_sign_threshold = flash_data_buf_M0_RMS_sign_threshold;
+    MB.M1_RMS_sign_threshold = flash_data_buf_M1_RMS_sign_threshold;
+    MB.M2_RMS_sign_threshold = flash_data_buf_M2_RMS_sign_threshold;
+    
     MB.BRG_VAL = 19200;
    
     uint16_t i = 0;
@@ -226,6 +237,29 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_P3_coef), FLASH_GETOFFSET(&flash_data_buf_P3_coef)+2,
                         tmpPtr[1]);              
             }
+            
+            if(MB.M0_RMS_sign_threshold != flash_data_buf_M0_RMS_sign_threshold) {
+                tmpPtr = &MB.M0_RMS_sign_threshold;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M0_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M0_RMS_sign_threshold),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M0_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M0_RMS_sign_threshold)+2,
+                        tmpPtr[1]);              
+            }
+            if(MB.M1_RMS_sign_threshold != flash_data_buf_M1_RMS_sign_threshold) {
+                tmpPtr = &MB.M1_RMS_sign_threshold;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M1_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M1_RMS_sign_threshold),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M1_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M1_RMS_sign_threshold)+2,
+                        tmpPtr[1]);              
+            }
+            if(MB.M2_RMS_sign_threshold != flash_data_buf_M2_RMS_sign_threshold) {
+                tmpPtr = &MB.M2_RMS_sign_threshold;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M2_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M2_RMS_sign_threshold),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_M2_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M2_RMS_sign_threshold)+2,
+                        tmpPtr[1]);              
+            }
+            
             flash_write();
             system_reset();
             MB.FLASH_WR = 0;

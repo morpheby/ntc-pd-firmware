@@ -149,7 +149,11 @@ void modbus_mmap_free();
 #define REG_P2_coef          114, f
 #define REG_P3_coef          116, f
 
-#define MODBUS_DATA_END        118
+#define REG_M0_RMS_sign_threshold          118, f
+#define REG_M1_RMS_sign_threshold          120, f
+#define REG_M2_RMS_sign_threshold          122, f
+
+#define MODBUS_DATA_END        124
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -270,6 +274,10 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(P1_coef);
             _REG_DEFINE(P2_coef);
             _REG_DEFINE(P3_coef);
+            
+            _REG_DEFINE(M0_RMS_sign_threshold);
+            _REG_DEFINE(M1_RMS_sign_threshold);
+            _REG_DEFINE(M2_RMS_sign_threshold);
             
             uint16_t __last1;
         };

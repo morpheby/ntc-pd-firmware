@@ -91,14 +91,30 @@ MAIN_DECL_LOOP_FN() {
         MB.P2 = P2Sum / counter * MB.P2_coef;
         MB.P3 = P3Sum / counter * MB.P3_coef;
         
-        MB.M0_RMS = sqrt(A0SquareSum / counter);
-        MB.M1_RMS = sqrt(A1SquareSum / counter);
-        MB.M2_RMS = sqrt(A2SquareSum / counter);
-        
         MB.M0_AVG = (A0Sum / counter);
         MB.M1_AVG = (A1Sum / counter);
         MB.M2_AVG = (A2Sum / counter);
         
+        int M0_sign = 1;
+        int M1_sign = 1;
+        int M2_sign = 1;
+        
+        if(fabs(MB.M0_AVG) >= MB.M0_RMS_sign_threshold && MB.M0_AVG < 0) {
+            M0_sign = -1;
+        }
+        
+        if(fabs(MB.M1_AVG) >= MB.M1_RMS_sign_threshold && MB.M1_AVG < 0) {
+            M1_sign = -1;
+        }
+        
+        if(fabs(MB.M2_AVG) >= MB.M2_RMS_sign_threshold && MB.M2_AVG < 0) {
+            M2_sign = -1;
+        }
+        
+        MB.M0_RMS = sqrt(A0SquareSum / counter)*M0_sign;
+        MB.M1_RMS = sqrt(A1SquareSum / counter)*M1_sign;
+        MB.M2_RMS = sqrt(A2SquareSum / counter)*M2_sign;
+                
         MB.S1 = MB.M0_RMS * MB.M1_RMS;
         MB.S2 = MB.M0_RMS * MB.M2_RMS;
         MB.S3 = MB.M1_RMS * MB.M2_RMS;
