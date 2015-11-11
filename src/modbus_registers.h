@@ -153,7 +153,40 @@ void modbus_mmap_free();
 #define REG_M1_RMS_sign_threshold          120, f
 #define REG_M2_RMS_sign_threshold          122, f
 
-#define MODBUS_DATA_END        124
+#define REG_DS1820_TEMP_1         124, f
+#define REG_DS1820_TEMP_2         126, f
+#define REG_DS1820_TEMP_3         128, f
+#define REG_DS1820_TEMP_4         130, f
+#define REG_DS1820_TEMP_5         132, f
+
+#define REG_TermoId_0_bytes_0_1      134, u16
+#define REG_TermoId_0_bytes_2_3      135, u16
+#define REG_TermoId_0_bytes_4_5      136, u16
+#define REG_TermoId_0_bytes_6_7      137, u16
+
+#define REG_TermoId_1_bytes_0_1      138, u16
+#define REG_TermoId_1_bytes_2_3      139, u16
+#define REG_TermoId_1_bytes_4_5      140, u16
+#define REG_TermoId_1_bytes_6_7      141, u16
+
+#define REG_TermoId_2_bytes_0_1      142, u16
+#define REG_TermoId_2_bytes_2_3      143, u16
+#define REG_TermoId_2_bytes_4_5      144, u16
+#define REG_TermoId_2_bytes_6_7      145, u16
+
+#define REG_TermoId_3_bytes_0_1      146, u16
+#define REG_TermoId_3_bytes_2_3      147, u16
+#define REG_TermoId_3_bytes_4_5      148, u16
+#define REG_TermoId_3_bytes_6_7      149, u16
+
+#define REG_TermoId_4_bytes_0_1      150, u16
+#define REG_TermoId_4_bytes_2_3      151, u16
+#define REG_TermoId_4_bytes_4_5      152, u16
+#define REG_TermoId_4_bytes_6_7      153, u16
+
+#define REG_TermoCount             154, u16
+
+#define MODBUS_DATA_END        155
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -278,6 +311,39 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(M0_RMS_sign_threshold);
             _REG_DEFINE(M1_RMS_sign_threshold);
             _REG_DEFINE(M2_RMS_sign_threshold);
+            
+            _REG_DEFINE(DS1820_TEMP_1);
+            _REG_DEFINE(DS1820_TEMP_2);
+            _REG_DEFINE(DS1820_TEMP_3);
+            _REG_DEFINE(DS1820_TEMP_4);
+            _REG_DEFINE(DS1820_TEMP_5);
+            
+            _REG_DEFINE(TermoId_0_bytes_0_1);
+            _REG_DEFINE(TermoId_0_bytes_2_3);
+            _REG_DEFINE(TermoId_0_bytes_4_5);
+            _REG_DEFINE(TermoId_0_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_1_bytes_0_1);
+            _REG_DEFINE(TermoId_1_bytes_2_3);
+            _REG_DEFINE(TermoId_1_bytes_4_5);
+            _REG_DEFINE(TermoId_1_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_2_bytes_0_1);
+            _REG_DEFINE(TermoId_2_bytes_2_3);
+            _REG_DEFINE(TermoId_2_bytes_4_5);
+            _REG_DEFINE(TermoId_2_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_3_bytes_0_1);
+            _REG_DEFINE(TermoId_3_bytes_2_3);
+            _REG_DEFINE(TermoId_3_bytes_4_5);
+            _REG_DEFINE(TermoId_3_bytes_6_7);
+            
+            _REG_DEFINE(TermoId_4_bytes_0_1);
+            _REG_DEFINE(TermoId_4_bytes_2_3);
+            _REG_DEFINE(TermoId_4_bytes_4_5);
+            _REG_DEFINE(TermoId_4_bytes_6_7);
+                                    
+            _REG_DEFINE(TermoCount);
             
             uint16_t __last1;
         };
