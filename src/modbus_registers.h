@@ -219,7 +219,7 @@ void modbus_mmap_free();
 #define REG_TermoCount             182, u16
 
 #define REG_T_hot_min         183, f
-#define REG_T_cold_max         185, f
+#define REG_delta_T_hist         185, f
 
 #define REG_Env_TermoId_bytes_0_1      187, u16
 #define REG_Env_TermoId_bytes_2_3      188, u16
@@ -428,7 +428,7 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(TermoCount);
             
             _REG_DEFINE(T_hot_min);
-            _REG_DEFINE(T_cold_max);
+            _REG_DEFINE(delta_T_hist);
             
             _REG_DEFINE(Env_TermoId_bytes_0_1);
             _REG_DEFINE(Env_TermoId_bytes_2_3);

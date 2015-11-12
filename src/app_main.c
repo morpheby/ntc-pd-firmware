@@ -38,6 +38,9 @@ static unsigned int DI1_counter = 0;
 static unsigned int DI2_counter = 0;
 static long int last_time;
 
+static bool heaterOn = 0;
+static bool coolerOn = 0;
+
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
@@ -91,18 +94,20 @@ MAIN_DECL_LOOP_FN() {
         DI2_counter = 0;
         last_time = time;
     }
-    
-    if(MB.DS1820_TEMP_2 <= MB.T_hot_min){
-        PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 1;        
-    } else {
-        PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = 0;        
+    if(MB.DS1820_TEMP_2 >= MB.T_hot_min + MB.delta_T_hist){
+        heaterOn = 0;        
+    } else if(MB.DS1820_TEMP_2 <= MB.T_hot_min){
+        heaterOn = 1;        
     }
     
-    if(MB.DS1820_TEMP_3 >= MB.T_cold_max + MB.DS1820_TEMP_1){
-        PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 1;      
-    } else {
-        PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = 0;        
+    if(MB.DS1820_TEMP_3 >= MB.delta_T_hist + MB.DS1820_TEMP_1){
+        coolerOn = 1;      
+    } else if(MB.DS1820_TEMP_3 <= MB.DS1820_TEMP_1){
+        coolerOn = 0;        
     }
+    
+    PIN_LATCH(VT2_PIN_TYPE, VT2_PIN_NUM) = heaterOn;
+    PIN_LATCH(VT3_PIN_TYPE, VT3_PIN_NUM) = coolerOn;    
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

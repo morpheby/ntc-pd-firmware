@@ -38,7 +38,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_K[7] = {1., 1., 1., 1., 1., 1., 
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_OFFSET[7] = {0, 0, 0, 0, 0, 0, 0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_PosK0 = .125;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_hot_min = 40.;
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_T_cold_max = 2.;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_delta_T_hist = 2.;
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_EnvTermoId[4] = {0, 0, 0, 0};
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_HotTermoId[4] = {0, 0, 0, 0};
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_ColdTermoId[4] = {0, 0, 0, 0};
@@ -121,7 +121,7 @@ int16_t main() {
     MB.PositionK0 = flash_data_buf_PosK0;
             
     MB.T_hot_min = flash_data_buf_T_hot_min;
-    MB.T_cold_max = flash_data_buf_T_cold_max;    
+    MB.delta_T_hist = flash_data_buf_delta_T_hist;    
         
     uint16_t *EnvTermoIdPtr = &MB.Env_TermoId_bytes_0_1;
     uint16_t *HotTermoIdPtr = &MB.Hot_TermoId_bytes_0_1;
@@ -161,11 +161,11 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
                         tmpPtr[1]);
             }
-            if (flash_data_buf_T_cold_max != MB.T_cold_max) {
-                tmpPtr = &MB.T_cold_max;
-                flash_set(FLASH_GETPAGE(&flash_data_buf_T_cold_max), FLASH_GETOFFSET(&flash_data_buf_T_cold_max),
+            if (flash_data_buf_delta_T_hist != MB.delta_T_hist) {
+                tmpPtr = &MB.delta_T_hist;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_delta_T_hist), FLASH_GETOFFSET(&flash_data_buf_delta_T_hist),
                         tmpPtr[0]);
-                flash_set(FLASH_GETPAGE(&flash_data_buf_T_cold_max), FLASH_GETOFFSET(&flash_data_buf_T_cold_max)+2,
+                flash_set(FLASH_GETPAGE(&flash_data_buf_delta_T_hist), FLASH_GETOFFSET(&flash_data_buf_delta_T_hist)+2,
                         tmpPtr[1]);
             }
             if (flash_data_buf_T_hot_min != MB.T_hot_min) {
