@@ -32,6 +32,9 @@ void DS1820_setLineToOne()
 
 void DS1820_update() 
 {
+    if(MB.TermoCount == 0) {
+        return;
+    }
     switch(state)
     {
         case STATE_DEFAULT:
