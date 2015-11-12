@@ -23,6 +23,7 @@
 #include "PWM.h"
 #include "ind_profiles.h"
 #include "filter.h"
+#include "DS1820.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -51,9 +52,16 @@ void app_init() {
 }
 
 MAIN_DECL_LOOP_FN() {
-    
+#if USE_DS1820_SENSORS
+    if(MB.Control0 == 1) {
+        DS1820_initROM();
+        MB.Control0 = 0;
+    }
+    DS1820_update();
+#else
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
+#endif
     
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);

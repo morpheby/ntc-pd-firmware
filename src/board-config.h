@@ -186,5 +186,7 @@
                          + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE   \
                          + ADC_6_ENABLE
 
+#define USE_DS1820_SENSORS 1
+
 #endif	/* BOARD_CONFIG_H */
 

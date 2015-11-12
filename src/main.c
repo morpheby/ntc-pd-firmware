@@ -20,6 +20,7 @@
 #include "D_I_O.h"
 #include "modbus_registers.h"
 #include "filter.h"
+#include "DS1820.h"
 
 
 /******************************************************************************/
@@ -64,6 +65,11 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 0.01;
+
+#if USE_DS1820_SENSORS
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_ROM[DS1820_SENSOR_COUNT*4]={0};
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_TermoCount = 0;
+#endif
 
 int PROF=1;
 char MENU_LEVEL = 0;
@@ -159,6 +165,14 @@ int16_t main() {
         indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
     }
     MB.PROF_CHANGE_SOURCE = flash_data_buf_PROF_CHANGE_SOURCE;
+    
+#if USE_DS1820_SENSORS
+    uint16_t *DS1820ROMPtr = &MB.TermoId_0_bytes_0_1;
+    for(i = 0; i < DS1820_SENSOR_COUNT*4; ++i) {
+        DS1820ROMPtr[i] = flash_data_buf_DS1820_ROM[i];
+    }
+    MB.TermoCount = flash_data_buf_DS1820_TermoCount;
+#endif
     
     // Initialize application-specific module
     app_init();
@@ -259,6 +273,19 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_M2_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M2_RMS_sign_threshold)+2,
                         tmpPtr[1]);              
             }
+#if USE_DS1820_SENSORS
+            for(i = 0; i < DS1820_SENSOR_COUNT*4; ++i) {
+                if(flash_data_buf_DS1820_ROM[i] != DS1820ROMPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_DS1820_ROM), FLASH_GETAOFFSET(flash_data_buf_DS1820_ROM, i),
+                            DS1820ROMPtr[i]);                    
+                }
+            }
+            if(flash_data_buf_DS1820_TermoCount != MB.TermoCount){
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DS1820_TermoCount), FLASH_GETOFFSET(&flash_data_buf_DS1820_TermoCount),
+                        MB.TermoCount);                   
+            }
+#endif
             
             flash_write();
             system_reset();
@@ -271,9 +298,10 @@ int16_t main() {
         // Internal Modbus function for framing
         RS_Update();
         
+#if !USE_DS1820_SENSORS       
         // Update discrete outputs and resample discrete inputs
         discrete_update();
-        
+#endif
         // Call application-end function
         MAIN_CALL_LOOP_FN();
         
