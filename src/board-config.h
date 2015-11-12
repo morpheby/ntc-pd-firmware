@@ -114,8 +114,8 @@
 #define CNI_6_ENABLE      0
 #define CNI_7_ENABLE      0
 #define CNI_8_ENABLE      0
-#define CNI_9_ENABLE      1
-#define CNI_10_ENABLE     1
+#define CNI_9_ENABLE      0
+#define CNI_10_ENABLE     0
 #define CNI_11_ENABLE     0
 #define CNI_12_ENABLE     0
 #define CNI_13_ENABLE     0
@@ -134,8 +134,8 @@
 #define CNI_26_ENABLE     0
 #define CNI_27_ENABLE     0
 #define CNI_28_ENABLE     0
-#define CNI_29_ENABLE     1
-#define CNI_30_ENABLE     1
+#define CNI_29_ENABLE     0
+#define CNI_30_ENABLE     0
 
 #define CNI_9_NEEDSPU 0
 #define CNI_10_NEEDSPU 0
@@ -190,11 +190,11 @@
                          + ADC_3_ENABLE + ADC_4_ENABLE + ADC_5_ENABLE   \
                          + ADC_6_ENABLE
 
-#define USE_DS1820_SENSORS 1
-#define COUNT_DI0_IMP_FREQUENCY 1
-#define COUNT_DI1_IMP_FREQUENCY 1
-#define COUNT_DI2_IMP_FREQUENCY 1
-#define COUNT_DI3_IMP_FREQUENCY 1
+#define USE_DS1820_SENSORS 0
+#define COUNT_DI0_IMP_FREQUENCY 0
+#define COUNT_DI1_IMP_FREQUENCY 0
+#define COUNT_DI2_IMP_FREQUENCY 0
+#define COUNT_DI3_IMP_FREQUENCY 0
 
 #endif	/* BOARD_CONFIG_H */
 
