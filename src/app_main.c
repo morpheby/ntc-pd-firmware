@@ -42,6 +42,13 @@ static float A1SquareSum = 0;
 static float A2SquareSum = 0;
 static uint16_t counter = 0;
 
+static unsigned int DI0_counter = 0;
+static unsigned int DI1_counter = 0;
+static unsigned int DI2_counter = 0;
+static unsigned int DI3_counter = 0;
+
+static long int last_time;
+
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
@@ -49,6 +56,7 @@ void app_init() {
                 FilterTypeNone, 10);
     }
     discrete_set_output(MB.D_Out_Init);
+    last_time = timing_get_time_msecs();
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -57,11 +65,25 @@ MAIN_DECL_LOOP_FN() {
         DS1820_initROM();
         MB.Control0 = 0;
     }
-    DS1820_update();
 #else
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
 #endif
+    long int time = timing_get_time_msecs();
+    long int dt = time - last_time;
+    
+    if(dt >= 1000) {
+        DS1820_update();
+        /*MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt;
+        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt;
+        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt;
+        MB.DI3_ImpFrequency = 500.0f*(float)DI3_counter / (float)dt;
+        DI0_counter = 0;
+        DI1_counter = 0;
+        DI2_counter = 0;
+        DI3_counter = 0;*/
+        last_time = time;
+    }
     
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);
@@ -179,3 +201,52 @@ MAIN_DECL_LOOP_FN() {
 ADC_DECL_VALUE_FN(channel, value) {
     filter_put(adcInputFilter, value, channel);
 }
+
+#if COUNT_DI0_IMP_FREQUENCY
+//DI0 impulse counter
+CNI_DECL_PROC_FN(29, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {
+        DI0_counter++;    
+        prev = on;
+    }
+}
+#endif
+
+#if COUNT_DI1_IMP_FREQUENCY
+//DI1 impulse counter
+CNI_DECL_PROC_FN(30, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {
+        DI1_counter++;  
+        prev = on;
+    }
+}
+#endif
+
+#if COUNT_DI2_IMP_FREQUENCY
+//DI2 impulse counter
+CNI_DECL_PROC_FN(10, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {
+        DI2_counter++;  
+        prev = on;
+    }
+}
+#endif
+
+
+#if COUNT_DI3_IMP_FREQUENCY
+//DI3 impulse counter
+CNI_DECL_PROC_FN(9, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {
+        DI3_counter++;  
+        prev = on;
+    }
+}
+#endif

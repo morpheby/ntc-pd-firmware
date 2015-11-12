@@ -186,6 +186,11 @@ void modbus_mmap_free();
 
 #define REG_TermoCount             154, u16
 
+#define REG_DI0_ImpFrequency             155, f
+#define REG_DI1_ImpFrequency             157, f
+#define REG_DI2_ImpFrequency             159, f
+#define REG_DI3_ImpFrequency             161, f
+
 #define MODBUS_DATA_END        155
 
 #if APP_USE_MODBUS_EXT
