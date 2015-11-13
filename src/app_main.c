@@ -118,22 +118,6 @@ MAIN_DECL_LOOP_FN() {
     }
 #endif
     
-    // Extract ADC values and push to modbus
-    MB.A0 = filter_get(adcInputFilter, 0);
-    MB.A1 = filter_get(adcInputFilter, 1);
-    MB.A2 = filter_get(adcInputFilter, 2);
-    MB.A3 = filter_get(adcInputFilter, 3);
-    MB.A4 = filter_get(adcInputFilter, 4);
-    MB.A5 = filter_get(adcInputFilter, 5);
-    MB.A6 = filter_get(adcInputFilter, 6);
-        
-    MB.ADC0 = (MB.A0 - MB.OFS_ADC0) * MB.K0;
-    MB.ADC1 = (MB.A1 - MB.OFS_ADC1) * MB.K1;
-    MB.ADC2 = (MB.A2 - MB.OFS_ADC2) * MB.K2;
-    MB.ADC3 = (MB.A3 - MB.OFS_ADC3) * MB.K3;
-    MB.ADC4 = (MB.A4 - MB.OFS_ADC4) * MB.K4;
-    MB.ADC5 = (MB.A5 - MB.OFS_ADC5) * MB.K5;
-    MB.ADC6 = (MB.A6 - MB.OFS_ADC6) * MB.K6;
 
 #if CALCULATE_ELECTRICAL_PARAMS    
     A0SquareSum += MB.ADC0*MB.ADC0;
