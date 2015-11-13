@@ -59,6 +59,7 @@ static unsigned int DI3_counter = 0;
 
 #if USE_DIO_INTERRUPTS
 static long int last_time;
+static long int timer_start_time;
 #endif
 
 void app_init() {
@@ -80,6 +81,8 @@ void app_init() {
 #else
     discrete_set_output(MB.D_Out_Init);
 #endif
+    timer_start_time = timing_get_time_msecs();
+    MB.TimerValue = 0;
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -92,6 +95,17 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
 #endif
+    bool timerOn = discrete_get_input_bit(0);
+    discrete_sample();
+    if(discrete_get_input_bit(0)){
+        if(!timerOn){
+            timer_start_time = timing_get_time_msecs();            
+        }
+        MB.TimerValue = (timing_get_time_msecs() - timer_start_time)*0.001;        
+    }
+    if(discrete_get_input_bit(1)) {
+        MB.TimerValue = 0;
+    }
     
 #if USE_DIO_INTERRUPTS
     long int time = timing_get_time_msecs();
@@ -117,7 +131,6 @@ MAIN_DECL_LOOP_FN() {
         last_time = time;
     }
 #endif
-    
 
 #if CALCULATE_ELECTRICAL_PARAMS    
     A0SquareSum += MB.ADC0*MB.ADC0;
