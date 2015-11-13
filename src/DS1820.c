@@ -5,6 +5,8 @@
 #define STATE_DEFAULT 0
 #define STATE_DATA_READ 1
 
+#if USE_DS1820_SENSORS
+
 static uint8_t state = STATE_DEFAULT;
 static unsigned char LS_byte;
 static unsigned char MS_byte;
@@ -32,6 +34,9 @@ void DS1820_setLineToOne()
 
 void DS1820_update() 
 {
+    if(MB.TermoCount == 0) {
+        return;
+    }
     switch(state)
     {
         case STATE_DEFAULT:
@@ -284,3 +289,47 @@ uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex)
     
     return result;
 }
+
+#else
+void DS1820_initROM()
+{
+    
+}
+uint16_t DS1820_getIdWord(uint8_t deviceIndex, uint8_t wordIndex)
+{
+    
+}
+
+void DS1820_setLineToZero()
+{
+    
+}
+void DS1820_setLineToOne()
+{
+    
+}
+bool DS1820_lineState()
+{
+    return 0;
+}
+
+void DS1820_update()
+{
+}
+float DS1820_temperature(unsigned int index)
+{
+    return 0;
+}
+void DS1820_init()
+{
+    
+}
+void DS1820_TX(unsigned char cmd)
+{
+    
+}
+unsigned char DS1820_RX()
+{
+    
+}
+#endif
