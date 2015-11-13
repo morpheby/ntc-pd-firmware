@@ -36,7 +36,7 @@ void disp_config() {
         displayState[i].FP = -1;
         displayState[i].num = 0;
         displayState[i].pt = 0;
-        displayState[i].isOff = 1;
+        displayState[i].isOff = 0;
     }
 }
 

@@ -71,6 +71,9 @@ void app_init() {
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeMovingMean, 10);
 #endif
+        disp_set_off(0, 1);
+        disp_set_off(1, 1);
+        disp_set_off(2, 1);
     }
 #if USE_DIO_INTERRUPTS
     last_time = timing_get_time_msecs();
