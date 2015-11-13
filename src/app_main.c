@@ -31,6 +31,7 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
+#if CALCULATE_ELECTRICAL_PARAMS
 static float P1Sum = 0;
 static float P2Sum = 0;
 static float P3Sum = 0;
@@ -41,22 +42,41 @@ static float A0SquareSum = 0;
 static float A1SquareSum = 0;
 static float A2SquareSum = 0;
 static uint16_t counter = 0;
+#endif
 
+#if COUNT_DI0_IMP_FREQUENCY
 static unsigned int DI0_counter = 0;
+#endif
+#if COUNT_DI1_IMP_FREQUENCY
 static unsigned int DI1_counter = 0;
+#endif
+#if COUNT_DI2_IMP_FREQUENCY
 static unsigned int DI2_counter = 0;
+#endif
+#if COUNT_DI3_IMP_FREQUENCY
 static unsigned int DI3_counter = 0;
+#endif
 
+#if USE_DIO_INTERRUPTS
 static long int last_time;
+#endif
 
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
+#if CALCULATE_ELECTRICAL_PARAMS
         adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
                 FilterTypeNone, 10);
+#else
+        adcInputFilter = filter_create(ADC_CHANNEL_COUNT,
+                FilterTypeMovingMean, 10);
+#endif
     }
-    discrete_set_output(MB.D_Out_Init);
+#if USE_DIO_INTERRUPTS
     last_time = timing_get_time_msecs();
+#else
+    discrete_set_output(MB.D_Out_Init);
+#endif
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -69,21 +89,31 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
 #endif
+    
+#if USE_DIO_INTERRUPTS
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;
-    
     if(dt >= 1000) {
         DS1820_update();
-        /*MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt;
-        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt;
-        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt;
-        MB.DI3_ImpFrequency = 500.0f*(float)DI3_counter / (float)dt;
+#if COUNT_DI0_IMP_FREQUENCY
+        MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt * MB.DI0_ImpCoef;
         DI0_counter = 0;
+#endif
+#if COUNT_DI1_IMP_FREQUENCY
+        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt * MB.DI1_ImpCoef;
         DI1_counter = 0;
+#endif
+#if COUNT_DI2_IMP_FREQUENCY
+        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt * MB.DI2_ImpCoef;
         DI2_counter = 0;
-        DI3_counter = 0;*/
+#endif
+#if COUNT_DI3_IMP_FREQUENCY
+        MB.DI3_ImpFrequency = 500.0f*(float)DI3_counter / (float)dt * MB.DI3_ImpCoef;
+        DI3_counter = 0;
+#endif
         last_time = time;
     }
+#endif
     
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);
@@ -101,7 +131,8 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC4 = (MB.A4 - MB.OFS_ADC4) * MB.K4;
     MB.ADC5 = (MB.A5 - MB.OFS_ADC5) * MB.K5;
     MB.ADC6 = (MB.A6 - MB.OFS_ADC6) * MB.K6;
-    
+
+#if CALCULATE_ELECTRICAL_PARAMS    
     A0SquareSum += MB.ADC0*MB.ADC0;
     A1SquareSum += MB.ADC1*MB.ADC1;
     A2SquareSum += MB.ADC2*MB.ADC2;
@@ -196,6 +227,7 @@ MAIN_DECL_LOOP_FN() {
         
         counter = 0;
     }
+#endif
 }
 
 ADC_DECL_VALUE_FN(channel, value) {

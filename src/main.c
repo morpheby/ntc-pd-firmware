@@ -54,10 +54,11 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current p
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 0;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_Out_Init = 0;
 
+#if CALCULATE_ELECTRICAL_PARAMS
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P1_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P2_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
@@ -65,10 +66,24 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 0.01;
+#endif
 
 #if USE_DS1820_SENSORS
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_ROM[DS1820_SENSOR_COUNT*4]={0};
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_TermoCount = 0;
+#endif
+
+#if COUNT_DI0_IMP_FREQUENCY
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI0_ImpCoef = 1.0f;
+#endif
+#if COUNT_DI1_IMP_FREQUENCY
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI1_ImpCoef = 1.0f;
+#endif
+#if COUNT_DI2_IMP_FREQUENCY
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 1.0f;
+#endif
+#if COUNT_DI3_IMP_FREQUENCY
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
 int PROF=1;
@@ -132,9 +147,11 @@ int16_t main() {
     MB.FLASH_WR = 0;
     
     MB.Ind_Delay = flash_data_buf_Ind_Delay; 
-    MB.N = flash_data_buf_N;
     MB.D_Out_Init = flash_data_buf_D_Out_Init;
     MB.D_Out = MB.D_Out_Init;
+    
+#if CALCULATE_ELECTRICAL_PARAMS
+    MB.N = flash_data_buf_N;
     
     MB.P1_coef = flash_data_buf_P1_coef;
     MB.P2_coef = flash_data_buf_P2_coef;
@@ -143,6 +160,21 @@ int16_t main() {
     MB.M0_RMS_sign_threshold = flash_data_buf_M0_RMS_sign_threshold;
     MB.M1_RMS_sign_threshold = flash_data_buf_M1_RMS_sign_threshold;
     MB.M2_RMS_sign_threshold = flash_data_buf_M2_RMS_sign_threshold;
+    
+#endif
+   
+#if COUNT_DI0_IMP_FREQUENCY
+    MB.DI0_ImpCoef = flash_data_buf_DI0_ImpCoef;
+#endif
+#if COUNT_DI1_IMP_FREQUENCY
+    MB.DI1_ImpCoef = flash_data_buf_DI1_ImpCoef;
+#endif
+#if COUNT_DI2_IMP_FREQUENCY
+    MB.DI2_ImpCoef = flash_data_buf_DI2_ImpCoef;
+#endif
+#if COUNT_DI3_IMP_FREQUENCY
+    MB.DI3_ImpCoef = flash_data_buf_DI3_ImpCoef;
+#endif
     
     MB.BRG_VAL = 19200;
    
@@ -215,11 +247,6 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE),
                         MB.PROF_CHANGE_SOURCE);                 
             }
-            if(MB.N != flash_data_buf_N) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N),
-                        MB.N);                 
-            }
             if(MB.D_Out_Init != flash_data_buf_D_Out_Init) {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_D_Out_Init), FLASH_GETOFFSET(&flash_data_buf_D_Out_Init),
@@ -229,6 +256,12 @@ int16_t main() {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_Ind_Delay), FLASH_GETOFFSET(&flash_data_buf_Ind_Delay),
                         MB.Ind_Delay);                 
+            }
+#if CALCULATE_ELECTRICAL_PARAMS           
+            if(MB.N != flash_data_buf_N) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N),
+                        MB.N);                 
             }
             if(MB.P1_coef != flash_data_buf_P1_coef) {
                 tmpPtr = &MB.P1_coef;
@@ -273,6 +306,7 @@ int16_t main() {
                 flash_set(FLASH_GETPAGE(&flash_data_buf_M2_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M2_RMS_sign_threshold)+2,
                         tmpPtr[1]);              
             }
+#endif
 #if USE_DS1820_SENSORS
             for(i = 0; i < DS1820_SENSOR_COUNT*4; ++i) {
                 if(flash_data_buf_DS1820_ROM[i] != DS1820ROMPtr[i]) {
@@ -286,6 +320,43 @@ int16_t main() {
                         MB.TermoCount);                   
             }
 #endif
+#if COUNT_DI0_IMP_FREQUENCY
+            if(MB.DI0_ImpCoef != flash_data_buf_DI0_ImpCoef) {
+                tmpPtr = &MB.DI0_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI0_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI0_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI0_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI0_ImpCoef)+2,
+                        tmpPtr[1]);              
+            }
+#endif
+#if COUNT_DI1_IMP_FREQUENCY
+            if(MB.DI1_ImpCoef != flash_data_buf_DI1_ImpCoef) {
+                tmpPtr = &MB.DI1_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI1_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI1_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI1_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI1_ImpCoef)+2,
+                        tmpPtr[1]);              
+            }
+#endif
+#if COUNT_DI2_IMP_FREQUENCY
+            if(MB.DI2_ImpCoef != flash_data_buf_DI2_ImpCoef) {
+                tmpPtr = &MB.DI2_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI2_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI2_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI2_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI2_ImpCoef)+2,
+                        tmpPtr[1]);              
+            }
+#endif
+#if COUNT_DI3_IMP_FREQUENCY
+            if(MB.DI3_ImpCoef != flash_data_buf_DI3_ImpCoef) {
+                tmpPtr = &MB.DI3_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI3_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI3_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI3_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI3_ImpCoef)+2,
+                        tmpPtr[1]);              
+            }
+#endif
+            
             
             flash_write();
             system_reset();
@@ -298,7 +369,7 @@ int16_t main() {
         // Internal Modbus function for framing
         RS_Update();
         
-#if !USE_DS1820_SENSORS       
+#if !USE_DIO_INTERRUPTS       
         // Update discrete outputs and resample discrete inputs
         discrete_update();
 #endif
