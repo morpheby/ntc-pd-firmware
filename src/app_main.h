@@ -50,7 +50,7 @@
 /*
  * Modbus configuration
  */
-#define MODBUS_ADDRESS 0x01
+#define MODBUS_ADDRESS 0x02
 
 /* 
  * Event-based functions
