@@ -117,7 +117,7 @@ MAIN_DECL_LOOP_FN() {
         last_time = time;
     }
 #endif
-    
+#if ADC_CHANNEL_COUNT > 0
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);
     MB.A1 = filter_get(adcInputFilter, 1);
@@ -134,6 +134,7 @@ MAIN_DECL_LOOP_FN() {
     MB.ADC4 = (MB.A4 - MB.OFS_ADC4) * MB.K4;
     MB.ADC5 = (MB.A5 - MB.OFS_ADC5) * MB.K5;
     MB.ADC6 = (MB.A6 - MB.OFS_ADC6) * MB.K6;
+#endif
 
 #if CALCULATE_ELECTRICAL_PARAMS    
     A0SquareSum += MB.ADC0*MB.ADC0;
