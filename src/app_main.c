@@ -99,11 +99,15 @@ MAIN_DECL_LOOP_FN() {
     discrete_sample();
     if(discrete_get_input_bit(0)){
         if(!timerOn){
-            timer_start_time = timing_get_time_msecs();            
+            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000;            
         }
-        MB.TimerValue = (timing_get_time_msecs() - timer_start_time)*0.001;        
+        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+        if(time < 1000.0f) {
+            MB.TimerValue = time;             
+        }        
     }
     if(discrete_get_input_bit(1)) {
+        timer_start_time = timing_get_time_msecs();  
         MB.TimerValue = 0;
     }
     
