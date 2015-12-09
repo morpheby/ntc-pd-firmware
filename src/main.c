@@ -29,11 +29,6 @@
 
 #define RAM_START_ADDRESS               0x900
 
-
-int imp_kol_temp = 0;
-int PARAM_SET;
-int ind_off = 0x07;
-
 #define DEFAULT_IND_PROFILE 0xFF00
 
 // Flash storage for permanent modbus registers
@@ -86,10 +81,6 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 1.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
-int PROF=1;
-char MENU_LEVEL = 0;
-
-int _temp_BAUD=0;
 
 int *RamData;
 
