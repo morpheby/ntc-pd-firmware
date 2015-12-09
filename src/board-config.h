@@ -97,8 +97,8 @@
 
 #define COUNT_DI0_IMP_FREQUENCY 0
 #define COUNT_DI1_IMP_FREQUENCY 0
-#define COUNT_DI2_IMP_FREQUENCY 0
-#define COUNT_DI3_IMP_FREQUENCY 0
+#define COUNT_DI2_IMP_FREQUENCY 1
+#define COUNT_DI3_IMP_FREQUENCY 1
 /*
  * Change notification pins
  * Set ENABLE to 1 to enable interrupts on the pin. Numbering is the same, as in
