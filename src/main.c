@@ -82,9 +82,6 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
 
-int *RamData;
-
-
 MAIN_DECL_LOOP_FN();
 
 /******************************************************************************/
@@ -174,7 +171,6 @@ int16_t main() {
     int *adcOffsetPtr = &MB.OFS_ADC0;
     int *indProfilesPtr = &MB.profile;
     uint16_t *tmpPtr;
-    RamData = &(MB.BRG_VAL);
 
     // Init permanently stored values for coeffs
     for (i = 0; i < 7; ++i) {
@@ -218,13 +214,13 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_OFFSET), FLASH_GETAOFFSET(flash_data_buf_OFFSET, i),
                             adcOffsetPtr[i]);
                 }
-                if (flash_data_buf_PosK0 != MB.PositionK0) {
-                    tmpPtr = &MB.PositionK0;
-                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
-                            tmpPtr[1]);
-                }
+            }
+            if (flash_data_buf_PosK0 != MB.PositionK0) {
+                tmpPtr = &MB.PositionK0;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PosK0), FLASH_GETOFFSET(&flash_data_buf_PosK0)+2,
+                        tmpPtr[1]);
             }
             for(i = 0; i < 13; ++i) {
                 if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
