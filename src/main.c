@@ -49,7 +49,7 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current p
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 0;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 25;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_Out_Init = 0;
 
 #if CALCULATE_ELECTRICAL_PARAMS
