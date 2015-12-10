@@ -75,9 +75,13 @@ void disp_draw() {
                 for(j = 0; j < 3-displayState[i].pt; ++j) {
                     if(display[i*CHARS_IN_SECTION + j] == '0') {
                         display[i*CHARS_IN_SECTION + j] = ' ';
-                    } else if(display[i*CHARS_IN_SECTION + j] != '-'){
+                    } else /*if(display[i*CHARS_IN_SECTION + j] != '-')*/{
                         break;
                     }
+                }
+                
+                if(displayState[i].num < 0){
+                    display[i*CHARS_IN_SECTION + j-1] = '-';
                 }
                 if(displayState[i].pt > 0) {
                     display[i*CHARS_IN_SECTION+3-displayState[i].pt] |= 1 << 7; // dot
@@ -169,8 +173,6 @@ void itoa_s4(char *buf, int val) {
             buf[i] = number + '0';
             v /= 10;
         }
-        if(val < 0)
-            buf[0] = '-';
     }
 }
 
