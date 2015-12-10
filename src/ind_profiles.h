@@ -8,7 +8,10 @@
 #ifndef IND_PROFILES_H
 #define	IND_PROFILES_H
 
+#include "system.h"
+
 void ind_showValues();
+uint8_t adaptPrecision(float value, uint8_t precision);
 
 #endif	/* IND_PROFILES_H */
 

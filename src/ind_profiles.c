@@ -68,7 +68,7 @@ void ind_showValues()
         disp_set_off(0,0);
         if(ind2_reg_type == REG_TYPE_FLOAT) {
             uint8_t ind2_point = ind2_profile & 0x000F;
-            disp_fix_point(0, ind2_point);
+            disp_fix_point(0, adaptPrecision(modbus_get_reg_f(ind2_regNumber), ind2_point));
             disp_putf(0, modbus_get_reg_f(ind2_regNumber));        
         } else if(ind2_reg_type == REG_TYPE_UINT)
         {
@@ -89,7 +89,7 @@ void ind_showValues()
             disp_set_off(1,0);
             if(ind1_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind1_point = ind1_profile & 0x000F;
-                disp_fix_point(1, ind1_point);
+            disp_fix_point(0, adaptPrecision(modbus_get_reg_f(ind1_regNumber), ind1_point));
                 disp_putf(1, modbus_get_reg_f(ind1_regNumber));        
             }else if(ind1_reg_type == REG_TYPE_UINT)
             {
@@ -111,7 +111,7 @@ void ind_showValues()
             disp_set_off(2,0);     
             if(ind0_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind0_point = ind0_profile & 0x000F;
-                disp_fix_point(2, ind0_point);
+                disp_fix_point(0, adaptPrecision(modbus_get_reg_f(ind0_regNumber), ind0_point));
                 disp_putf(2, modbus_get_reg_f(ind0_regNumber));        
                 }else if(ind0_reg_type == REG_TYPE_UINT)
             {
@@ -126,4 +126,32 @@ void ind_showValues()
             disp_set_off(2,1);
         }        
     }    
+}
+
+uint8_t adaptPrecision(float value, uint8_t precision)
+{
+    uint8_t result = precision;
+    if(precision > 0) {
+        switch(precision) {
+            case 1: {
+                if(value > 999 || value < -99) {
+                    result-=1;
+                }
+                break;
+            }
+            case 2 : {
+                if(value > 99 || value < -9) {
+                    result = adaptPrecision(value, result-1);
+                }
+                break;
+            }
+            case 3 : {
+                if(value > 9 || value < 0) {
+                    result = adaptPrecision(value, result-1);
+                }
+                break;
+            }
+        }
+    }
+    return result;
 }
