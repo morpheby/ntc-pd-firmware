@@ -75,7 +75,7 @@ void disp_draw() {
                 for(j = 0; j < 3-displayState[i].pt; ++j) {
                     if(display[i*CHARS_IN_SECTION + j] == '0') {
                         display[i*CHARS_IN_SECTION + j] = ' ';
-                    } else /*if(display[i*CHARS_IN_SECTION + j] != '-')*/{
+                    } else {
                         break;
                     }
                 }
@@ -165,7 +165,7 @@ void disp_draw() {
 
 void itoa_s4(char *buf, int val) {
     if(val > 9999 || val < -999) 
-        strcpy(buf, "1---");
+        strcpy(buf, "9999");
     else {
         int i, number, v = abs_fast(val);
         for(i = 3; i >= 0; --i) {
