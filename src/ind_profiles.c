@@ -89,7 +89,7 @@ void ind_showValues()
             disp_set_off(1,0);
             if(ind1_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind1_point = ind1_profile & 0x000F;
-            disp_fix_point(0, adaptPrecision(modbus_get_reg_f(ind1_regNumber), ind1_point));
+                disp_fix_point(1, adaptPrecision(modbus_get_reg_f(ind1_regNumber), ind1_point));
                 disp_putf(1, modbus_get_reg_f(ind1_regNumber));        
             }else if(ind1_reg_type == REG_TYPE_UINT)
             {
@@ -111,7 +111,7 @@ void ind_showValues()
             disp_set_off(2,0);     
             if(ind0_reg_type == REG_TYPE_FLOAT) {
                 uint8_t ind0_point = ind0_profile & 0x000F;
-                disp_fix_point(0, adaptPrecision(modbus_get_reg_f(ind0_regNumber), ind0_point));
+                disp_fix_point(2, adaptPrecision(modbus_get_reg_f(ind0_regNumber), ind0_point));
                 disp_putf(2, modbus_get_reg_f(ind0_regNumber));        
                 }else if(ind0_reg_type == REG_TYPE_UINT)
             {
