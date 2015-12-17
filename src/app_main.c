@@ -89,23 +89,6 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
     
-    if(discrete_get_input_bit(2) && MB.M0_RMS >= MB.I_threshold){
-        if(!timerOn){
-            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
-            timerOn = 1;            
-        }
-        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
-        if(time < 1000.0f) {
-            MB.TimerValue = time;             
-        }        
-    } else {
-        timerOn = 0;
-    }
-    if(discrete_get_input_bit(3)) {
-        timer_start_time = timing_get_time_msecs();  
-        MB.TimerValue = 0;
-    }
- 
 #if ADC_CHANNEL_COUNT > 0
     // Extract ADC values and push to modbus
     MB.A0 = filter_get(adcInputFilter, 0);
@@ -221,6 +204,22 @@ MAIN_DECL_LOOP_FN() {
         counter = 0;
     }
 #endif
+    if(discrete_get_input_bit(2) && MB.M0_RMS > MB.I_threshold*0.95){
+        if(!timerOn && MB.M0_RMS >= MB.I_threshold){
+            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
+            timerOn = 1;            
+        }
+        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+        if(time < 1000.0f) {
+            MB.TimerValue = time;             
+        }        
+    } else {
+        timerOn = 0;
+    }
+    if(discrete_get_input_bit(3)) {
+        timer_start_time = timing_get_time_msecs();  
+        MB.TimerValue = 0;
+    }
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
