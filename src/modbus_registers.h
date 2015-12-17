@@ -197,8 +197,9 @@ void modbus_mmap_free();
 #define REG_DI3_ImpCoef             169, f
 
 #define REG_TimerValue             171, f
+#define REG_I_threshold             173, f
 
-#define MODBUS_DATA_END        173
+#define MODBUS_DATA_END        175
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -368,6 +369,7 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(DI3_ImpCoef);
             
             _REG_DEFINE(TimerValue);
+            _REG_DEFINE(I_threshold);
             
             uint16_t __last1;
         };

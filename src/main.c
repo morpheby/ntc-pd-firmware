@@ -81,6 +81,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 1.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_I_threshold = 0.01;
 
 MAIN_DECL_LOOP_FN();
 
@@ -184,6 +185,7 @@ int16_t main() {
         indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
     }
     MB.PROF_CHANGE_SOURCE = flash_data_buf_PROF_CHANGE_SOURCE;
+    MB.I_threshold = flash_data_buf_I_threshold;
     
 #if USE_DS1820_SENSORS
     uint16_t *DS1820ROMPtr = &MB.TermoId_0_bytes_0_1;
@@ -344,6 +346,13 @@ int16_t main() {
             }
 #endif
             
+            if(MB.I_threshold != flash_data_buf_I_threshold) {
+                tmpPtr = &MB.I_threshold;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_I_threshold), FLASH_GETOFFSET(&flash_data_buf_I_threshold),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_I_threshold), FLASH_GETOFFSET(&flash_data_buf_I_threshold)+2,
+                        tmpPtr[1]);              
+            }
             
             flash_write();
             system_reset();
