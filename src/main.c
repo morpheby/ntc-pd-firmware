@@ -43,6 +43,10 @@ uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_EnvTermoId[4] = {0, 0, 0, 0};
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_HotTermoId[4] = {0, 0, 0, 0};
 uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_ColdTermoId[4] = {0, 0, 0, 0};
 
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI0_ImpCoef = 1.0/308.0f;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI1_ImpCoef = 1.0/308.0f;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 0.051044776;
+
 int PROF=1;
 char MENU_LEVEL = 0;
 
@@ -121,7 +125,11 @@ int16_t main() {
     MB.PositionK0 = flash_data_buf_PosK0;
             
     MB.T_hot_min = flash_data_buf_T_hot_min;
-    MB.delta_T_hist = flash_data_buf_delta_T_hist;    
+    MB.delta_T_hist = flash_data_buf_delta_T_hist;   
+    
+    MB.DI0_ImpCoef = flash_data_buf_DI0_ImpCoef;
+    MB.DI1_ImpCoef = flash_data_buf_DI1_ImpCoef;
+    MB.DI2_ImpCoef = flash_data_buf_DI2_ImpCoef;
         
     uint16_t *EnvTermoIdPtr = &MB.Env_TermoId_bytes_0_1;
     uint16_t *HotTermoIdPtr = &MB.Hot_TermoId_bytes_0_1;
@@ -191,6 +199,27 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_ColdTermoId), FLASH_GETAOFFSET(flash_data_buf_ColdTermoId, i),
                             ColdTermoIdPtr[i]);
                 }
+            }
+            if (flash_data_buf_DI0_ImpCoef != MB.DI0_ImpCoef) {
+                tmpPtr = &MB.DI0_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI0_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI0_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI0_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI0_ImpCoef)+2,
+                        tmpPtr[1]);
+            }
+            if (flash_data_buf_DI1_ImpCoef != MB.DI1_ImpCoef) {
+                tmpPtr = &MB.DI1_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI1_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI1_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI1_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI1_ImpCoef)+2,
+                        tmpPtr[1]);
+            }
+            if (flash_data_buf_DI2_ImpCoef != MB.DI2_ImpCoef) {
+                tmpPtr = &MB.DI2_ImpCoef;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI2_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI2_ImpCoef),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DI2_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI2_ImpCoef)+2,
+                        tmpPtr[1]);
             }
             
             flash_write();

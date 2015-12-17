@@ -80,15 +80,15 @@ MAIN_DECL_LOOP_FN() {
         DS1820_initROM();
         MB.Control0 = 0;   
     }
-    DS1820_update();
     
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;
     
     if(dt >= 1000) {
-        MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt/308.0f;
-        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt/308.0f;
-        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt*0.051044776;
+        DS1820_update();
+        MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt*MB.DI0_ImpCoef;
+        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt*MB.DI1_ImpCoef;
+        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt*MB.DI2_ImpCoef;
         DI0_counter = 0;
         DI1_counter = 0;
         DI2_counter = 0;
