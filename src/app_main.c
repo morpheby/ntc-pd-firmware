@@ -61,6 +61,9 @@ static unsigned int DI3_counter = 0;
 static long int last_time;
 #endif
 
+static long int timer_start_time;
+static bool timerOn;
+
 void app_init() {
     if (reset_is_cold()) {
         //set up default values
@@ -92,6 +95,23 @@ MAIN_DECL_LOOP_FN() {
     discrete_set_output(MB.D_Out);
     MB.D_In = discrete_get_input();
 #endif
+    
+    if(discrete_get_input_bit(2)){
+        if(!timerOn){
+            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
+            timerOn = 1;            
+        }
+        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+        if(time < 1000.0f) {
+            MB.TimerValue = time;             
+        }        
+    } else {
+        timerOn = 0;
+    }
+    if(discrete_get_input_bit(3)) {
+        timer_start_time = timing_get_time_msecs();  
+        MB.TimerValue = 0;
+    }
     
 #if USE_DIO_INTERRUPTS
     long int time = timing_get_time_msecs();

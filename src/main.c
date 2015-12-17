@@ -355,11 +355,10 @@ int16_t main() {
         
         // Internal Modbus function for framing
         RS_Update();
-        
-#if !USE_DIO_INTERRUPTS       
+          
         // Update discrete outputs and resample discrete inputs
         discrete_update();
-#endif
+
         // Call application-end function
         MAIN_CALL_LOOP_FN();
         
