@@ -539,19 +539,19 @@ void _ISR_NOPSV _U1ErrInterrupt() {
     IFS4bits.U1EIF = 0; // ignore
 }
 
-/* UART TX Interrupt */
-void _ISR_NOPSV _U1TXInterrupt() {
-    if(!uartSyncLock) {
-        uart_write_byte();
-    }
-    IFS0bits.U1TXIF = 0;
-}
-
-/* UART RX Interrupt */
-void _ISR_NOPSV _U1RXInterrupt() {
-    if(!uartSyncLock)
-        _uart_read_byte();
-
-    // Clear interrupt flag
-    IFS0bits.U1RXIF = 0;
-}
+///* UART TX Interrupt */
+//void _ISR_NOPSV _U1TXInterrupt() {
+//    if(!uartSyncLock) {
+//        uart_write_byte();
+//    }
+//    IFS0bits.U1TXIF = 0;
+//}
+//
+///* UART RX Interrupt */
+//void _ISR_NOPSV _U1RXInterrupt() {
+//    if(!uartSyncLock)
+//        _uart_read_byte();
+//
+//    // Clear interrupt flag
+//    IFS0bits.U1RXIF = 0;
+//}

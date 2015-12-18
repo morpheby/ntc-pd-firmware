@@ -230,6 +230,6 @@ void Modbus_RTU() {
                 }
             }
             RS_Reset();
-        }
+        } 
     }
 }
