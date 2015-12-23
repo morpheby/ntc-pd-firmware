@@ -34,7 +34,6 @@
       <itemPath>PWM.h</itemPath>
       <itemPath>ind_profiles.h</itemPath>
       <itemPath>median.h</itemPath>
-      <itemPath>DS1820.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -84,7 +83,6 @@
       <itemPath>PWM.c</itemPath>
       <itemPath>ind_profiles.c</itemPath>
       <itemPath>median.c</itemPath>
-      <itemPath>DS1820.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

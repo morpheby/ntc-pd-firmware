@@ -20,7 +20,6 @@
 #include "D_I_O.h"
 #include "modbus_registers.h"
 #include "filter.h"
-#include "DS1820.h"
 
 
 /******************************************************************************/
@@ -61,11 +60,6 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 0.01;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 0.01;
-#endif
-
-#if USE_DS1820_SENSORS
-uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_ROM[DS1820_SENSOR_COUNT*4]={0};
-uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_DS1820_TermoCount = 0;
 #endif
 
 #if COUNT_DI0_IMP_FREQUENCY
@@ -294,19 +288,6 @@ int16_t main() {
                         tmpPtr[0]);
                 flash_set(FLASH_GETPAGE(&flash_data_buf_M2_RMS_sign_threshold), FLASH_GETOFFSET(&flash_data_buf_M2_RMS_sign_threshold)+2,
                         tmpPtr[1]);              
-            }
-#endif
-#if USE_DS1820_SENSORS
-            for(i = 0; i < DS1820_SENSOR_COUNT*4; ++i) {
-                if(flash_data_buf_DS1820_ROM[i] != DS1820ROMPtr[i]) {
-                    // Only perform if the data has changed, spare memory
-                    flash_set(FLASH_GETPAGE(flash_data_buf_DS1820_ROM), FLASH_GETAOFFSET(flash_data_buf_DS1820_ROM, i),
-                            DS1820ROMPtr[i]);                    
-                }
-            }
-            if(flash_data_buf_DS1820_TermoCount != MB.TermoCount){
-                flash_set(FLASH_GETPAGE(&flash_data_buf_DS1820_TermoCount), FLASH_GETOFFSET(&flash_data_buf_DS1820_TermoCount),
-                        MB.TermoCount);                   
             }
 #endif
 #if COUNT_DI0_IMP_FREQUENCY

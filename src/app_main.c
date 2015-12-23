@@ -23,7 +23,6 @@
 #include "PWM.h"
 #include "ind_profiles.h"
 #include "filter.h"
-#include "DS1820.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -57,9 +56,7 @@ static unsigned int DI2_counter = 0;
 static unsigned int DI3_counter = 0;
 #endif
 
-#if USE_DIO_INTERRUPTS
 static long int last_time;
-#endif
 
 static long int timer_start_time;
 static bool timerOn;
@@ -78,11 +75,9 @@ void app_init() {
         disp_set_off(1, 1);
         disp_set_off(2, 1);
     }
-#if USE_DIO_INTERRUPTS
     last_time = timing_get_time_msecs();
-#else
+
     discrete_set_output(MB.D_Out_Init);
-#endif
 }
 
 MAIN_DECL_LOOP_FN() {
