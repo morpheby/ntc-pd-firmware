@@ -37,6 +37,7 @@ static uint8_t _rx_len = 0;
 static uint8_t _tx_buf[7] = {0x01, 0x03, 0x02, 0x00, 0x00, 0xB8, 0x44};
 static uint8_t _tx_len = 0;
 static uint8_t _tx_pos = 0;
+static uint32_t _frame_start_time = 0;
 
 int16_t main() {
     
@@ -86,36 +87,34 @@ int16_t main() {
     while (1) {
        
         // Perform Modbus protocol processing
-        Modbus_RTU();
+        //Modbus_RTU();
         
         // Internal Modbus function for framing
-        RS_Update();
+        //RS_Update();
            
         // Update display
         display_update(1);
-    
-        if(_rx_len>=8) {
-            IEC0bits.U1TXIE=0;
-            _tx_len = 7;
+        if(_rx_len > 0 && _frame_start_time + 200 <= timing_get_time_msecs()) {
+            IEC0bits.U1RXIE=0;		// Rx Disable
+            
             _tx_pos = 0;
-            _rx_len = 0;
-            IEC0bits.U1TXIE=1;
+            _tx_len = 7;
             U1TXREG = _tx_buf[0];
+            
+            _rx_len = 0;
+            IEC0bits.U1RXIE=1;
         }
-                
+                    
         // Clear WDT flag to indicate normal operation
         wdt_clr();
     }
 }
 
 void _ISR_NOPSV _U1TXInterrupt() {
-   
-    if(_tx_len && !U1STAbits.UTXBF) {
-        if(_tx_pos < _tx_len) {
-            U1TXREG = _tx_buf[_tx_pos];
-            _tx_pos++;
-        }
-    }
+   if (++_tx_pos < _tx_len)
+	{
+		U1TXREG = _tx_buf[_tx_pos];
+	}
     IFS0bits.U1TXIF = 0;
 }
 
@@ -125,8 +124,12 @@ void _ISR_NOPSV _U1RXInterrupt()
         return;
     }
     uint8_t recieved = U1RXREG;
-    _rx_len++;
-   
+    
+    if(_rx_len == 0) {
+        _frame_start_time = timing_get_time_msecs();
+    }
+    _rx_len ++;
+    
    
     // Clear interrupt flag
     IFS0bits.U1RXIF = 0;
