@@ -199,30 +199,20 @@ MAIN_DECL_LOOP_FN() {
         counter = 0;
     }
 #endif
-   /* if(discrete_get_input_bit(2) && MB.M0_RMS > MB.I_threshold*0.95){
-        if(!timerOn && MB.M0_RMS >= MB.I_threshold){
-            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
-            timerOn = 1;            
+    if(discrete_get_input_bit(2)) {
+        if(MB.M1_RMS >= MB.I_threshold){
+            if(!timerOn) {
+                timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
+                timerOn = 1;
+            }
+        } else if(MB.M1_RMS <= MB.I_threshold*0.95) {
+            timerOn = 0;
         }
-        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
-        if(time < 1000.0f) {
-            MB.TimerValue = time;             
-        }        
-    } else {
-        timerOn = 0;
-    }*/
-    if(MB.M0_RMS >= MB.I_threshold){
-        if(!timerOn) {
-            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
-            timerOn = 1;
-        }
-    } else if(MB.M0_RMS <= MB.I_threshold*0.95) {
-        timerOn = 0;
-    }
-    if(timerOn) {
-        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
-        if(time < 1000.0f) {
-            MB.TimerValue = time;             
+        if(timerOn) {
+            float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+            if(time < 1000.0f) {
+                MB.TimerValue = time;             
+            }
         }
     }
     if(discrete_get_input_bit(3)) {
