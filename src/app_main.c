@@ -132,7 +132,7 @@ MAIN_DECL_LOOP_FN() {
         MB.M1_AVG = (A1Sum / counter);
         MB.M2_AVG = (A2Sum / counter);
         
-        int M0_sign = 1;
+     /*   int M0_sign = 1;
         int M1_sign = 1;
         int M2_sign = 1;
         
@@ -146,11 +146,11 @@ MAIN_DECL_LOOP_FN() {
         
         if(fabs(MB.M2_AVG) >= MB.M2_RMS_sign_threshold && MB.M2_AVG < 0) {
             M2_sign = -1;
-        }
+        }*/
         
-        MB.M0_RMS = sqrt(A0SquareSum / counter)*M0_sign;
-        MB.M1_RMS = sqrt(A1SquareSum / counter)*M1_sign;
-        MB.M2_RMS = sqrt(A2SquareSum / counter)*M2_sign;
+        MB.M0_RMS = sqrt(A0SquareSum / counter);//*M0_sign;
+        MB.M1_RMS = sqrt(A1SquareSum / counter);//*M1_sign;
+        MB.M2_RMS = sqrt(A2SquareSum / counter);//*M2_sign;
                 
         MB.S1 = MB.M0_RMS * MB.M1_RMS;
         MB.S2 = MB.M0_RMS * MB.M2_RMS;
@@ -204,7 +204,7 @@ MAIN_DECL_LOOP_FN() {
         counter = 0;
     }
 #endif
-    if(discrete_get_input_bit(2) && MB.M0_RMS > MB.I_threshold*0.95){
+   /* if(discrete_get_input_bit(2) && MB.M0_RMS > MB.I_threshold*0.95){
         if(!timerOn && MB.M0_RMS >= MB.I_threshold){
             timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
             timerOn = 1;            
@@ -215,6 +215,20 @@ MAIN_DECL_LOOP_FN() {
         }        
     } else {
         timerOn = 0;
+    }*/
+    if(MB.M0_RMS >= MB.I_threshold){
+        if(!timerOn) {
+            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
+            timerOn = 1;
+        }
+    } else if(MB.M0_RMS <= MB.I_threshold*0.95) {
+        timerOn = 0;
+    }
+    if(timerOn) {
+        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+        if(time < 1000.0f) {
+            MB.TimerValue = time;             
+        }
     }
     if(discrete_get_input_bit(3)) {
         timer_start_time = timing_get_time_msecs();  

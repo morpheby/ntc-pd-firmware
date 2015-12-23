@@ -81,7 +81,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 1.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_I_threshold = 0.01;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_I_threshold = 0.00;
 
 MAIN_DECL_LOOP_FN();
 
