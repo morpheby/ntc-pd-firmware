@@ -56,7 +56,8 @@ static unsigned int DI2_counter = 0;
 static unsigned int DI3_counter = 0;
 #endif
 
-static long int last_time;
+static long int reset_impuls_time=0;
+static bool reset_impulse_recieved = 0;
 
 static long int timer_start_time;
 static bool timerOn;
@@ -75,7 +76,6 @@ void app_init() {
         disp_set_off(1, 1);
         disp_set_off(2, 1);
     }
-    last_time = timing_get_time_msecs();
 
     discrete_set_output(MB.D_Out_Init);
 }
@@ -200,6 +200,14 @@ MAIN_DECL_LOOP_FN() {
     }
 #endif
     if(discrete_get_input_bit(2)) {
+        if(discrete_get_input_bit(3)) {
+            if(!timerOn){
+                timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
+                timerOn = 1;
+            }
+        }
+    } else {
+        timerOn = 0;
         if(!discrete_get_input_bit(3)) {
             if(MB.M1_RMS >= MB.I_threshold){
                 if(!timerOn) {
@@ -209,26 +217,15 @@ MAIN_DECL_LOOP_FN() {
             } else if(MB.M1_RMS <= MB.I_threshold*0.95) {
                 timerOn = 0;
             }
-        } else {
-            if(!timerOn){
-                timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
-                timerOn = 1;
-            }
         }
-    } else {
-        timerOn = 0;
-        if(!discrete_get_input_bit(3)) {
-            timer_start_time = timing_get_time_msecs();  
-            MB.TimerValue = 0;
-        }
-    } 
+    }
     
     if(timerOn) {
         float time = (timing_get_time_msecs() - timer_start_time)*0.001;
         if(time < 1000.0f) {
             MB.TimerValue = time;             
         }
-    } 
+    }     
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
@@ -272,14 +269,18 @@ CNI_DECL_PROC_FN(10, on) {
 #endif
 
 
-#if COUNT_DI3_IMP_FREQUENCY
 //DI3 impulse counter
 CNI_DECL_PROC_FN(9, on) {
-    static bool prev = 0;
-    if(on != prev) 
-    {
-        DI3_counter++;  
-        prev = on;
+    if(!on) {
+        if(!reset_impulse_recieved){
+            reset_impulse_recieved = 1;
+            reset_impuls_time = timing_get_time_msecs();
+        }
+    } else {
+        if(reset_impulse_recieved && reset_impuls_time + 500 > timing_get_time_msecs()) {                      
+            timer_start_time = timing_get_time_msecs();  
+            MB.TimerValue = 0;
+        } 
+        reset_impulse_recieved = 0;
     }
 }
-#endif
