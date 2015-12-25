@@ -48,18 +48,18 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current p
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 25;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_Ind_Delay = 0;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_Out_Init = 0;
 
 #if CALCULATE_ELECTRICAL_PARAMS
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 4000;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 800;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P1_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P2_coef = 0.99;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_P3_coef = 0.99;
 
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 0.01;
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 0.01;
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 0.01;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M0_RMS_sign_threshold = 1000;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M1_RMS_sign_threshold = 1000;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_M2_RMS_sign_threshold = 1000;
 #endif
 
 #if COUNT_DI0_IMP_FREQUENCY
@@ -75,7 +75,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 1.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI3_ImpCoef = 1.0f;
 #endif
 
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_I_threshold = 0.00;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_I_threshold = 0.15;
 
 MAIN_DECL_LOOP_FN();
 
