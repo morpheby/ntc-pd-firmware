@@ -120,19 +120,18 @@ int16_t main() {
         if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) {
             IEC0bits.U1RXIE=0;		// Rx Disable
             if(crcCorrect(_rx_buf, _rx_len)) {
+                uint16_t* mbDataPtr = &MB.BRG_VAL;
+                unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
+                unsigned int count = (_rx_buf[4] << 8) | _rx_buf[5];
+                uint8_t regIndex;
                 switch(_rx_buf[1]) {
                     case READ_HOLDING_REGISTERS:
                     {
-                        IEC0bits.U1TXIE=0;
-                        unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
-                        unsigned int count = (_rx_buf[4] << 8) | _rx_buf[5];
-                       
+                        IEC0bits.U1TXIE=0;                       
                         _tx_buf[0] = MODBUS_ADDRESS;
                         _tx_buf[1] = READ_HOLDING_REGISTERS;
                         _tx_buf[2] = count*2;
                         
-                        uint8_t regIndex;
-                        uint16_t* mbDataPtr = &MB.BRG_VAL;
                         for(regIndex = 0; regIndex < count; ++regIndex) {
                             uint16_t regData = mbDataPtr[start+regIndex];
                             _tx_buf[3 + regIndex*2] = regData>>8;
@@ -153,10 +152,52 @@ int16_t main() {
                     }
                     case PRESET_SINGLE_REGISTER:
                     {
+                        IEC0bits.U1TXIE=0; 
+                        mbDataPtr[start]=((_rx_buf[4] << 8)) | _rx_buf[5];                
+                        _tx_buf[0] = MODBUS_ADDRESS;
+                        _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                        _tx_buf[2] = _rx_buf[4];
+                        _tx_buf[3] = _rx_buf[5];
+                        _tx_buf[4]=count >> 8;
+                        _tx_buf[5]=count & 0x00FF;
+                        
+                        uint8_t len = 8;
+                        uint16_t crc = Crc16(_tx_buf, len - 2);
+                        uint8_t CRC_16_Lo = crc & 0xFF;
+                        uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                        
+                        _tx_buf[len-2] = CRC_16_Lo;
+                        _tx_buf[len-1] = CRC_16_Hi;
+                        _tx_pos = 0;
+                        _tx_len = len;
+                        IEC0bits.U1TXIE=1;
+                        U1TXREG = _tx_buf[0]; 
                         break;
                     }
                     case PRESET_MULTIPLE_REGISTERS:
                     {
+                        IEC0bits.U1TXIE=0; 
+                        for(regIndex = 0; regIndex < count; ++regIndex) {
+                            mbDataPtr[start + regIndex] = ((_rx_buf[regIndex*2+7] << 8)) | _rx_buf[regIndex*2+8];
+                        }                      
+                        _tx_buf[0] = MODBUS_ADDRESS;
+                        _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                        _tx_buf[2] = start >> 8;
+                        _tx_buf[3] = start & 0x00FF;
+                        _tx_buf[4]=count >> 8;
+                        _tx_buf[5]=count & 0x00FF;
+                        
+                        uint8_t len = 8;
+                        uint16_t crc = Crc16(_tx_buf, len - 2);
+                        uint8_t CRC_16_Lo = crc & 0xFF;
+                        uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                        
+                        _tx_buf[len-2] = CRC_16_Lo;
+                        _tx_buf[len-1] = CRC_16_Hi;
+                        _tx_pos = 0;
+                        _tx_len = len;
+                        IEC0bits.U1TXIE=1;
+                        U1TXREG = _tx_buf[0];  
                         break;
                     }
                 }
