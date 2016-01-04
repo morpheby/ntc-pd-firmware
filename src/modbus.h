@@ -8,6 +8,7 @@
 #ifndef MODBUS_H
 #define MODBUS_H
 
+void setModbusAddress(unsigned char address);
 void Modbus_RTU();
 unsigned short Crc16(unsigned char * pcBlock, unsigned short len);
 

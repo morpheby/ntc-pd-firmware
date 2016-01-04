@@ -242,3 +242,8 @@ void _ISR_NOPSV _U1RXInterrupt()
     // Clear interrupt flag
     IFS0bits.U1RXIF = 0;
 }
+
+void setModbusAddress(unsigned char addr)
+{
+    address = addr;
+}

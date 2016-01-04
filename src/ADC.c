@@ -121,28 +121,14 @@ void ADC_Init(_Bool ad_12b) {
     AD1CON1bits.ADON=1;
 }
 
-void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {
-#if ADC_CHANNEL_COUNT  > 0
-    ADC_CALL_VALUE_FN(0, ADC1BUF0);
-#endif
-#if ADC_CHANNEL_COUNT > 1
-    ADC_CALL_VALUE_FN(1, ADC1BUF1);
-#endif
-#if ADC_CHANNEL_COUNT > 2
-    ADC_CALL_VALUE_FN(2, ADC1BUF2);
-#endif
-#if ADC_CHANNEL_COUNT > 3
-    ADC_CALL_VALUE_FN(3, ADC1BUF3);
-#endif
-#if ADC_CHANNEL_COUNT > 4
-    ADC_CALL_VALUE_FN(4, ADC1BUF4);
-#endif
-#if ADC_CHANNEL_COUNT > 5
-    ADC_CALL_VALUE_FN(5, ADC1BUF5);
-#endif
-#if ADC_CHANNEL_COUNT > 6
-    ADC_CALL_VALUE_FN(6, ADC1BUF6);
-#endif
+void __attribute__((interrupt,no_auto_psv)) _ADC1Interrupt() {    
+    MB.ADC_M0 = ADC1BUF0;
+    MB.ADC_M1 = ADC1BUF1;
+    MB.ADC_M2 = ADC1BUF2;
+    MB.ADC_A0 = ADC1BUF3;
+    MB.ADC_A1 = ADC1BUF4;
+    MB.ADC_A2 = ADC1BUF5;
+    MB.ADC_A3 = ADC1BUF6;
       
     IFS0bits.AD1IF=0;
 }
