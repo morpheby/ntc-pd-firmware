@@ -8,10 +8,7 @@
 #ifndef MODBUS_H
 #define MODBUS_H
 
-char RS_CheckCRC();
-void RS_Reset();
-void RS_Update();
-
+void Modbus_RTU();
 unsigned short Crc16(unsigned char * pcBlock, unsigned short len);
 
 

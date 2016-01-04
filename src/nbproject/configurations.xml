@@ -78,13 +78,13 @@
       <itemPath>menu.c</itemPath>
       <itemPath>app_main.c</itemPath>
       <itemPath>app_connector.c</itemPath>
-      <itemPath>modbus_registers.c</itemPath>
       <itemPath>filter.c</itemPath>
       <itemPath>quadrature_encoder.c</itemPath>
       <itemPath>PWM.c</itemPath>
       <itemPath>ind_profiles.c</itemPath>
       <itemPath>median.c</itemPath>
       <itemPath>DS1820.c</itemPath>
+      <itemPath>modbus_registers.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -647,7 +647,7 @@
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.24</languageToolchainVersion>
-        <platform>4</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>

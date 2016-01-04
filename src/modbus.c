@@ -12,18 +12,24 @@
 #define TX_BUFFER_SIZE	64
 #define RX_BUFFER_SIZE  64
 
-#define Address                     MODBUS_ADDRESS
-
 // Modbus commands
 #define READ_HOLDING_REGISTERS		0x03
 #define PRESET_SINGLE_REGISTER		0x06
 #define PRESET_MULTIPLE_REGISTERS	0x10
 
-unsigned char _rx_buf[RX_BUFFER_SIZE];
-unsigned char _tx_buf[TX_BUFFER_SIZE];
-unsigned char _tx_len = 0, _rx_len = 0;
-uint32_t _rx_frame_start_time = 0;
-_Bool _rx_frame_incomplete = 0;
+static uint8_t _rx_buf[RX_BUFFER_SIZE];
+static uint8_t _rx_len = 0;
+static uint8_t _tx_buf[TX_BUFFER_SIZE];
+static uint8_t _tx_len = 0;
+static uint8_t _tx_pos = 0;
+static uint32_t _frame_start_time = 0;
+
+#define MB_STATE_READY 0
+#define MB_STATE_CMD_WAIT 1
+#define MB_STATE_DATA_WAIT 2
+
+static uint8_t _mb_state = MB_STATE_READY;
+static uint8_t address = DEFAULT_MODBUS_ADDRESS;
 
 unsigned char CRC_16_Hi,CRC_16_Lo;
 
@@ -78,158 +84,161 @@ unsigned short Crc16(unsigned char *pcBlock, unsigned short len) {
     return crc16_block_add(0xFFFF, pcBlock, len);
 }
 
-void RS_Send(uint16_t offset, unsigned char size, unsigned char ADR, char Op_Code) {
-   unsigned int CRC_data_Out;
-   unsigned int c,i;
-   i = 3;
-   _tx_buf[0] = ADR;
-   _tx_buf[1] = Op_Code;
-   _tx_buf[2] = size*2;
-   
-   
-#if APP_USE_MODBUS_EXT
-   CRC_data_Out = Crc16(_tx_buf, 3);
-   
-   uart_send(0, _tx_buf, 3);
-   
-   uint16_t chunkHold[16];
-   uint16_t sz;
-   for (i = offset; i < offset+size; i+=16) {
-       sz = MIN(size+offset-i,16);
-       modbus_get_reg_data(i, sz, chunkHold, 1);
-       CRC_data_Out = crc16_block_add(CRC_data_Out, (uint8_t *)chunkHold, sz*2);
-       uart_send(0, (uint8_t *)chunkHold, sz*2);
-   }
-   
-   CRC_16_Lo = CRC_data_Out & 0xFF;
-   CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
-   _tx_buf[0]   = CRC_16_Lo;
-   _tx_buf[1] = CRC_16_Hi;
-   uart_send(0, _tx_buf, 2);
-#else
-    for (c = 0; c < size; c++) {
-        _tx_buf[i] = *(buf+c) >> 8;                 // hi byte of DATA
-        i++;
-        _tx_buf[i] = *(buf+c) & 0x00FF  ;         // lo byte of DATA
-        i++;
-    }
-   
-    _tx_len = 2*size + 5;
-
-    CRC_data_Out = Crc16(_tx_buf, _tx_len-2);
-
-    CRC_16_Lo = CRC_data_Out & 0xFF;
-    CRC_16_Hi = (CRC_data_Out & 0xFF00) >> 8;
-    _tx_buf[2*size+3]   = CRC_16_Lo;
-    _tx_buf[2*size + 4] = CRC_16_Hi;
-   
-    uart_send(0, _tx_buf, _tx_len);
-#endif
-}
-
-char RS_CheckCRC() {
-    unsigned int crc;
-    if (_rx_len < 3) {
-        return 0;
-    }
-    crc = Crc16(_rx_buf, _rx_len - 2);
-    CRC_16_Lo = crc & 0xFF;
-    CRC_16_Hi = (crc & 0xFF00) >> 8;
-    return ((CRC_16_Lo == _rx_buf[_rx_len - 2]) && (CRC_16_Hi == _rx_buf[_rx_len-1]));
-}
-
-void RS_Reset() {
-    uart_flush_rx();
-    
-    _rx_frame_incomplete = 0;
-    _rx_len = 0;
-    _tx_len = 0;
-}
-
-void RS_Answer(char start, char size, char ADR, char Op_Code, unsigned char D_Hi, unsigned char D_Lo) {
-   unsigned int CRC_PR_Out;
-   
-   _tx_buf[0] = ADR;
-   _tx_buf[1] = Op_Code;
-   _tx_buf[2] = start >> 8;
-   _tx_buf[3] = start & 0x00FF;
-
-   if (size!=0) {
-       // PRESET_MULTIPLE_REGISTERS
-       _tx_buf[4] = size >> 8;
-       _tx_buf[5] = size & 0x00FF;
-   }
-   else {
-       // PRESET_SINGLE_REGISTER
-       _tx_buf[4] = D_Hi;
-       _tx_buf[5] = D_Lo;
-   }
-
-   CRC_PR_Out = Crc16(_tx_buf, 6);
-   CRC_16_Lo = CRC_PR_Out & 0xFF;
-   CRC_16_Hi = (CRC_PR_Out & 0xFF00) >> 8;
-   
-   _tx_buf[6] = CRC_16_Lo;
-   _tx_buf[7] = CRC_16_Hi;
-
-   _tx_len = 8;
-    
-   uart_send(0, _tx_buf, _tx_len);
-}
-
-void RS_Update() {
-    if (_rx_frame_incomplete && _rx_frame_start_time + TIMEOUT < timing_get_time_msecs()) {
-        // Timeout event
-        RS_Reset();
-    }
-}
 
 void Modbus_RTU() {
-    int c, i;
-    uint8_t *ptr;
-    
-    if (uart_is_data_ready()) {
-        if (!_rx_frame_incomplete) {
-            // Mark data arrival time
-            _rx_frame_start_time = timing_get_time_msecs();
-            _rx_frame_incomplete = 1;
-            _rx_len = 0;
-        }
-        
-        int sz = uart_get_data_size();
-        if (sz < RX_BUFFER_SIZE + _rx_len) {
-            uart_recieve(_rx_buf+_rx_len, sz);
-            _rx_len += sz;
-        }
-        
-        if (RS_CheckCRC()) {
-            _rx_frame_incomplete = 0;
-
-            unsigned char* data = _rx_buf;
-            if (data[0] == Address) {
-                unsigned int start = (data[2] << 8) | data[3];
-                unsigned int count = (data[4] << 8) | data[5];
-
-                switch (data[1]) {
-                    case READ_HOLDING_REGISTERS:
-                        RS_Send(start, count, data[0], data[1]);
-                        break;
-
-                    case PRESET_SINGLE_REGISTER:
-                        modbus_set_reg_data(start, 1, (uint16_t *)(data+4), 1);
-                        RS_Answer(start, 0, data[0], data[1], data[4], data[5]);
-                        break;
-
-                    case PRESET_MULTIPLE_REGISTERS:
-                        ptr = gc_malloct(count * 2);
-                        memcpy(ptr, data+7, count*2);
-                        modbus_set_reg_data(start, count, (uint16_t *)ptr, 1);
-                        gc_free(ptr);
-                        RS_Answer(start, count, data[0], data[1], 0, 0);
-                        break;
+    if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) {
+        IEC0bits.U1RXIE=0;		// Rx Disable
+        if(crcCorrect(_rx_buf, _rx_len)) {
+            uint16_t* mbDataPtr = &MB.ADDRESS;
+            unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
+            unsigned int count = (_rx_buf[4] << 8) | _rx_buf[5];
+            uint8_t regIndex;
+            switch(_rx_buf[1]) {
+                case READ_HOLDING_REGISTERS:
+                {
+                    IEC0bits.U1TXIE=0;                       
+                    _tx_buf[0] = address;
+                    _tx_buf[1] = READ_HOLDING_REGISTERS;
+                    _tx_buf[2] = count*2;
+                        
+                    for(regIndex = 0; regIndex < count; ++regIndex) {
+                        uint16_t regData = mbDataPtr[start+regIndex];
+                        _tx_buf[3 + regIndex*2] = regData>>8;
+                        _tx_buf[3 + regIndex*2 + 1] = regData & 0x00FF;
+                    }
+                    uint8_t len = 2*count + 5;
+                    uint16_t crc = Crc16(_tx_buf, len - 2);
+                    uint8_t CRC_16_Lo = crc & 0xFF;
+                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                        
+                    _tx_buf[len-2] = CRC_16_Lo;
+                    _tx_buf[len-1] = CRC_16_Hi;
+                    _tx_pos = 0;
+                    _tx_len = len;
+                    IEC0bits.U1TXIE=1;
+                    U1TXREG = _tx_buf[0];          
+                    break;
+                }
+                case PRESET_SINGLE_REGISTER:
+                {
+                    IEC0bits.U1TXIE=0; 
+                    mbDataPtr[start]=((_rx_buf[4] << 8)) | _rx_buf[5];                
+                    _tx_buf[0] = address;
+                    _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                    _tx_buf[2] = _rx_buf[4];
+                    _tx_buf[3] = _rx_buf[5];
+                    _tx_buf[4]=count >> 8;
+                    _tx_buf[5]=count & 0x00FF;
+                        
+                    uint8_t len = 8;
+                    uint16_t crc = Crc16(_tx_buf, len - 2);
+                    uint8_t CRC_16_Lo = crc & 0xFF;
+                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                        
+                    _tx_buf[len-2] = CRC_16_Lo;
+                    _tx_buf[len-1] = CRC_16_Hi;
+                    _tx_pos = 0;
+                    _tx_len = len;
+                    IEC0bits.U1TXIE=1;
+                    U1TXREG = _tx_buf[0]; 
+                    break;
+                }
+                case PRESET_MULTIPLE_REGISTERS:
+                {
+                    IEC0bits.U1TXIE=0; 
+                    for(regIndex = 0; regIndex < count; ++regIndex) {
+                        mbDataPtr[start + regIndex] = ((_rx_buf[regIndex*2+7] << 8)) | _rx_buf[regIndex*2+8];
+                    }                      
+                    _tx_buf[0] = address;
+                    _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                    _tx_buf[2] = start >> 8;
+                    _tx_buf[3] = start & 0x00FF;
+                    _tx_buf[4]=count >> 8;
+                    _tx_buf[5]=count & 0x00FF;
+                        
+                    uint8_t len = 8;
+                    uint16_t crc = Crc16(_tx_buf, len - 2);
+                    uint8_t CRC_16_Lo = crc & 0xFF;
+                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                        
+                    _tx_buf[len-2] = CRC_16_Lo;
+                    _tx_buf[len-1] = CRC_16_Hi;
+                    _tx_pos = 0;
+                    _tx_len = len;
+                    IEC0bits.U1TXIE=1;
+                    U1TXREG = _tx_buf[0];  
+                    break;
                 }
             }
-            RS_Reset();
-        } 
+        }
+            
+        _rx_len = 0;
+        _mb_state = MB_STATE_READY;
+        IEC0bits.U1RXIE=1;
     }
+}
+
+void _ISR_NOPSV _U1TXInterrupt() {
+    if (++_tx_pos < _tx_len && !U1STAbits.UTXBF)
+	{
+		U1TXREG = _tx_buf[_tx_pos];
+	}
+    IFS0bits.U1TXIF = 0;
+}
+
+void _ISR_NOPSV _U1RXInterrupt() 
+{
+    if(!U1STAbits.URXDA) {
+        return;
+    }
+    uint8_t recieved = U1RXREG;
+    
+    switch(_mb_state) {
+        case (MB_STATE_READY):
+        {
+            if(recieved == address) {
+                _frame_start_time = timing_get_time_msecs();
+                _rx_buf[_rx_len] = recieved;
+                _rx_len ++;
+                _mb_state = MB_STATE_CMD_WAIT;
+            }
+            break;
+        }
+        case (MB_STATE_CMD_WAIT):
+        {
+            switch (recieved) {
+                case READ_HOLDING_REGISTERS:
+                {
+                    _mb_state = MB_STATE_DATA_WAIT;
+                    break;
+                }
+                case PRESET_SINGLE_REGISTER:
+                {
+                    _mb_state = MB_STATE_DATA_WAIT;
+                    break;
+                }
+                case PRESET_MULTIPLE_REGISTERS:
+                {
+                    _mb_state = MB_STATE_DATA_WAIT;
+                    break;
+                }
+                default:
+                {
+                    _mb_state = MB_STATE_READY;
+                }
+            }
+            _rx_buf[_rx_len] = recieved;
+            _rx_len++;
+            break;
+        }
+        case (MB_STATE_DATA_WAIT):
+        {
+            _rx_buf[_rx_len] = recieved;
+            _rx_len++;
+            break;
+        }
+    }
+       
+    // Clear interrupt flag
+    IFS0bits.U1RXIF = 0;
 }
