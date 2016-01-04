@@ -83,7 +83,16 @@ uint16_t crc16_block_add(uint16_t crc, uint8_t *data, uint16_t size) {
 unsigned short Crc16(unsigned char *pcBlock, unsigned short len) {
     return crc16_block_add(0xFFFF, pcBlock, len);
 }
-
+bool crcCorrect(uint8_t* buf, uint8_t len) {
+    unsigned int crc;
+    if (len < 3) {
+        return 0;
+    }
+    crc = Crc16(buf, len - 2);
+    uint8_t CRC_16_Lo = crc & 0xFF;
+    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+    return ((CRC_16_Lo == buf[len - 2]) && (CRC_16_Hi == buf[len-1]));
+}
 
 void Modbus_RTU() {
     if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) {

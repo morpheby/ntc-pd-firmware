@@ -27,26 +27,13 @@
 /* Global Variable Declaration                                                */
 /******************************************************************************/
 
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
+int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
 
 /******************************************************************************/
 /* Main Program                                                               */
 /******************************************************************************/
-
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OP_MODE = 0;
-int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
-
-bool crcCorrect(uint8_t* buf, uint8_t len) {
-    unsigned int crc;
-    if (len < 3) {
-        return 0;
-    }
-    crc = Crc16(buf, len - 2);
-    uint8_t CRC_16_Lo = crc & 0xFF;
-    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
-    return ((CRC_16_Lo == buf[len - 2]) && (CRC_16_Hi == buf[len-1]));
-}
 
 int16_t main() {
     
@@ -95,7 +82,6 @@ int16_t main() {
     MB.ADDRESS = flash_data_buf_MB_ADDRESS;
     setModbusAddress(MB.ADDRESS);
     
-    MB.ADC_OP_MODE = flash_data_buf_ADC_OP_MODE;
     uint8_t i;
     int *offsetPtr = &MB.M0_OFFSET;
     float *coefPtr = &MB.M0_Coef;
@@ -103,12 +89,16 @@ int16_t main() {
         offsetPtr[i] = flash_data_buf_ADC_OFFSET[i];
         coefPtr[i] = flash_data_buf_ADC_COEF[i];
     }
+    
+    app_init();
     uint16_t *tmpPtr;
     // Main cycle
     while (1) {
        
         // Perform Modbus protocol processing
         Modbus_RTU();
+        
+        perform_data_operations();
                    
         // Update display
         display_update(1);
@@ -118,11 +108,6 @@ int16_t main() {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_MB_ADDRESS), FLASH_GETOFFSET(&flash_data_buf_MB_ADDRESS),
                         MB.ADDRESS);                 
-            }
-            if(MB.ADC_OP_MODE != flash_data_buf_ADC_OP_MODE) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_ADC_OP_MODE), FLASH_GETOFFSET(&flash_data_buf_ADC_OP_MODE),
-                        MB.ADC_OP_MODE);                 
             }
             for(i = 0; i < 7; ++i) {
                 if(offsetPtr[i] != flash_data_buf_ADC_OFFSET[i])

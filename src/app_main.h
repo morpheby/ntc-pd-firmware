@@ -69,6 +69,7 @@
  * Internal function declarations
  */
 void app_init();
+void perform_data_operations();
 
 #endif	/* APP_MAIN_H */
 

@@ -28,24 +28,46 @@ struct modbus_t {
     unsigned int ADC_A1;//REG 7
     unsigned int ADC_A2;//REG 8
     unsigned int ADC_A3;//REG 9
+        
+    int M0_OFFSET;//REG 10
+    int M1_OFFSET;//REG 11
+    int M2_OFFSET;//REG 12
+    int A0_OFFSET;//REG 13
+    int A1_OFFSET;//REG 14
+    int A2_OFFSET;//REG 15
+    int A3_OFFSET;//REG 16
     
-    unsigned int ADC_OP_MODE;//REG 10
+    float M0_Coef;//REG 17 REG 18
+    float M1_Coef;//REG 19 REG 20
+    float M2_Coef;//REG 21 REG 22
+    float A0_Coef;//REG 23 REG 24
+    float A1_Coef;//REG 25 REG 26
+    float A2_Coef;//REG 27 REG 28
+    float A3_Coef;//REG 29 REG 30
     
-    int M0_OFFSET;//REG 11
-    int M1_OFFSET;//REG 12
-    int M2_OFFSET;//REG 13
-    int A0_OFFSET;//REG 14
-    int A1_OFFSET;//REG 15
-    int A2_OFFSET;//REG 16
-    int A3_OFFSET;//REG 17
+    float M0_value;//REG 31 REG 32
+    float M1_value;//REG 33 REG 34
+    float M2_value;//REG 35 REG 36
+    float A0_value;//REG 37 REG 38
+    float A1_value;//REG 39 REG 40
+    float A2_value;//REG 41 REG 42
+    float A3_value;//REG 43 REG 44
     
-    float M0_Coef;//REG 18 REG 19
-    float M1_Coef;//REG 20 REG 21
-    float M2_Coef;//REG 22 REG 23
-    float A0_Coef;//REG 24 REG 25
-    float A1_Coef;//REG 26 REG 27
-    float A2_Coef;//REG 28 REG 29
-    float A3_Coef;//REG 30 REG 31
+    float M0_AVG;//REG 45 REG 46
+    float M1_AVG;//REG 47 REG 48
+    float M2_AVG;//REG 49 REG 50
+    float A0_AVG;//REG 51 REG 52
+    float A1_AVG;//REG 53 REG 54
+    float A2_AVG;//REG 55 REG 56
+    float A3_AVG;//REG 57 REG 58
+    
+    float M0_RMS;//REG 59 REG 60
+    float M1_RMS;//REG 61 REG 62
+    float M2_RMS;//REG 63 REG 64
+    float A0_RMS;//REG 65 REG 66
+    float A1_RMS;//REG 67 REG 68
+    float A2_RMS;//REG 69 REG 70
+    float A3_RMS;//REG 71 REG 72
     
     int N;              //REG 40
 
@@ -71,7 +93,7 @@ struct modbus_t {
     int PROF_CHANGE_SOURCE;//REG 95
 };
 
-#define MB_REGS_COUNT 20
+#define MB_REGS_COUNT 72
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 
