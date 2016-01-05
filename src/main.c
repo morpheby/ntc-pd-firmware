@@ -30,6 +30,7 @@
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -90,6 +91,8 @@ int16_t main() {
         coefPtr[i] = flash_data_buf_ADC_COEF[i];
     }
     
+    MB.N = flash_data_buf_N;
+    
     app_init();
     uint16_t *tmpPtr;
     // Main cycle
@@ -124,6 +127,10 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i)+2,
                             tmpPtr[1]);
                 }                      
+            }
+            if(MB.N != flash_data_buf_N) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N), MB.N);                 
             }
             flash_write();
             MB.FLASH_WRITE = 0;

@@ -69,7 +69,7 @@ struct modbus_t {
     float A2_RMS;//REG 69 REG 70
     float A3_RMS;//REG 71 REG 72
     
-    int N;              //REG 40
+    unsigned int N;              //REG 73
 
     int D_In;          //REG 41
     int D_Out;          //REG 42
@@ -93,7 +93,7 @@ struct modbus_t {
     int PROF_CHANGE_SOURCE;//REG 95
 };
 
-#define MB_REGS_COUNT 72
+#define MB_REGS_COUNT 73
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 
