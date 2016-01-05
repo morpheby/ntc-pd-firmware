@@ -90,27 +90,30 @@ struct modbus_t {
     unsigned long int DI2_ImpCount; //REG 97 REG 98
     unsigned long int DI3_ImpCount; //REG 99 REG 100
     
-    int Ind_Delay;      //REG 43
-
-    int profile;        //REG 44
-    int ind_0_1;        //REG 45
-    int ind_1_1;        //REG 46
-    int ind_2_1;        //REG 47
-    int ind_0_2;        //REG 48
-    int ind_1_2;        //REG 49
-    int ind_2_2;       //REG 50
-    int ind_0_3;       //REG 51
-    int ind_1_3;       //REG 52
-    int ind_2_3;       //REG 53
-    int ind_0_4;       //REG 54
-    int ind_1_4;       //REG 55
-    int ind_2_4;      //REG 56
-
-    int imp_kol;           //REG 108
-    int PROF_CHANGE_SOURCE;//REG 95
+    unsigned int disk_imp_count;// REG 101
+    float QEI_W_rad_s;// REG 102 REG 103
+    float QEI_W_rot_s;// REG 104 REG 105
+    
+    unsigned int Ind_Delay;      //REG 106
+    unsigned int PROF_CHANGE_SOURCE;//REG 107
+    unsigned int profile;        //REG 108
+    
+    unsigned int ind_0_1;        //REG 109
+    unsigned int ind_1_1;        //REG 110
+    unsigned int ind_2_1;        //REG 111
+    unsigned int ind_0_2;        //REG 112
+    unsigned int ind_1_2;        //REG 113
+    unsigned int ind_2_2;       //REG 114
+    unsigned int ind_0_3;       //REG 115
+    unsigned int ind_1_3;       //REG 116
+    unsigned int ind_2_3;       //REG 117
+    unsigned int ind_0_4;       //REG 118
+    unsigned int ind_1_4;       //REG 119
+    unsigned int ind_2_4;      //REG 120
+    
 };
 
-#define MB_REGS_COUNT 93
+#define MB_REGS_COUNT 121
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

@@ -25,6 +25,7 @@
 /******************************************************************************/
 /* Global Variable Declaration                                                */
 /******************************************************************************/
+#define DEFAULT_IND_PROFILE 0xFF00
 
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
@@ -32,6 +33,22 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_OUT_INIT = 0;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI_FREQ_COEF[4] = {1.0f,1.0f,1.0f,1.0f};
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_DISK_IMP_COUNT = 0;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_DELAY = 25;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current profile number
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE,
+                                                                     DEFAULT_IND_PROFILE, 
+                                                                     DEFAULT_IND_PROFILE};
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -95,10 +112,17 @@ int16_t main() {
     MB.N = flash_data_buf_N;
     MB.D_OutInit = flash_data_buf_D_OUT_INIT;
     MB.D_Out = MB.D_OutInit;
+    MB.disk_imp_count = flash_data_buf_DISK_IMP_COUNT;
+    MB.Ind_Delay = flash_data_buf_IND_DELAY;
+    MB.PROF_CHANGE_SOURCE = flash_data_buf_PROF_CHANGE_SOURCE;
     
     float *DICoefPtr = &MB.DI0_ImpFreqCoef;
     for(i = 0; i < 4; ++i) {
         DICoefPtr[i] = flash_data_buf_DI_FREQ_COEF[i];
+    }
+    unsigned int *indProfilesPtr = &MB.profile;
+    for(i = 0; i < 13; ++i) {
+        indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
     }
     
     app_init();
@@ -154,6 +178,25 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i)+2,
                             tmpPtr[1]);
                 }                      
+            }
+            if(MB.disk_imp_count != flash_data_buf_DISK_IMP_COUNT) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_DISK_IMP_COUNT), FLASH_GETOFFSET(&flash_data_buf_DISK_IMP_COUNT), MB.disk_imp_count);                 
+            }
+            if(MB.Ind_Delay != flash_data_buf_IND_DELAY) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_IND_DELAY), FLASH_GETOFFSET(&flash_data_buf_IND_DELAY), MB.Ind_Delay);                 
+            }
+            if(MB.PROF_CHANGE_SOURCE != flash_data_buf_PROF_CHANGE_SOURCE) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE), MB.PROF_CHANGE_SOURCE);                 
+            }
+            for(i = 0; i < 13; ++i) {
+                if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
+                    // Only perform if the data has changed, spare memory
+                    flash_set(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i),
+                            indProfilesPtr[i]);                    
+                }
             }
             flash_write();
             MB.FLASH_WRITE = 0;

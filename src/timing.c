@@ -240,7 +240,7 @@ void _ISR_NOPSV _T1Interrupt(void) {
         timing_time_increment(0);
     }
     
-    //ind_showValues();
+    ind_showValues();
     disp_draw();
     menu_worker();
     IFS0bits.T1IF = 0;

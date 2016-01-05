@@ -29,7 +29,7 @@ void initQEI()
     DFLTCONbits.QECK = 5;      // 1:64 clock divide for digital filter for QEn
     POSCNT = 1;                // Reset position counter
     QEICONbits.QEIM = 7;       // X4 mode with position counter reset by MATCH (_QEIInterrupt is called on reset)
-    MAXCNT = MB.imp_kol;           // Max position counter value. Defined by MB reg and equals number of impulses per full rotation
+    MAXCNT = MB.disk_imp_count;           // Max position counter value. Defined by MB reg and equals number of impulses per full rotation
 
     timeMSecs = timing_get_time_msecs(); // store current system time
 
@@ -53,12 +53,12 @@ void __attribute__((interrupt,no_auto_psv)) _QEIInterrupt()
     IFS3bits.QEIIF = 0;
 }
 
-float getSpeedRadS()
+float QEI_getSpeedRadS()
 {
     return speedRadS;
 }
 
-float getSpeedRotS()
+float QEI_getSpeedRotS()
 {
     return speedRotS;
 }

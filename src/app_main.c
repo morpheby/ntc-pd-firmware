@@ -46,12 +46,18 @@ void app_init() {
         diImpPeriodeExpMovingMean[i] = 0;
         diImpTime[i] = 0;
     }
-    MB.DI0_ImpCount = 0x0F0F0F0F;
+    initQEI();
+    disp_set_off(1,1);
+    disp_set_off(2,1);
+    disp_set_off(3,1);
 }
 
 void perform_data_operations() {
     MB.D_In = discrete_get_input();
     discrete_set_output(MB.D_Out);
+    
+    MB.QEI_W_rad_s = QEI_getSpeedRadS();
+    MB.QEI_W_rot_s = QEI_getSpeedRotS();
     
     MB.ADC_M0 = filter_get(adcInputFilter, 0);
     MB.ADC_M1 = filter_get(adcInputFilter, 1);
