@@ -120,9 +120,28 @@ struct modbus_t {
     float A2_RMS_sign_threshold; //REG 133 REG 134
     float A3_RMS_sign_threshold; //REG 135 REG 136
     
+    float P1;// REG 137 REG 138
+    float P2;// REG 139 REG 140
+    float P3;// REG 141 REG 142
+    
+    float Q1;// REG 137 REG 138
+    float Q2;// REG 139 REG 140
+    float Q3;// REG 141 REG 142
+    
+    float S1;// REG 143 REG 144
+    float S2;// REG 145 REG 146
+    float S3;// REG 147 REG 148
+    
+    float cos_f1;// REG 149 REG 150
+    float cos_f2;// REG 151 REG 152
+    float cos_f3;// REG 153 REG 154
+    
+    float P1_coef;// REG 155 REG 156
+    float P2_coef;// REG 157 REG 158
+    float P3_coef;// REG 159 REG 161    
 };
 
-#define MB_REGS_COUNT 137
+#define MB_REGS_COUNT 161
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

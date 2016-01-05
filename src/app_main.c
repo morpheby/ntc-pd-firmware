@@ -105,6 +105,47 @@ void perform_data_operations() {
         rmsValuesPtr[i] = sqrt(adcSquareExpMovingMean[i])*sign;
     }
     
+    MB.P1 = MB.M0_value*MB.M1_value*MB.P1_coef*alpha + (1.0-alpha)*MB.P1;
+    MB.P2 = MB.M0_value*MB.M2_value*MB.P2_coef*alpha + (1.0-alpha)*MB.P2;
+    MB.P3 = MB.M1_value*MB.M2_value*MB.P3_coef*alpha + (1.0-alpha)*MB.P3;
+    
+    MB.S1 = MB.M0_RMS*MB.M1_RMS;
+    MB.S2 = MB.M0_RMS*MB.M1_RMS;
+    MB.S3 = MB.M1_RMS*MB.M2_RMS;
+    
+    if(fabs(MB.P1) >= MB.S1)
+    {
+        MB.Q1 = 0;
+        MB.cos_f1 = 1;
+    }
+    else
+    {
+        MB.Q1 = sqrt(MB.S1 * MB.S1 - MB.P1 * MB.P1); //значения реактивной мощности ?????
+        MB.cos_f1 = MB.P1 / MB.S1;
+    }
+        
+    if(fabs(MB.P2) >= MB.S2)
+    {
+        MB.Q2 = 0;
+        MB.cos_f2 = 1;
+    }
+    else
+    {
+        MB.Q2 = sqrt(MB.S2 * MB.S2 - MB.P2 * MB.P2); //значения реактивной мощности ?????
+        MB.cos_f2 = MB.P2 / MB.S2;
+    }
+        
+    if(fabs(MB.P3) >= MB.S3)
+    {
+        MB.Q3 = 0;
+        MB.cos_f3 = 1;
+    }
+    else
+    {
+        MB.Q3 = sqrt(MB.S3 * MB.S3 - MB.P3 * MB.P3); //значения реактивной мощности ?????
+        MB.cos_f3 = MB.P3 / MB.S3;
+    }
+    
     long time = timing_get_time_msecs();
     float *impFreq = &MB.DI0_ImpFreq;
     float *impFreqCoef = &MB.DI0_ImpFreqCoef;

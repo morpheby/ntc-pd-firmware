@@ -50,6 +50,7 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f};
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_POWER_COEFS[3] = {1.0f,1.0f,1.0f};
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -126,6 +127,10 @@ int16_t main() {
     unsigned int *indProfilesPtr = &MB.profile;
     for(i = 0; i < 13; ++i) {
         indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
+    }
+    float *powerCoefsPtr = &MB.P1_coef;
+    for(i = 0; i < 3; ++i){
+        powerCoefsPtr[i] = flash_data_buf_POWER_COEFS[i];
     }
     
     app_init();
@@ -208,6 +213,16 @@ int16_t main() {
                     flash_set(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i),
                             indProfilesPtr[i]);                    
                 }
+            }
+            for(i = 0; i < 3; ++i) { 
+                if(powerCoefsPtr[i] != flash_data_buf_POWER_COEFS[i])
+                {
+                    tmpPtr = powerCoefsPtr+i;
+                    flash_set(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i),
+                            tmpPtr[0]);
+                    flash_set(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i)+2,
+                            tmpPtr[1]);
+                }                      
             }
             flash_write();
             MB.FLASH_WRITE = 0;
