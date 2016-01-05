@@ -21,13 +21,13 @@ struct modbus_t {
     unsigned int FLASH_WRITE;//REG 1
     unsigned int RESET;//REG 2
     
-    unsigned int ADC_M0;//REG 3
-    unsigned int ADC_M1;//REG 4
-    unsigned int ADC_M2;//REG 5
-    unsigned int ADC_A0;//REG 6
-    unsigned int ADC_A1;//REG 7
-    unsigned int ADC_A2;//REG 8
-    unsigned int ADC_A3;//REG 9
+    int ADC_M0;//REG 3
+    int ADC_M1;//REG 4
+    int ADC_M2;//REG 5
+    int ADC_A0;//REG 6
+    int ADC_A1;//REG 7
+    int ADC_A2;//REG 8
+    int ADC_A3;//REG 9
         
     int M0_OFFSET;//REG 10
     int M1_OFFSET;//REG 11
@@ -110,10 +110,19 @@ struct modbus_t {
     unsigned int ind_0_4;       //REG 118
     unsigned int ind_1_4;       //REG 119
     unsigned int ind_2_4;      //REG 120
+    float TimerValue; //REG 121 REG 122
+    
+    float M0_RMS_sign_threshold; //REG 123 REG 124
+    float M1_RMS_sign_threshold; //REG 125 REG 126
+    float M2_RMS_sign_threshold; //REG 127 REG 128
+    float A0_RMS_sign_threshold; //REG 129 REG 130
+    float A1_RMS_sign_threshold; //REG 131 REG 132
+    float A2_RMS_sign_threshold; //REG 133 REG 134
+    float A3_RMS_sign_threshold; //REG 135 REG 136
     
 };
 
-#define MB_REGS_COUNT 121
+#define MB_REGS_COUNT 137
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

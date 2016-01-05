@@ -49,6 +49,7 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //
                                                                      DEFAULT_IND_PROFILE,
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f};
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -104,9 +105,11 @@ int16_t main() {
     uint8_t i;
     int *offsetPtr = &MB.M0_OFFSET;
     float *coefPtr = &MB.M0_Coef;
+    float *rmsSignThresholdPtr = &MB.M0_RMS_sign_threshold;
     for(i = 0; i < 7; ++i) {
         offsetPtr[i] = flash_data_buf_ADC_OFFSET[i];
         coefPtr[i] = flash_data_buf_ADC_COEF[i];
+        rmsSignThresholdPtr[i] = flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i];
     }
     
     MB.N = flash_data_buf_N;
@@ -159,7 +162,15 @@ int16_t main() {
                             tmpPtr[0]);
                     flash_set(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i)+2,
                             tmpPtr[1]);
-                }                      
+                }    
+                if(rmsSignThresholdPtr[i] != flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i])
+                {
+                    tmpPtr = rmsSignThresholdPtr+i;
+                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i),
+                            tmpPtr[0]);
+                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i)+2,
+                            tmpPtr[1]);
+                }                   
             }
             if(MB.N != flash_data_buf_N) {
                 // Only perform if the data has changed, spare memory
