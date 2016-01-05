@@ -33,7 +33,8 @@
 
 _PERSISTENT static Filter *adcInputFilter;
 _PERSISTENT static float adcSquareExpMovingMean[7];
-_PERSISTENT static float diFrequencyExpMovingMean[4];
+_PERSISTENT static float diImpPeriodeExpMovingMean[4];
+_PERSISTENT static long diImpTime[4];
 
 void app_init() {
     adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
@@ -42,8 +43,10 @@ void app_init() {
         adcSquareExpMovingMean[i] = 0;
     }
     for(i = 0; i < 4; ++i) {
-        diFrequencyExpMovingMean[i] = 0;
+        diImpPeriodeExpMovingMean[i] = 0;
+        diImpTime[i] = 0;
     }
+    MB.DI0_ImpCount = 0x0F0F0F0F;
 }
 
 void perform_data_operations() {
@@ -90,8 +93,101 @@ void perform_data_operations() {
     MB.A1_RMS = sqrt(adcSquareExpMovingMean[4]);
     MB.A2_RMS = sqrt(adcSquareExpMovingMean[5]);
     MB.A3_RMS = sqrt(adcSquareExpMovingMean[6]);
+    
+    long time = timing_get_time_msecs();
+    float *impFreq = &MB.DI0_ImpFreq;
+    float *impFreqCoef = &MB.DI0_ImpFreqCoef;
+    uint8_t i;
+    for(i = 0; i < 4; ++i) {
+        if(time - diImpTime[0] < 3000) {
+            impFreq[i] = 1.0f/diImpPeriodeExpMovingMean[i]*impFreqCoef[i];
+        } else {
+            impFreq[i] = 0;
+        }
+    }
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
     filter_put(adcInputFilter, value, channel);
 }
+
+#if COUNT_DI0_IMP_FREQUENCY
+//DI0 impulse counter
+CNI_DECL_PROC_FN(29, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {
+        MB.DI0_ImpCount++;
+        prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[0]);
+            if(dt < 3000) {
+                diImpPeriodeExpMovingMean[0] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[0];
+            }
+            diImpTime[0] = time;
+        }
+    }
+}
+#endif
+
+#if COUNT_DI1_IMP_FREQUENCY
+//DI1 impulse counter
+CNI_DECL_PROC_FN(30, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {   
+        MB.DI1_ImpCount++;
+        prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[1]);
+            if(dt < 3000) {
+                diImpPeriodeExpMovingMean[1] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[1];
+            }
+            diImpTime[0] = time;
+        }
+    }
+}
+#endif
+
+#if COUNT_DI2_IMP_FREQUENCY
+//DI2 impulse counter
+CNI_DECL_PROC_FN(10, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {   
+        MB.DI2_ImpCount++;
+        prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[2]);
+            if(dt < 3000) {
+                diImpPeriodeExpMovingMean[2] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[2];
+            }
+            diImpTime[0] = time;
+        }
+    }
+}
+#endif
+
+
+#if COUNT_DI3_IMP_FREQUENCY
+//DI3 impulse counter
+CNI_DECL_PROC_FN(9, on) {
+    static bool prev = 0;
+    if(on != prev) 
+    {   
+        MB.DI3_ImpCount++;
+        prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[3]);
+            if(dt < 3000) {
+                diImpPeriodeExpMovingMean[3] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[3];
+            }
+            diImpTime[0] = time;
+        }
+    }
+}
+#endif

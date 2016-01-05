@@ -75,6 +75,21 @@ struct modbus_t {
     unsigned int D_Out;          //REG 75
     unsigned int D_OutInit; //REG 76
     
+    float DI0_ImpFreq; //REG 77 REG 78
+    float DI1_ImpFreq; //REG 79 REG 80
+    float DI2_ImpFreq; //REG 81 REG 82
+    float DI3_ImpFreq; //REG 83 REG 84
+    
+    float DI0_ImpFreqCoef; //REG 85 REG 86
+    float DI1_ImpFreqCoef; //REG 87 REG 88
+    float DI2_ImpFreqCoef; //REG 80 REG 90
+    float DI3_ImpFreqCoef; //REG 91 REG 92
+    
+    unsigned long int DI0_ImpCount; //REG 93 REG 94
+    unsigned long int DI1_ImpCount; //REG 95 REG 96
+    unsigned long int DI2_ImpCount; //REG 97 REG 98
+    unsigned long int DI3_ImpCount; //REG 99 REG 100
+    
     int Ind_Delay;      //REG 43
 
     int profile;        //REG 44
@@ -95,7 +110,7 @@ struct modbus_t {
     int PROF_CHANGE_SOURCE;//REG 95
 };
 
-#define MB_REGS_COUNT 77
+#define MB_REGS_COUNT 93
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

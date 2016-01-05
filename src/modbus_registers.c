@@ -3,7 +3,6 @@
 
 struct modbus_t MB;
 
-
 void modbus_regs_init()
 {
     uint16_t * mbDataPtr = &MB.ADDRESS;

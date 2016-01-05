@@ -31,6 +31,7 @@ int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_OUT_INIT = 0;
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI_FREQ_COEF[4] = {1.0f,1.0f,1.0f,1.0f};
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -94,6 +95,12 @@ int16_t main() {
     MB.N = flash_data_buf_N;
     MB.D_OutInit = flash_data_buf_D_OUT_INIT;
     MB.D_Out = MB.D_OutInit;
+    
+    float *DICoefPtr = &MB.DI0_ImpFreqCoef;
+    for(i = 0; i < 4; ++i) {
+        DICoefPtr[i] = flash_data_buf_DI_FREQ_COEF[i];
+    }
+    
     app_init();
     uint16_t *tmpPtr;
     // Main cycle
@@ -137,6 +144,16 @@ int16_t main() {
             if(MB.D_OutInit != flash_data_buf_D_OUT_INIT) {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_D_OUT_INIT), FLASH_GETOFFSET(&flash_data_buf_D_OUT_INIT), MB.D_OutInit);                 
+            }
+            for(i = 0; i < 4; ++i) { 
+                if(DICoefPtr[i] != flash_data_buf_DI_FREQ_COEF[i])
+                {
+                    tmpPtr = DICoefPtr+i;
+                    flash_set(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i),
+                            tmpPtr[0]);
+                    flash_set(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i)+2,
+                            tmpPtr[1]);
+                }                      
             }
             flash_write();
             MB.FLASH_WRITE = 0;
