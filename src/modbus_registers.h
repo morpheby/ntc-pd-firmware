@@ -71,8 +71,10 @@ struct modbus_t {
     
     unsigned int N;              //REG 73
 
-    int D_In;          //REG 41
-    int D_Out;          //REG 42
+    unsigned int D_In;          //REG 74
+    unsigned int D_Out;          //REG 75
+    unsigned int D_OutInit; //REG 76
+    
     int Ind_Delay;      //REG 43
 
     int profile;        //REG 44
@@ -93,7 +95,7 @@ struct modbus_t {
     int PROF_CHANGE_SOURCE;//REG 95
 };
 
-#define MB_REGS_COUNT 73
+#define MB_REGS_COUNT 77
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

@@ -25,7 +25,6 @@
 #include "PWM.h"
 #include "ind_profiles.h"
 #include "filter.h"
-#include "DS1820.h"
 
 /*
  * This file contains functions, being called from every module upon some
@@ -33,13 +32,24 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
-_PERSISTENT static float adcSquareExpMovingMean[7] = {0,0,0,0,0,0,0};
+_PERSISTENT static float adcSquareExpMovingMean[7];
+_PERSISTENT static float diFrequencyExpMovingMean[4];
 
 void app_init() {
     adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
+    uint8_t i;
+    for(i = 0; i < 7; ++i) {
+        adcSquareExpMovingMean[i] = 0;
+    }
+    for(i = 0; i < 4; ++i) {
+        diFrequencyExpMovingMean[i] = 0;
+    }
 }
 
 void perform_data_operations() {
+    MB.D_In = discrete_get_input();
+    discrete_set_output(MB.D_Out);
+    
     MB.ADC_M0 = filter_get(adcInputFilter, 0);
     MB.ADC_M1 = filter_get(adcInputFilter, 1);
     MB.ADC_M2 = filter_get(adcInputFilter, 2);

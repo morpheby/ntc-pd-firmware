@@ -20,7 +20,6 @@
 #include "D_I_O.h"
 #include "modbus_registers.h"
 #include "filter.h"
-#include "DS1820.h"
 
 
 /******************************************************************************/
@@ -31,6 +30,7 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODB
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
+unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_OUT_INIT = 0;
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -92,7 +92,8 @@ int16_t main() {
     }
     
     MB.N = flash_data_buf_N;
-    
+    MB.D_OutInit = flash_data_buf_D_OUT_INIT;
+    MB.D_Out = MB.D_OutInit;
     app_init();
     uint16_t *tmpPtr;
     // Main cycle
@@ -101,11 +102,12 @@ int16_t main() {
         // Perform Modbus protocol processing
         Modbus_RTU();
         
+        discrete_update();
         perform_data_operations();
                    
         // Update display
         display_update(1);
-        
+                
         if(MB.FLASH_WRITE == 1) {
             if(MB.ADDRESS != flash_data_buf_MB_ADDRESS) {
                 // Only perform if the data has changed, spare memory
@@ -131,6 +133,10 @@ int16_t main() {
             if(MB.N != flash_data_buf_N) {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N), MB.N);                 
+            }
+            if(MB.D_OutInit != flash_data_buf_D_OUT_INIT) {
+                // Only perform if the data has changed, spare memory
+                flash_set(FLASH_GETPAGE(&flash_data_buf_D_OUT_INIT), FLASH_GETOFFSET(&flash_data_buf_D_OUT_INIT), MB.D_OutInit);                 
             }
             flash_write();
             MB.FLASH_WRITE = 0;
