@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "modbus_registers.h"
 #include "filter.h"
 
@@ -14,14 +16,21 @@ void modbus_regs_init()
 
 float modbus_get_reg_f(uint8_t regNumber)
 {
-    return 0.0f;
+    float result;
+    uint16_t* resultDataPtr = &result;
+    uint16_t* mbDataPtr = &MB.ADDRESS;
+    resultDataPtr[0] = mbDataPtr[regNumber];
+    resultDataPtr[1] = mbDataPtr[regNumber+1];
+    return result;
 }
 
 uint16_t modbus_get_reg_u16(uint8_t regNumber)
 {
-    return 0;
+    uint16_t* mbData = &MB.ADDRESS;
+    return mbData[regNumber];
 }
 int16_t modbus_get_reg_i16(uint8_t regNumber)
 {
-    return 0;
+    int16_t* mbData = &MB.ADDRESS;
+    return mbData[regNumber];
 }
