@@ -83,6 +83,7 @@ void perform_data_operations() {
     MB.QEI_W_rot_s = QEI_getSpeedRotS();
         
     float alpha = 1.0f/MB.N;
+    float beta = 1.0f-alpha;
     
     uint8_t i;
     int *adcSourceValuesPtr = &MB.ADC_M0;
@@ -96,18 +97,18 @@ void perform_data_operations() {
     for(i = 0; i < 7; ++i){
         adcSourceValuesPtr[i] = filter_get(adcInputFilter, i);
         adcValuesPtr[i] = (adcSourceValuesPtr[i]-adcOffsetsPtr[i])*adcCoefsPtr[i];
-        avgValuesPtr[i] = adcValuesPtr[i] * alpha + (1.0f-alpha)*avgValuesPtr[i];
-        adcSquareExpMovingMean[i] = adcValuesPtr[i] * adcValuesPtr[i] * alpha + (1.0f - alpha)*adcSquareExpMovingMean[i];
+        avgValuesPtr[i] = adcValuesPtr[i] * alpha + beta*avgValuesPtr[i];
+        adcSquareExpMovingMean[i] = adcValuesPtr[i] * adcValuesPtr[i] * alpha + beta*adcSquareExpMovingMean[i];
         float sign = 1.0;
         if(fabs(avgValuesPtr[i]) > fabs(rmsSignThreshPtr[i]) && avgValuesPtr[i] < 0){
             sign = -1.0;
         }
         rmsValuesPtr[i] = sqrt(adcSquareExpMovingMean[i])*sign;
     }
-    
-    MB.P1 = MB.M0_value*MB.M1_value*MB.P1_coef*alpha + (1.0-alpha)*MB.P1;
-    MB.P2 = MB.M0_value*MB.M2_value*MB.P2_coef*alpha + (1.0-alpha)*MB.P2;
-    MB.P3 = MB.M1_value*MB.M2_value*MB.P3_coef*alpha + (1.0-alpha)*MB.P3;
+  
+    MB.P1 = MB.M0_value*MB.M1_value*MB.P1_coef*alpha + beta*MB.P1;
+    MB.P2 = MB.M0_value*MB.M2_value*MB.P2_coef*alpha + beta*MB.P2;
+    MB.P3 = MB.M1_value*MB.M2_value*MB.P3_coef*alpha + beta*MB.P3;
     
     MB.S1 = MB.M0_RMS*MB.M1_RMS;
     MB.S2 = MB.M0_RMS*MB.M1_RMS;

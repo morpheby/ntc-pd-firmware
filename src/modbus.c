@@ -96,7 +96,7 @@ bool crcCorrect(uint8_t* buf, uint8_t len) {
 
 void Modbus_RTU() {
     if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) {
-        IEC0bits.U1RXIE=0;		// Rx Disable
+       // IEC0bits.U1RXIE=0;		// Rx Disable
         if(crcCorrect(_rx_buf, _rx_len)) {
             uint16_t* mbDataPtr = &MB.ADDRESS;
             unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
@@ -183,7 +183,7 @@ void Modbus_RTU() {
             
         _rx_len = 0;
         _mb_state = MB_STATE_READY;
-        IEC0bits.U1RXIE=1;
+    //    IEC0bits.U1RXIE=1;
     }
 }
 
