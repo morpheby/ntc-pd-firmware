@@ -216,7 +216,7 @@ void display_update(_Bool fullFlag) {
 
         set_disp_num(i);
         disp_lightup(1);
-        __delay32(100);
+        __delay32(500);
         if (!fullFlag) break;
     }
     disp_lightup(0);

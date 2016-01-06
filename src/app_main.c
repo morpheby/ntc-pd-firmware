@@ -86,13 +86,13 @@ void perform_data_operations() {
     float beta = 1.0f-alpha;
     
     uint8_t i;
-    int *adcSourceValuesPtr = &MB.ADC_M0;
-    int *adcOffsetsPtr = &MB.M0_OFFSET;
-    float *adcCoefsPtr = &MB.M0_Coef;
-    float *adcValuesPtr = &MB.M0_value; 
-    float *avgValuesPtr = &MB.M0_AVG; 
-    float *rmsValuesPtr = &MB.M0_RMS;  
-    float *rmsSignThreshPtr = &MB.M0_RMS_sign_threshold;
+    static int *adcSourceValuesPtr = &MB.ADC_M0;
+    static int *adcOffsetsPtr = &MB.M0_OFFSET;
+    static float *adcCoefsPtr = &MB.M0_Coef;
+    static float *adcValuesPtr = &MB.M0_value; 
+    static float *avgValuesPtr = &MB.M0_AVG; 
+    static float *rmsValuesPtr = &MB.M0_RMS;  
+    static float *rmsSignThreshPtr = &MB.M0_RMS_sign_threshold;
     
     for(i = 0; i < 7; ++i){
         adcSourceValuesPtr[i] = filter_get(adcInputFilter, i);
