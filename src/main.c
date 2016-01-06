@@ -28,6 +28,7 @@
 #define DEFAULT_IND_PROFILE 0xFF00
 
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
+unsigned long int _FLASH_STORE _FLASH_ACCESS flash_data_buf_BAUD_RATE = DEFAULT_UART_BAUDRATE;
 int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
 unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
@@ -56,8 +57,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_POWER_COEFS[3] = {1.0f,1.0f,1.0f
 /* Main Program                                                               */
 /******************************************************************************/
 
-int16_t main() {
-    
+int16_t main() {    
     /* Initialize reset parser */
     system_init();
     
@@ -82,18 +82,19 @@ int16_t main() {
     // Select Internal FRC with PLL
     osc_select(oscBoosted);
     
-    /* Initialize UART */
-    uart_init();
-    
     /* Initialize RTSP */
     flash_init();
-    
-    /* Initialize system timing */
-    timing_init();
     
     /* Initialize modbus registers */
     modbus_regs_init();
     
+    /* Initialize UART */
+    MB.BAUD_RATE = flash_data_buf_BAUD_RATE;
+    uart_init();
+        
+    /* Initialize system timing */
+    timing_init();
+        
     /* Initialize filters */
     filter_init();
     
@@ -152,6 +153,13 @@ int16_t main() {
                 // Only perform if the data has changed, spare memory
                 flash_set(FLASH_GETPAGE(&flash_data_buf_MB_ADDRESS), FLASH_GETOFFSET(&flash_data_buf_MB_ADDRESS),
                         MB.ADDRESS);                 
+            }
+            if(MB.BAUD_RATE != flash_data_buf_BAUD_RATE) {
+                tmpPtr = &MB.BAUD_RATE;
+                flash_set(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE),
+                        tmpPtr[0]);
+                flash_set(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE)+2,
+                        tmpPtr[1]);                 
             }
             for(i = 0; i < 7; ++i) {
                 if(offsetPtr[i] != flash_data_buf_ADC_OFFSET[i])

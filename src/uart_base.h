@@ -13,8 +13,6 @@
 
 #define UART_IPL 6
 
-#define UART_RATE_CYCLES    (FCY/UART_BAUDRATE)
-
 void uart_init();
 
 #endif	/* UART_BASE_H */

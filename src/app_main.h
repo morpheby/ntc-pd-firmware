@@ -45,7 +45,7 @@
 #define UART_USE_9BIT_MODE  0
 
 // UART baudrate
-#define UART_BAUDRATE       19200
+#define DEFAULT_UART_BAUDRATE       19200
 
 /*
  * Modbus configuration

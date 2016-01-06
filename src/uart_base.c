@@ -4,13 +4,17 @@
 #include <stdlib.h>
 #include "ipl-config.h"
 #include "board-config.h"
-
-#define UART_BRGVAL         (UART_RATE_CYCLES/16 - 1)
+#include "modbus_registers.h"
 
 void uart_init() {
     
+    unsigned long baudRate = DEFAULT_UART_BAUDRATE;
+    if(MB.BAUD_RATE != 0) {
+        baudRate = MB.BAUD_RATE;
+    }
+    unsigned long uartRateCycles = FCY / baudRate;
     /* Initialize UART1 */
-    U1BRG = UART_BRGVAL;
+    U1BRG = uartRateCycles/16-1;//UART_BRGVAL;
 
     /* Configure pins */
     pin_remap_enable(1);
@@ -76,5 +80,5 @@ void uart_init() {
     U1STAbits.UTXEN   = 1;  // Start UART TX
 
     // lock system for one UART cycle
-    system_lock(UART_RATE_CYCLES);
+    system_lock(uartRateCycles);
 }
