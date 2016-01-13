@@ -205,18 +205,21 @@ MAIN_DECL_LOOP_FN() {
                 timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
                 timerOn = 1;
             }
+        } else {
+            timerOn=0;
         }
     } else {
-        timerOn = 0;
         if(!discrete_get_input_bit(3)) {
             if(MB.M1_RMS >= MB.I_threshold){
                 if(!timerOn) {
                     timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
                     timerOn = 1;
                 }
-            } else if(MB.M1_RMS <= MB.I_threshold*0.95) {
+            } else if(MB.M1_RMS <= MB.I_threshold*(1.0-MB.I_HistWidth)) {
                 timerOn = 0;
             }
+        } else {
+            timerOn=0;
         }
     }
     

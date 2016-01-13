@@ -165,8 +165,9 @@ void modbus_mmap_free();
 
 #define REG_TimerValue             140, f
 #define REG_I_threshold             142, f
+#define REG_I_HistWidth             144, f
 
-#define MODBUS_DATA_END        144
+#define MODBUS_DATA_END        146
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -304,6 +305,7 @@ typedef struct _tagMODBUS_DATA {
             
             _REG_DEFINE(TimerValue);
             _REG_DEFINE(I_threshold);
+            _REG_DEFINE(I_HistWidth);
             
             uint16_t __last1;
         };
