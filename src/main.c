@@ -103,6 +103,8 @@ int16_t main() {
        
     MB.ADDRESS = flash_data_buf_MB_ADDRESS;
     setModbusAddress(MB.ADDRESS);
+    float periode = 10.0/MB.BAUD_RATE*3.5;
+    set_mb_silence_timer_periode((unsigned int)periode+1);
     
     uint8_t i;
     int *offsetPtr = &MB.M0_OFFSET;
@@ -138,10 +140,7 @@ int16_t main() {
     uint16_t *tmpPtr;
     // Main cycle
     while (1) {
-       
-        // Perform Modbus protocol processing
-        Modbus_RTU();
-        
+               
         discrete_update();
         perform_data_operations();
                    

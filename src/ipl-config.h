@@ -12,6 +12,8 @@
 #define IPL_UART_RX         3
 #define IPL_UART_ERR        5
 #define IPL_TIMER1          1
+#define IPL_TIMER2          1
+#define IPL_TIMER3          1
 #define IPL_TIMER32         5
 #define IPL_CN_INPUT        4
 #define IPL_ADC_DATAR       4

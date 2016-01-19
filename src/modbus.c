@@ -95,7 +95,9 @@ bool crcCorrect(uint8_t* buf, uint8_t len) {
 }
 
 void Modbus_RTU() {
-    if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) {
+   // if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) 
+    {
+        stop_mb_silence_timer();
        // IEC0bits.U1RXIE=0;		// Rx Disable
         if(crcCorrect(_rx_buf, _rx_len)) {
             uint16_t* mbDataPtr = &MB.ADDRESS;
@@ -218,7 +220,8 @@ void _ISR_NOPSV _U1RXInterrupt()
             switch (recieved) {
                 case READ_HOLDING_REGISTERS:
                 {
-                    _mb_state = MB_STATE_DATA_WAIT;
+                    _mb_state = MB_STATE_DATA_WAIT;      
+                    start_mb_silence_timer();
                     break;
                 }
                 case PRESET_SINGLE_REGISTER:
@@ -242,6 +245,7 @@ void _ISR_NOPSV _U1RXInterrupt()
         }
         case (MB_STATE_DATA_WAIT):
         {
+            start_mb_silence_timer();
             _rx_buf[_rx_len] = recieved;
             _rx_len++;
             break;

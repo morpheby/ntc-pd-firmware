@@ -36,7 +36,7 @@ void timing_init() {
     // Start Timer1
     T1CONbits.TON = 1;
 
-
+/*
     // Configure Timer2+Timer3 in 32-bit mode
     T3CONbits.TON = 0;      // Turn off both timers
     T2CONbits.TON = 0;
@@ -57,6 +57,28 @@ void timing_init() {
     IEC0bits.T2IE = 1;            // Set interrupts enable flag
     
     // Don't turn on timer32 unless requested explicitly
+    */
+    T2CONbits.TON = 0;
+    T2CONbits.TCS = 0;
+    T2CONbits.TGATE = 0;
+    T2CONbits.TCKPS = 0b01;
+    T2CONbits.T32 = 0;
+    IPC1bits.T2IP = IPL_TIMER2; 
+    PR2 = FCY/8000;
+    TMR2=0;
+    IFS0bits.T2IF = 0;          
+    IEC0bits.T2IE = 1; 
+    T2CONbits.TON = 1;
+    
+    T3CONbits.TON = 0;
+    T3CONbits.TCS = 0;
+    T3CONbits.TGATE = 0;
+    T3CONbits.TCKPS = 0b01;
+    IPC2bits.T3IP = IPL_TIMER3; 
+    TMR3=0;
+    IFS0bits.T3IF = 0;          
+    IEC0bits.T3IE = 0;
+    T3CONbits.TON = 1;
 }
 
 void timer32_start() {
@@ -234,24 +256,40 @@ void time_sub(_time_t *dst, _time_t sub) {
     dst->nsecs -= sub.nsecs;
 }
 
+static long time_msecs = 0;
 void _ISR_NOPSV _T1Interrupt(void) {
     // Increase system time value
     if (!_useHighResTimer) {
         timing_time_increment(0);
     }
-    
-    ind_showValues();
+   ind_showValues();
     disp_draw();
     menu_worker();
     IFS0bits.T1IF = 0;
 }
+void _ISR_NOPSV _T2Interrupt(void) {
+    time_msecs++;
+    IFS0bits.T2IF = 0;
+}
 
 void _ISR_NOPSV _T3Interrupt(void) {
-    // Timer 3 is used as a high-resolution timing module.
-    // Prefer not to use this interrupt function
-    
-    // Increase system time value
-    timing_time_increment(1);
-    
+    Modbus_RTU();
     IFS0bits.T3IF = 0;
+}
+
+void start_mb_silence_timer()
+{
+    IEC0bits.T3IE = 0;
+    TMR3=0;
+    IFS0bits.T3IF = 0;
+    IEC0bits.T3IE = 1;
+}
+
+void stop_mb_silence_timer()
+{
+    IEC0bits.T3IE = 0;
+}
+void set_mb_silence_timer_periode(unsigned int periode)
+{
+    PR3 = FCY/(8000/periode);
 }

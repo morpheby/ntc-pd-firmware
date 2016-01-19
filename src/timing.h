@@ -60,5 +60,9 @@ void time_add(_time_t *dst, _time_t add);
 // NOTE: dst should be greater than sub. Otherwise result is undefined
 void time_sub(_time_t *dst, _time_t sub);
 
+void start_mb_silence_timer();
+void stop_mb_silence_timer();
+void set_mb_silence_timer_periode(unsigned int periode);
+
 #endif	/* TIMING_H */
 
