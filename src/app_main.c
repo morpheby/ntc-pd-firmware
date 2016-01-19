@@ -39,6 +39,9 @@ _PERSISTENT static long diImpTime[4];
 _PERSISTENT static long int timer_start_time;
 _PERSISTENT static bool timerOn;
 
+#define FREQ_ALPHA 0.2
+#define FREQ_BETA 0.8
+
 void app_init() {
     adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
     uint8_t i;
@@ -176,7 +179,7 @@ CNI_DECL_PROC_FN(29, on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[0]);
             if(dt < 3000) {
-                diImpPeriodeExpMovingMean[0] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[0];
+                diImpPeriodeExpMovingMean[0] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[0];
             }
             diImpTime[0] = time;
         }
@@ -196,7 +199,7 @@ CNI_DECL_PROC_FN(30, on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[1]);
             if(dt < 3000) {
-                diImpPeriodeExpMovingMean[1] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[1];
+                diImpPeriodeExpMovingMean[1] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[1];
             }
             diImpTime[0] = time;
         }
@@ -216,7 +219,7 @@ CNI_DECL_PROC_FN(10, on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[2]);
             if(dt < 3000) {
-                diImpPeriodeExpMovingMean[2] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[2];
+                diImpPeriodeExpMovingMean[2] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[2];
             }
             diImpTime[0] = time;
         }
@@ -237,7 +240,7 @@ CNI_DECL_PROC_FN(9, on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[3]);
             if(dt < 3000) {
-                diImpPeriodeExpMovingMean[3] = dt*0.001 * 0.2 + 0.8 * diImpPeriodeExpMovingMean[3];
+                diImpPeriodeExpMovingMean[3] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[3];
             }
             diImpTime[0] = time;
         }
