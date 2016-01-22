@@ -22,7 +22,6 @@ static uint8_t _rx_len = 0;
 static uint8_t _tx_buf[TX_BUFFER_SIZE];
 static uint8_t _tx_len = 0;
 static uint8_t _tx_pos = 0;
-static uint32_t _frame_start_time = 0;
 
 #define MB_STATE_READY 0
 #define MB_STATE_CMD_WAIT 1
@@ -95,98 +94,93 @@ bool crcCorrect(uint8_t* buf, uint8_t len) {
 }
 
 void Modbus_RTU() {
-   // if(_mb_state != MB_STATE_READY && _frame_start_time + 40 <= timing_get_time_msecs()) 
-    {
-        stop_mb_silence_timer();
-       // IEC0bits.U1RXIE=0;		// Rx Disable
-        if(crcCorrect(_rx_buf, _rx_len)) {
-            uint16_t* mbDataPtr = &MB.ADDRESS;
-            unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
-            unsigned int count = (_rx_buf[4] << 8) | _rx_buf[5];
-            uint8_t regIndex;
-            switch(_rx_buf[1]) {
-                case READ_HOLDING_REGISTERS:
-                {
-                    IEC0bits.U1TXIE=0;                       
-                    _tx_buf[0] = address;
-                    _tx_buf[1] = READ_HOLDING_REGISTERS;
-                    _tx_buf[2] = count*2;
+    stop_mb_silence_timer();
+    if(crcCorrect(_rx_buf, _rx_len)) {
+        uint16_t* mbDataPtr = &MB.ADDRESS;
+        unsigned int start = (_rx_buf[2] << 8) | _rx_buf[3];
+        unsigned int count = (_rx_buf[4] << 8) | _rx_buf[5];
+        uint8_t regIndex;
+        switch(_rx_buf[1]) {
+            case READ_HOLDING_REGISTERS:
+            {
+                IEC0bits.U1TXIE=0;                       
+                _tx_buf[0] = address;
+                _tx_buf[1] = READ_HOLDING_REGISTERS;
+                _tx_buf[2] = count*2;
                         
-                    for(regIndex = 0; regIndex < count; ++regIndex) {
-                        uint16_t regData = mbDataPtr[start+regIndex];
-                        _tx_buf[3 + regIndex*2] = regData>>8;
-                        _tx_buf[3 + regIndex*2 + 1] = regData & 0x00FF;
-                    }
-                    uint8_t len = 2*count + 5;
-                    uint16_t crc = Crc16(_tx_buf, len - 2);
-                    uint8_t CRC_16_Lo = crc & 0xFF;
-                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
-                        
-                    _tx_buf[len-2] = CRC_16_Lo;
-                    _tx_buf[len-1] = CRC_16_Hi;
-                    _tx_pos = 0;
-                    _tx_len = len;
-                    IEC0bits.U1TXIE=1;
-                    U1TXREG = _tx_buf[0];          
-                    break;
+                for(regIndex = 0; regIndex < count; ++regIndex) {
+                    uint16_t regData = mbDataPtr[start+regIndex];
+                    _tx_buf[3 + regIndex*2] = regData>>8;
+                    _tx_buf[3 + regIndex*2 + 1] = regData & 0x00FF;
                 }
-                case PRESET_SINGLE_REGISTER:
-                {
-                    IEC0bits.U1TXIE=0; 
-                    mbDataPtr[start]=((_rx_buf[4] << 8)) | _rx_buf[5];                
-                    _tx_buf[0] = address;
-                    _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
-                    _tx_buf[2] = _rx_buf[4];
-                    _tx_buf[3] = _rx_buf[5];
-                    _tx_buf[4]=count >> 8;
-                    _tx_buf[5]=count & 0x00FF;
+                uint8_t len = 2*count + 5;
+                uint16_t crc = Crc16(_tx_buf, len - 2);
+                uint8_t CRC_16_Lo = crc & 0xFF;
+                uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
                         
-                    uint8_t len = 8;
-                    uint16_t crc = Crc16(_tx_buf, len - 2);
-                    uint8_t CRC_16_Lo = crc & 0xFF;
-                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                _tx_buf[len-2] = CRC_16_Lo;
+                _tx_buf[len-1] = CRC_16_Hi;
+                _tx_pos = 0;
+                _tx_len = len;
+                IEC0bits.U1TXIE=1;
+                U1TXREG = _tx_buf[0];          
+                break;
+            }
+            case PRESET_SINGLE_REGISTER:
+            {
+                IEC0bits.U1TXIE=0; 
+                mbDataPtr[start]=((_rx_buf[4] << 8)) | _rx_buf[5];                
+                _tx_buf[0] = address;
+                _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                _tx_buf[2] = _rx_buf[4];
+                _tx_buf[3] = _rx_buf[5];
+                _tx_buf[4]=count >> 8;
+                _tx_buf[5]=count & 0x00FF;
+                       
+                uint8_t len = 8;
+                uint16_t crc = Crc16(_tx_buf, len - 2);
+                uint8_t CRC_16_Lo = crc & 0xFF;
+                uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                       
+                _tx_buf[len-2] = CRC_16_Lo;
+                _tx_buf[len-1] = CRC_16_Hi;
+                _tx_pos = 0;
+                _tx_len = len;
+                IEC0bits.U1TXIE=1;
+                U1TXREG = _tx_buf[0]; 
+                break;
+            }
+            case PRESET_MULTIPLE_REGISTERS:
+            {
+                IEC0bits.U1TXIE=0; 
+                for(regIndex = 0; regIndex < count; ++regIndex) {
+                    mbDataPtr[start + regIndex] = ((_rx_buf[regIndex*2+7] << 8)) | _rx_buf[regIndex*2+8];
+                }                      
+                _tx_buf[0] = address;
+                _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
+                _tx_buf[2] = start >> 8;
+                _tx_buf[3] = start & 0x00FF;
+                _tx_buf[4]=count >> 8;
+                _tx_buf[5]=count & 0x00FF;
                         
-                    _tx_buf[len-2] = CRC_16_Lo;
-                    _tx_buf[len-1] = CRC_16_Hi;
-                    _tx_pos = 0;
-                    _tx_len = len;
-                    IEC0bits.U1TXIE=1;
-                    U1TXREG = _tx_buf[0]; 
-                    break;
-                }
-                case PRESET_MULTIPLE_REGISTERS:
-                {
-                    IEC0bits.U1TXIE=0; 
-                    for(regIndex = 0; regIndex < count; ++regIndex) {
-                        mbDataPtr[start + regIndex] = ((_rx_buf[regIndex*2+7] << 8)) | _rx_buf[regIndex*2+8];
-                    }                      
-                    _tx_buf[0] = address;
-                    _tx_buf[1] = PRESET_MULTIPLE_REGISTERS;
-                    _tx_buf[2] = start >> 8;
-                    _tx_buf[3] = start & 0x00FF;
-                    _tx_buf[4]=count >> 8;
-                    _tx_buf[5]=count & 0x00FF;
-                        
-                    uint8_t len = 8;
-                    uint16_t crc = Crc16(_tx_buf, len - 2);
-                    uint8_t CRC_16_Lo = crc & 0xFF;
-                    uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
-                        
-                    _tx_buf[len-2] = CRC_16_Lo;
-                    _tx_buf[len-1] = CRC_16_Hi;
-                    _tx_pos = 0;
-                    _tx_len = len;
-                    IEC0bits.U1TXIE=1;
-                    U1TXREG = _tx_buf[0];  
-                    break;
-                }
+                uint8_t len = 8;
+                uint16_t crc = Crc16(_tx_buf, len - 2);
+                uint8_t CRC_16_Lo = crc & 0xFF;
+                uint8_t CRC_16_Hi = (crc & 0xFF00) >> 8;
+                       
+                _tx_buf[len-2] = CRC_16_Lo;
+                _tx_buf[len-1] = CRC_16_Hi;
+                _tx_pos = 0;
+                _tx_len = len;
+                IEC0bits.U1TXIE=1;
+                U1TXREG = _tx_buf[0];  
+                break;
             }
         }
-            
-        _rx_len = 0;
-        _mb_state = MB_STATE_READY;
-    //    IEC0bits.U1RXIE=1;
     }
+            
+    _rx_len = 0;
+    _mb_state = MB_STATE_READY;
 }
 
 void _ISR_NOPSV _U1TXInterrupt() {
@@ -208,10 +202,10 @@ void _ISR_NOPSV _U1RXInterrupt()
         case (MB_STATE_READY):
         {
             if(recieved == address) {
-                _frame_start_time = timing_get_time_msecs();
                 _rx_buf[_rx_len] = recieved;
                 _rx_len ++;
-                _mb_state = MB_STATE_CMD_WAIT;
+                _mb_state = MB_STATE_CMD_WAIT;    
+                start_mb_silence_timer();
             }
             break;
         }
@@ -226,12 +220,14 @@ void _ISR_NOPSV _U1RXInterrupt()
                 }
                 case PRESET_SINGLE_REGISTER:
                 {
-                    _mb_state = MB_STATE_DATA_WAIT;
+                    _mb_state = MB_STATE_DATA_WAIT; 
+                    start_mb_silence_timer();
                     break;
                 }
                 case PRESET_MULTIPLE_REGISTERS:
                 {
-                    _mb_state = MB_STATE_DATA_WAIT;
+                    _mb_state = MB_STATE_DATA_WAIT; 
+                    start_mb_silence_timer();
                     break;
                 }
                 default:
