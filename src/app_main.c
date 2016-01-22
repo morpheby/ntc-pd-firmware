@@ -38,6 +38,7 @@ _PERSISTENT static long diImpTime[4];
 
 #define FREQ_ALPHA 0.2
 #define FREQ_BETA 0.8
+#define DI_IMP_TIMEOUT_MS 3000
 
 void app_init() {
     adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
@@ -149,7 +150,7 @@ void perform_data_operations() {
     float *impFreqCoef = &MB.DI0_ImpFreqCoef;
 
     for(i = 0; i < 4; ++i) {
-        if(time - diImpTime[0] < 3000) {
+        if(time - diImpTime[0] < DI_IMP_TIMEOUT_MS) {
             impFreq[i] = 1.0f/diImpPeriodeExpMovingMean[i]*impFreqCoef[i];
         } else {
             impFreq[i] = 0;
@@ -172,7 +173,7 @@ CNI_DECL_PROC_FN(29, on) {
         if(on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[0]);
-            if(dt < 3000) {
+            if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[0] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[0];
             }
             diImpTime[0] = time;
@@ -192,7 +193,7 @@ CNI_DECL_PROC_FN(30, on) {
         if(on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[1]);
-            if(dt < 3000) {
+            if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[1] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[1];
             }
             diImpTime[0] = time;
@@ -212,7 +213,7 @@ CNI_DECL_PROC_FN(10, on) {
         if(on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[2]);
-            if(dt < 3000) {
+            if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[2] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[2];
             }
             diImpTime[0] = time;
@@ -233,7 +234,7 @@ CNI_DECL_PROC_FN(9, on) {
         if(on) {
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[3]);
-            if(dt < 3000) {
+            if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[3] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[3];
             }
             diImpTime[0] = time;
