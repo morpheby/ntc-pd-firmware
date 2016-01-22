@@ -10,6 +10,7 @@
 static _SystemTime _systemTime = {0, 0};
 
 static float _mesuerd_time = 0;
+static bool _time_mesuring_started = 0;
 
 void timing_init() {
     T1CONbits.TON = 0;      // Turn off Timer 1
@@ -45,7 +46,7 @@ void timing_init() {
     PR2 = FCY/8000;
     TMR2=0;
     IFS0bits.T2IF = 0;          
-    IEC0bits.T2IE = 0; 
+    IEC0bits.T2IE = 1; 
     T2CONbits.TON = 1;
     
     T3CONbits.TON = 0;
@@ -192,7 +193,10 @@ void _ISR_NOPSV _T1Interrupt(void) {
 }
 
 void _ISR_NOPSV _T2Interrupt(void) {
-    _mesuerd_time += 0.001;
+    if(_time_mesuring_started) {
+        _mesuerd_time += 0.001;
+    }
+    display_update(0);
     IFS0bits.T2IF = 0;
 }
 
@@ -213,6 +217,7 @@ void stop_mb_silence_timer()
 {
     IEC0bits.T3IE = 0;
 }
+
 void set_mb_silence_timer_periode(unsigned int periode)
 {
     PR3 = FCY/(8000/periode);
@@ -220,23 +225,22 @@ void set_mb_silence_timer_periode(unsigned int periode)
 
 void start_time_mesuring()
 {
-    IEC0bits.T2IE = 1;
+    _time_mesuring_started = 1;
 }
 
 void stop_time_mesuring()
 {
-    IEC0bits.T2IE = 0;
+    _time_mesuring_started = 0;
 }
 
 void reset_time_mesuring()
 {
     _mesuerd_time = 0;
-    TMR2=0;
 }
 
 bool time_mesuring_started()
 {
-    return IEC0bits.T2IE;
+    return _time_mesuring_started;
 }
 
 float get_mesured_time()

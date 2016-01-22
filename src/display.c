@@ -96,7 +96,7 @@ const uint8_t _segMap[256] = {
     /*  0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F  */
 };
 
-char dispBuff[24] = "4567STUVWXYZ";
+char dispBuff[12] = "------------";
 
 #define A_A 1
 #define A_B 0
@@ -195,34 +195,14 @@ void _set_segment_pattern(uint8_t pattern) {
 }
 
 void display_update(_Bool fullFlag) {
-    static int i;
-    _Bool eol = 0;
+    static int i = 0;
     
-    if (fullFlag) i = 0;
-    for (; i < DISPLAY_COUNT; ++i) {
-        disp_lightup(0);
-
-        char c = dispBuff[i];
-        if(!c) {
-            // EOL reached
-            eol = 1;
-        }
-
-        if(eol) {
-            set_seg_char(' ');
-        } else {
-            set_seg_char(c);
-        }
-
-        set_disp_num(i);
-        disp_lightup(1);
-        __delay32(500);
-        if (!fullFlag) break;
+    set_disp_num(i);
+    set_seg_char(dispBuff[i]);
+    
+    if(++i >= DISPLAY_COUNT) {
+        i = 0;
     }
-    disp_lightup(0);
-    
-    if (!fullFlag)
-        i = (i+1)%DISPLAY_COUNT;
 }
 
 void display_set(const char *str) {

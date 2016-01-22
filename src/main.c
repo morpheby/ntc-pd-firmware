@@ -143,10 +143,7 @@ int16_t main() {
                
         discrete_update();
         perform_data_operations();
-                   
-        // Update display
-        display_update(1);
-                
+                                   
         if(MB.FLASH_WRITE == 1) {
             if(MB.ADDRESS != flash_data_buf_MB_ADDRESS) {
                 // Only perform if the data has changed, spare memory
