@@ -9,7 +9,7 @@
 // System time in nanoseconds
 static _SystemTime _systemTime = {0, 0};
 
-static _Bool _useHighResTimer;
+static float _mesuerd_time = 0;
 
 void timing_init() {
     T1CONbits.TON = 0;      // Turn off Timer 1
@@ -36,28 +36,6 @@ void timing_init() {
     // Start Timer1
     T1CONbits.TON = 1;
 
-/*
-    // Configure Timer2+Timer3 in 32-bit mode
-    T3CONbits.TON = 0;      // Turn off both timers
-    T2CONbits.TON = 0;
-    T2CONbits.T32 = 1;      // Enable 32-bit operation mode
-    T2CONbits.TCS = 0;      // Internal clock source
-    T2CONbits.TGATE = 0;    // Normal operation, not gated
-    T2CONbits.TCKPS = 0b00; // 1:1 Prescale
-
-    // Reset counters
-    timer32_reset();
-    
-    // Set maximum possible period
-    timer32_set_period_raw((uint32_t)-1L);
-
-    // Setup Timer2 interrupts
-    IPC2bits.T3IP = IPL_TIMER32;  // IPL
-    IFS0bits.T3IF = 0;            // Clear interrupt flag
-    IEC0bits.T2IE = 1;            // Set interrupts enable flag
-    
-    // Don't turn on timer32 unless requested explicitly
-    */
     T2CONbits.TON = 0;
     T2CONbits.TCS = 0;
     T2CONbits.TGATE = 0;
@@ -67,7 +45,7 @@ void timing_init() {
     PR2 = FCY/8000;
     TMR2=0;
     IFS0bits.T2IF = 0;          
-    IEC0bits.T2IE = 1; 
+    IEC0bits.T2IE = 0; 
     T2CONbits.TON = 1;
     
     T3CONbits.TON = 0;
@@ -79,34 +57,6 @@ void timing_init() {
     IFS0bits.T3IF = 0;          
     IEC0bits.T3IE = 0;
     T3CONbits.TON = 1;
-}
-
-void timer32_start() {
-    timer32_reset();
-    
-    // When we use timer32, prefer it over main timer for system time value
-    _useHighResTimer = 1;
-    
-    IEC0bits.T3IE = 1;
-    T2CONbits.TON = 1;
-}
-
-void timer32_reset() {
-    TMR3 = 0x00;
-    TMR2 = 0x00;
-}
-
-void timer32_stop() {
-    IEC0bits.T3IE = 0;
-    T2CONbits.TON = 0;
-    
-    _useHighResTimer = 1;
-}
-
-uint32_t timer32_get() {
-    uint32_t val = TMR2;
-    val |= ((uint32_t)TMR3HLD) << 16;
-    return val;
 }
 
 uint16_t timer_get() {
@@ -144,20 +94,6 @@ uint32_t timer_get_period() {
     return timer_get_period_raw() * timer_tick_period_internal(0);
 }
 
-void timer32_set_period_raw(uint32_t period) {
-    PR3 = period >> 16;
-    PR2 = period;
-}
-
-uint32_t timer32_get_period_raw() {
-    return ((uint32_t)PR2) | (((uint32_t)PR3)<<16);
-}
-
-uint32_t timer32_get_period() {
-    return timer_get_period_raw() * timer_tick_period_internal(1);
-    
-}
-
 uint32_t timing_time_add(uint32_t *low, uint32_t *high, uint32_t diff) {
     uint32_t t;
     
@@ -171,20 +107,11 @@ uint32_t timing_time_add(uint32_t *low, uint32_t *high, uint32_t diff) {
     return *low;
 }
 
-/* timerSource: 0 - Timer1 interrupt,
- *              1 - Timer2 interrupt,
- */
-void timing_time_increment(int8_t timerSource) {
+void timing_time_increment() {
     uint32_t incrementValue;
     
-    switch (timerSource) {
-        case 0:
-            incrementValue = timer_get_period();
-            break;
-        case 1:
-            incrementValue = timer32_get_period();
-            break;
-    }
+    incrementValue = timer_get_period();
+
     timing_time_add(
             &(_systemTime.lowDWord),
             &(_systemTime.highDWord),
@@ -196,9 +123,7 @@ _SystemTime timing_get_systime() {
     timing_time_add(
             &(tm.lowDWord),
             &(tm.highDWord),
-            _useHighResTimer
-                ? timer_tick_period_internal(1) * timer32_get()
-                : timer_tick_period_internal(0) * timer_get()
+            timer_tick_period_internal(0) * timer_get()
             );
     return tm;
 }
@@ -256,19 +181,18 @@ void time_sub(_time_t *dst, _time_t sub) {
     dst->nsecs -= sub.nsecs;
 }
 
-static long time_msecs = 0;
 void _ISR_NOPSV _T1Interrupt(void) {
     // Increase system time value
-    if (!_useHighResTimer) {
-        timing_time_increment(0);
-    }
-   ind_showValues();
+    timing_time_increment();
+        
+    ind_showValues();
     disp_draw();
     menu_worker();
     IFS0bits.T1IF = 0;
 }
+
 void _ISR_NOPSV _T2Interrupt(void) {
-    time_msecs++;
+    _mesuerd_time += 0.001;
     IFS0bits.T2IF = 0;
 }
 
@@ -292,4 +216,30 @@ void stop_mb_silence_timer()
 void set_mb_silence_timer_periode(unsigned int periode)
 {
     PR3 = FCY/(8000/periode);
+}
+
+void start_time_mesuring()
+{
+    IEC0bits.T2IE = 1;
+}
+
+void stop_time_mesuring()
+{
+    IEC0bits.T2IE = 0;
+}
+
+void reset_time_mesuring()
+{
+    _mesuerd_time = 0;
+    TMR2=0;
+}
+
+bool time_mesuring_started()
+{
+    return IEC0bits.T2IE;
+}
+
+float get_mesured_time()
+{
+    return _mesuerd_time;
 }

@@ -36,9 +36,6 @@ _PERSISTENT static float adcSquareExpMovingMean[7];
 _PERSISTENT static float diImpPeriodeExpMovingMean[4];
 _PERSISTENT static long diImpTime[4];
 
-_PERSISTENT static long int timer_start_time;
-_PERSISTENT static bool timerOn;
-
 #define FREQ_ALPHA 0.2
 #define FREQ_BETA 0.8
 
@@ -57,8 +54,6 @@ void app_init() {
     disp_set_off(2,1);
     disp_set_off(3,1);
     MB.TimerValue = 0;
-    timerOn = 0;
-    timer_start_time = timing_get_time_msecs();
 }
 
 void perform_data_operations() {
@@ -66,19 +61,18 @@ void perform_data_operations() {
     discrete_set_output(MB.D_Out);
     
     if(PIN_PORT(DI2_PIN_TYPE, DI2_PIN_NUM)){
-        if(!timerOn){
-            timer_start_time = timing_get_time_msecs() - MB.TimerValue * 1000.0f;
-            timerOn = 1;            
+        if(!time_mesuring_started()){
+            start_time_mesuring();            
         }
-        float time = (timing_get_time_msecs() - timer_start_time)*0.001;
+        float time = get_mesured_time();
         if(time < 1000.0f) {
             MB.TimerValue = time;             
         }        
     } else {
-        timerOn = 0;
+        stop_time_mesuring();
     }
     if(PIN_PORT(DI3_PIN_TYPE, DI3_PIN_NUM)) {
-        timer_start_time = timing_get_time_msecs();  
+        reset_time_mesuring();
         MB.TimerValue = 0;
     }
     

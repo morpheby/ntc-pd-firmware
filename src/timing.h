@@ -20,23 +20,9 @@ typedef struct _tagTIME {
 
 void timing_init();
 
-// Timer32
-void timer32_start();
-void timer32_stop();
-void timer32_reset();
-
-uint32_t timer32_get();
-
-// Set interrupt and value clear period in Timer32
-void timer32_set_period_raw(uint32_t period);
-uint32_t timer32_get_period_raw();
-
-uint32_t timer32_get_period(); // Period in nanosecs
-
 _SystemTime timing_get_systime();
 uint32_t timing_get_time_low();
 uint32_t timing_get_time_msecs();
-
 
 // Main timer
 uint16_t timer_get();
@@ -63,6 +49,12 @@ void time_sub(_time_t *dst, _time_t sub);
 void start_mb_silence_timer();
 void stop_mb_silence_timer();
 void set_mb_silence_timer_periode(unsigned int periode);
+
+void start_time_mesuring();
+void stop_time_mesuring();
+void reset_time_mesuring();
+bool time_mesuring_started();
+float get_mesured_time();
 
 #endif	/* TIMING_H */
 
