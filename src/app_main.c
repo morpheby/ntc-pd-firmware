@@ -32,6 +32,7 @@
  */
 
 _PERSISTENT static Filter *adcInputFilter;
+_PERSISTENT static float adcExpMovingMean[7];
 _PERSISTENT static float adcSquareExpMovingMean[7];
 _PERSISTENT static float diImpPeriodeExpMovingMean[4];
 _PERSISTENT static long diImpTime[4];
@@ -44,6 +45,7 @@ void app_init() {
     adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
     uint8_t i;
     for(i = 0; i < 7; ++i) {
+        adcExpMovingMean[i] = 0;
         adcSquareExpMovingMean[i] = 0;
     }
     for(i = 0; i < 4; ++i) {
@@ -95,13 +97,15 @@ void perform_data_operations() {
     for(i = 0; i < 7; ++i){
         adcSourceValuesPtr[i] = filter_get(adcInputFilter, i);
         adcValuesPtr[i] = (adcSourceValuesPtr[i]-adcOffsetsPtr[i])*adcCoefsPtr[i];
-        avgValuesPtr[i] = adcValuesPtr[i] * alpha + beta*avgValuesPtr[i];
-        adcSquareExpMovingMean[i] = adcValuesPtr[i] * adcValuesPtr[i] * alpha + beta*adcSquareExpMovingMean[i];
-        float sign = 1.0;
-        if(fabs(avgValuesPtr[i]) > fabs(rmsSignThreshPtr[i]) && avgValuesPtr[i] < 0){
-            sign = -1.0;
+        adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
+        avgValuesPtr[i] = (adcExpMovingMean[i] - adcOffsetsPtr[i])*adcCoefsPtr[i];
+        adcSquareExpMovingMean[i] = ((long)adcSourceValuesPtr[i] * adcSourceValuesPtr[i]) * alpha + beta*adcSquareExpMovingMean[i];
+       
+        if(fabs(avgValuesPtr[i]) > fabs(rmsSignThreshPtr[i])){          
+            rmsValuesPtr[i] = (sqrt(adcSquareExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i];
+        } else {
+            rmsValuesPtr[i] = fabs((sqrt(adcSquareExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i]);            
         }
-        rmsValuesPtr[i] = sqrt(adcSquareExpMovingMean[i])*sign;
     }
   
     MB.P1 = MB.M0_value*MB.M1_value*MB.P1_coef*alpha + beta*MB.P1;
