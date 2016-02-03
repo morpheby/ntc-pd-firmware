@@ -102,11 +102,14 @@ void perform_data_operations() {
         avgValuesPtr[i] = (adcExpMovingMean[i] - adcOffsetsPtr[i])*adcCoefsPtr[i];
         adcSquareExpMovingMean[i] = (offsetedValue * offsetedValue) * alpha + beta*adcSquareExpMovingMean[i];
        
-        if(fabs(avgValuesPtr[i]) > fabs(rmsSignThreshPtr[i])){          
-            rmsValuesPtr[i] = sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i];
-        } else {
-            rmsValuesPtr[i] = fabs(sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i]);            
+        float rms = sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i];
+        float avg_rms_ratio = fabs(avgValuesPtr[i]/rms);
+        
+        if(avg_rms_ratio > rmsSignThreshPtr[i] && avgValuesPtr[i] < 0)
+        {          
+            rms = -rms;
         }
+        rmsValuesPtr[i] = rms;
     }
   
     MB.P1 = MB.M0_value*MB.M1_value*MB.P1_coef*alpha + beta*MB.P1;

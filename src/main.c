@@ -50,7 +50,7 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //
                                                                      DEFAULT_IND_PROFILE,
                                                                      DEFAULT_IND_PROFILE, 
                                                                      DEFAULT_IND_PROFILE};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f,10000.0f};
+float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {0.6f,0.6f,0.6f,0.6f,0.6f,0.6f,0.6f};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_POWER_COEFS[3] = {1.0f,1.0f,1.0f};
 
 /******************************************************************************/
