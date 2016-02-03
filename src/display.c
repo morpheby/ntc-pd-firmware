@@ -196,7 +196,9 @@ void _set_segment_pattern(uint8_t pattern) {
 
 void display_update(_Bool fullFlag) {
     static int i = 0;
-    
+        
+    set_seg_char(' ');
+    __delay32(12);
     set_disp_num(i);
     set_seg_char(dispBuff[i]);
     
