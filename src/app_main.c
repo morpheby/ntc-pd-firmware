@@ -192,9 +192,9 @@ CNI_DECL_PROC_FN(30, on) {
     static bool prev = 0;
     if(on != prev) 
     {   
-        MB.DI1_ImpCount++;
         prev = on;
         if(on) {
+            MB.DI1_ImpCount++;
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[1]);
             if(dt < DI_IMP_TIMEOUT_MS) {
@@ -211,10 +211,9 @@ CNI_DECL_PROC_FN(30, on) {
 CNI_DECL_PROC_FN(10, on) {
     static bool prev = 0;
     if(on != prev) 
-    {   
-        MB.DI2_ImpCount++;
-        prev = on;
+    {   prev = on;
         if(on) {
+            MB.DI2_ImpCount++;
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[2]);
             if(dt < DI_IMP_TIMEOUT_MS) {
@@ -233,9 +232,9 @@ CNI_DECL_PROC_FN(9, on) {
     static bool prev = 0;
     if(on != prev) 
     {   
-        MB.DI3_ImpCount++;
         prev = on;
         if(on) {
+            MB.DI3_ImpCount++;
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[3]);
             if(dt < DI_IMP_TIMEOUT_MS) {
