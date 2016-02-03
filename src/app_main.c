@@ -96,15 +96,16 @@ void perform_data_operations() {
     
     for(i = 0; i < 7; ++i){
         adcSourceValuesPtr[i] = filter_get(adcInputFilter, i);
-        adcValuesPtr[i] = (adcSourceValuesPtr[i]-adcOffsetsPtr[i])*adcCoefsPtr[i];
+        long offsetedValue = adcSourceValuesPtr[i]-adcOffsetsPtr[i];
+        adcValuesPtr[i] = (offsetedValue)*adcCoefsPtr[i];
         adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
         avgValuesPtr[i] = (adcExpMovingMean[i] - adcOffsetsPtr[i])*adcCoefsPtr[i];
-        adcSquareExpMovingMean[i] = ((long)adcSourceValuesPtr[i] * adcSourceValuesPtr[i]) * alpha + beta*adcSquareExpMovingMean[i];
+        adcSquareExpMovingMean[i] = (offsetedValue * offsetedValue) * alpha + beta*adcSquareExpMovingMean[i];
        
         if(fabs(avgValuesPtr[i]) > fabs(rmsSignThreshPtr[i])){          
-            rmsValuesPtr[i] = (sqrt(adcSquareExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i];
+            rmsValuesPtr[i] = sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i];
         } else {
-            rmsValuesPtr[i] = fabs((sqrt(adcSquareExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i]);            
+            rmsValuesPtr[i] = fabs(sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i]);            
         }
     }
   
@@ -224,7 +225,6 @@ CNI_DECL_PROC_FN(10, on) {
     }
 }
 #endif
-
 
 #if COUNT_DI3_IMP_FREQUENCY
 //DI3 impulse counter
