@@ -172,9 +172,9 @@ CNI_DECL_PROC_FN(29, on) {
     static bool prev = 0;
     if(on != prev) 
     {
-        MB.DI0_ImpCount++;
         prev = on;
         if(on) {
+            MB.DI0_ImpCount++;
             long time = timing_get_time_msecs();
             long dt = (time - diImpTime[0]);
             if(dt < DI_IMP_TIMEOUT_MS) {
