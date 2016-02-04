@@ -111,6 +111,7 @@ struct modbus_t {
     unsigned int ind_0_4;       //REG 120
     unsigned int ind_1_4;       //REG 121
     unsigned int ind_2_4;      //REG 122
+    
     float TimerValue; //REG 123 REG 124
     
     float M0_RMS_sign_threshold; //REG 125 REG 126

@@ -45,6 +45,7 @@ _PERSISTENT static long diImpTime[4];
 void app_init() {
     uint8_t i;
     for(i = 0; i < 7; ++i) {
+        adcSourceValuesPtr[i] = 0;
         adcExpMovingMean[i] = 0;
         adcSquareExpMovingMean[i] = 0;
     }
@@ -101,7 +102,7 @@ void perform_data_operations() {
     static float *rmsValuesPtr = &MB.M0_RMS;  
     static float *rmsSignThreshPtr = &MB.M0_RMS_sign_threshold;
     
-    for(i = 0; i < 7; ++i){
+    for(i = 0; i < 7; ++i) {
         long offsetedValue = adcSourceValuesPtr[i]-adcOffsetsPtr[i];
         adcValuesPtr[i] = (offsetedValue)*adcCoefsPtr[i];
         adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
