@@ -59,6 +59,14 @@ void app_init() {
     MB.TimerValue = 0;
 }
 
+int round(float value) {
+    int result = (int) value;
+   /* if(value - result >= 0.5) {
+        result++;
+    }*/
+    return result;
+}
+
 void perform_data_operations() {
     MB.D_In = discrete_get_input();
     discrete_set_output(MB.D_Out);
@@ -99,10 +107,10 @@ void perform_data_operations() {
         long offsetedValue = adcSourceValuesPtr[i]-adcOffsetsPtr[i];
         adcValuesPtr[i] = (offsetedValue)*adcCoefsPtr[i];
         adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
-        avgValuesPtr[i] = (adcExpMovingMean[i] - adcOffsetsPtr[i])*adcCoefsPtr[i];
+        avgValuesPtr[i] = (round(adcExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i];
         adcSquareExpMovingMean[i] = (offsetedValue * offsetedValue) * alpha + beta*adcSquareExpMovingMean[i];
        
-        float rms = sqrt(adcSquareExpMovingMean[i])*adcCoefsPtr[i];
+        float rms = round(sqrt(adcSquareExpMovingMean[i]))*adcCoefsPtr[i];
         float avg_rms_ratio = fabs(avgValuesPtr[i]/rms);
         
         if(avg_rms_ratio > rmsSignThreshPtr[i] && avgValuesPtr[i] < 0)
