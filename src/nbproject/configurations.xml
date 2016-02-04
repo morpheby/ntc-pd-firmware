@@ -29,7 +29,6 @@
       <itemPath>app_connector.h</itemPath>
       <itemPath>app_main.h</itemPath>
       <itemPath>modbus_registers.h</itemPath>
-      <itemPath>filter.h</itemPath>
       <itemPath>quadrature_encoder.h</itemPath>
       <itemPath>PWM.h</itemPath>
       <itemPath>ind_profiles.h</itemPath>
@@ -77,7 +76,6 @@
       <itemPath>menu.c</itemPath>
       <itemPath>app_main.c</itemPath>
       <itemPath>app_connector.c</itemPath>
-      <itemPath>filter.c</itemPath>
       <itemPath>quadrature_encoder.c</itemPath>
       <itemPath>PWM.c</itemPath>
       <itemPath>ind_profiles.c</itemPath>

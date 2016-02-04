@@ -24,14 +24,13 @@
 #include  "menu-base.h"
 #include "PWM.h"
 #include "ind_profiles.h"
-#include "filter.h"
 
 /*
  * This file contains functions, being called from every module upon some
  * events. Use this module for all application-specific tasks.
  */
 
-_PERSISTENT static Filter *adcInputFilter;
+_PERSISTENT static int *adcSourceValuesPtr = &MB.ADC_M0;
 _PERSISTENT static float adcExpMovingMean[7];
 _PERSISTENT static float adcSquareExpMovingMean[7];
 _PERSISTENT static float diImpPeriodeExpMovingMean[4];
@@ -39,10 +38,11 @@ _PERSISTENT static long diImpTime[4];
 
 #define FREQ_ALPHA 0.2
 #define FREQ_BETA 0.8
+#define RAW_ADC_FILTER_ALPHA 0.8
+#define RAW_ADC_FILTER_BETA 0.2
 #define DI_IMP_TIMEOUT_MS 3000
 
 void app_init() {
-    adcInputFilter = filter_create(7, FilterTypeMovingMean, 4);
     uint8_t i;
     for(i = 0; i < 7; ++i) {
         adcExpMovingMean[i] = 0;
@@ -61,9 +61,9 @@ void app_init() {
 
 int round(float value) {
     int result = (int) value;
-   /* if(value - result >= 0.5) {
+    if(value - result >= 0.5) {
         result++;
-    }*/
+    }
     return result;
 }
 
@@ -94,7 +94,6 @@ void perform_data_operations() {
     float beta = 1.0f-alpha;
     
     uint8_t i;
-    static int *adcSourceValuesPtr = &MB.ADC_M0;
     static int *adcOffsetsPtr = &MB.M0_OFFSET;
     static float *adcCoefsPtr = &MB.M0_Coef;
     static float *adcValuesPtr = &MB.M0_value; 
@@ -103,14 +102,13 @@ void perform_data_operations() {
     static float *rmsSignThreshPtr = &MB.M0_RMS_sign_threshold;
     
     for(i = 0; i < 7; ++i){
-        adcSourceValuesPtr[i] = filter_get(adcInputFilter, i);
         long offsetedValue = adcSourceValuesPtr[i]-adcOffsetsPtr[i];
         adcValuesPtr[i] = (offsetedValue)*adcCoefsPtr[i];
         adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
         avgValuesPtr[i] = (round(adcExpMovingMean[i]) - adcOffsetsPtr[i])*adcCoefsPtr[i];
         adcSquareExpMovingMean[i] = (offsetedValue * offsetedValue) * alpha + beta*adcSquareExpMovingMean[i];
        
-        float rms = round(sqrt(adcSquareExpMovingMean[i]))*adcCoefsPtr[i];
+        float rms = ((int)sqrt(adcSquareExpMovingMean[i]))*adcCoefsPtr[i];
         float avg_rms_ratio = fabs(avgValuesPtr[i]/rms);
         
         if(avg_rms_ratio > rmsSignThreshPtr[i] && avgValuesPtr[i] < 0)
@@ -175,7 +173,7 @@ void perform_data_operations() {
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
-    filter_put(adcInputFilter, value, channel);
+    adcSourceValuesPtr[channel] = value * RAW_ADC_FILTER_ALPHA + adcSourceValuesPtr[channel]*RAW_ADC_FILTER_BETA;
 }
 
 #if COUNT_DI0_IMP_FREQUENCY

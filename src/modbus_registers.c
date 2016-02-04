@@ -1,7 +1,6 @@
 #include <string.h>
 
 #include "modbus_registers.h"
-#include "filter.h"
 
 struct modbus_t MB;
 
