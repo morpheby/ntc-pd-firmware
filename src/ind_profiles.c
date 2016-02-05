@@ -12,7 +12,7 @@
 #define REG_TYPE_FLOAT 2
 
 static uint16_t indDelayCounter = 0;
-static char dispBuff[12] = "------------";
+static char dispBuff[DISPLAY_COUNT+1];
 
 static int dispMaxValue = 9999;
 static int dispMinValue = -999;
@@ -29,6 +29,11 @@ void ind_init()
         dispMaxValue = dispMaxValue * 10 + 9;
     }
     dispMinValue = -dispMaxValue / 10;
+    
+    for(i = 0; i < DISPLAY_COUNT; ++i) {
+        dispBuff[i] = '-';
+    }
+    display_set(dispBuff);
 }
 
 void ind_showValues()
@@ -83,7 +88,7 @@ void ind_showValues()
     
     if(DISPLAY_COUNT/CHARS_IN_SECTION > 2) {
         //show value on display #2
-        setDisplayData(2, ind2_profile);        
+        setDisplayData(2, ind0_profile);        
     }  
     display_set(dispBuff);
 }
@@ -97,7 +102,7 @@ void setDisplayData(uint8_t dispNum, uint16_t profile)
         if(reg_type == REG_TYPE_FLOAT) {
             uint8_t point = profile & 0x000F;
             float value = modbus_get_reg_f(regNumber);
-            ind_putf(0, value, point);
+            ind_putf(dispNum, value, point);
         } else if(reg_type == REG_TYPE_UINT)
         {
             ind_puti(dispNum, modbus_get_reg_u16(regNumber));
@@ -155,10 +160,10 @@ void displayNumber(uint8_t dispNum, int displayableValue, int displayablePrecisi
         displayableValue = abs_fast(displayableValue);
     }
     int pointPos = pos + CHARS_IN_SECTION - displayablePrecision-1;
-    for(i = pos + CHARS_IN_SECTION - 1; i >=0; --i) {
+    for(i = CHARS_IN_SECTION - 1; i >=0; --i) {
         int valueNumber = displayableValue % 10;
         
-        if(valueNumber >= 0 && (displayableValue > 0 || i >= pointPos)) {
+        if(valueNumber >= 0 && (displayableValue > 0 || pos + i >= pointPos)) {
             dispBuff[pos+i] = valueNumber + '0';
         } else {
             dispBuff[pos+i] = ' ';

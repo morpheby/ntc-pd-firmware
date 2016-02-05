@@ -134,8 +134,8 @@ int16_t main() {
     app_init();
     uint16_t *tmpPtr;
     // Main cycle
-    while (1) {
-               
+    while (1) {              
+        ind_showValues(); 
         display_update(0);
         discrete_update();
         perform_data_operations();

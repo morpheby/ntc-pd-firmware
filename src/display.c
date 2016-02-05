@@ -96,7 +96,8 @@ const uint8_t _segMap[256] = {
     /*  0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F  */
 };
 
-char dispBuff[12] = "------------";
+char dispBuff[DISPLAY_COUNT+1];
+_PERSISTENT static bool lock = 0;
 
 #define A_A 1
 #define A_B 0
@@ -195,6 +196,9 @@ void _set_segment_pattern(uint8_t pattern) {
 }
 
 void display_update(_Bool fullFlag) {
+    if(lock) {
+        return;
+    }
     static int i = 0;
         
     set_seg_char(' ');
@@ -208,7 +212,9 @@ void display_update(_Bool fullFlag) {
 }
 
 void display_set(const char *str) {
-    strncpy(dispBuff, str, 12);
+    lock = 1;
+    strncpy(dispBuff, str, DISPLAY_COUNT+1);
+    lock = 0;
 }
 
 /******************************************************************************/
