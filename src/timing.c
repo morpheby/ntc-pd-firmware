@@ -184,7 +184,8 @@ void time_sub(_time_t *dst, _time_t sub) {
 void _ISR_NOPSV _T1Interrupt(void) {
     // Increase system time value
     timing_time_increment();
-      
+       
+    ind_showValues(); 
     menu_worker();
     IFS0bits.T1IF = 0;
 }

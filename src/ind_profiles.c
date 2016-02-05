@@ -12,7 +12,7 @@
 #define REG_TYPE_FLOAT 2
 
 static uint16_t indDelayCounter = 0;
-static char dispBuff[DISPLAY_COUNT+1];
+static char dispBuff[DISPLAY_COUNT];
 
 static int dispMaxValue = 9999;
 static int dispMinValue = -999;
