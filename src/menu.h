@@ -9,7 +9,6 @@
 #define	MENU_H
 
 #include "system.h"
-#include "menu-base.h"
 
 typedef enum tagMENUWORKREASON {
     _mWrkTimer,

@@ -21,7 +21,6 @@
 #include <stdlib.h>
 
 #include "quadrature_encoder.h"
-#include  "menu-base.h"
 #include "PWM.h"
 #include "ind_profiles.h"
 
@@ -54,9 +53,6 @@ void app_init() {
         diImpTime[i] = 0;
     }
     initQEI();
-    disp_set_off(1,1);
-    disp_set_off(2,1);
-    disp_set_off(3,1);
     MB.TimerValue = 0;
 }
 

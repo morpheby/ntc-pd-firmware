@@ -208,7 +208,7 @@ void display_update(_Bool fullFlag) {
 }
 
 void display_set(const char *str) {
-    strncpy(dispBuff, str, 24);
+    strncpy(dispBuff, str, 12);
 }
 
 /******************************************************************************/

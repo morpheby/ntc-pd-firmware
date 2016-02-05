@@ -12,13 +12,13 @@
 #include "timing.h"
 #include "app_connector.h"
 #include "display.h"
-#include "menu-base.h"
 
 #include "modbus.h"
 #include "ADC.h"
 #include "math.h"
 #include "D_I_O.h"
 #include "modbus_registers.h"
+#include "ind_profiles.h"
 
 
 /******************************************************************************/
@@ -69,8 +69,7 @@ int16_t main() {
     /* Initialize display */
     disp_init();
     
-    /* Initialize menu-base */
-    disp_config();
+    ind_init();
     
     /* Initialize Change-notification inputs */
     cni_init();
@@ -137,6 +136,7 @@ int16_t main() {
     // Main cycle
     while (1) {
                
+        display_update(0);
         discrete_update();
         perform_data_operations();
                                    

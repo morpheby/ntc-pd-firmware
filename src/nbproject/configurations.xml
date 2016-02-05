@@ -24,7 +24,6 @@
       <itemPath>board-config.h</itemPath>
       <itemPath>timing.h</itemPath>
       <itemPath>display.h</itemPath>
-      <itemPath>menu-base.h</itemPath>
       <itemPath>menu.h</itemPath>
       <itemPath>app_connector.h</itemPath>
       <itemPath>app_main.h</itemPath>
@@ -72,7 +71,6 @@
       <itemPath>flash_store.c</itemPath>
       <itemPath>display.c</itemPath>
       <itemPath>timing.c</itemPath>
-      <itemPath>menu-base.c</itemPath>
       <itemPath>menu.c</itemPath>
       <itemPath>app_main.c</itemPath>
       <itemPath>app_connector.c</itemPath>

@@ -1,6 +1,5 @@
 #include "timing.h"
 #include "ipl-config.h"
-#include "menu-base.h"
 #include "menu.h"
 #include "util.h"
 
@@ -185,9 +184,8 @@ void time_sub(_time_t *dst, _time_t sub) {
 void _ISR_NOPSV _T1Interrupt(void) {
     // Increase system time value
     timing_time_increment();
-        
+      
     ind_showValues();
-    disp_draw();
     menu_worker();
     IFS0bits.T1IF = 0;
 }
@@ -196,7 +194,6 @@ void _ISR_NOPSV _T2Interrupt(void) {
     if(_time_mesuring_started) {
         _mesuerd_time += 0.001;
     }
-    display_update(0);
     IFS0bits.T2IF = 0;
 }
 
