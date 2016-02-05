@@ -29,7 +29,7 @@
  * events. Use this module for all application-specific tasks.
  */
 
-_PERSISTENT static int *adcSourceValuesPtr = &MB.ADC_M0;
+_PERSISTENT static int adcRawFilter[7];
 _PERSISTENT static float adcExpMovingMean[7];
 _PERSISTENT static float adcSquareExpMovingMean[7];
 _PERSISTENT static float diImpPeriodeExpMovingMean[4];
@@ -44,7 +44,7 @@ _PERSISTENT static long diImpTime[4];
 void app_init() {
     uint8_t i;
     for(i = 0; i < 7; ++i) {
-        adcSourceValuesPtr[i] = 0;
+        adcRawFilter[i] = 0;
         adcExpMovingMean[i] = 0;
         adcSquareExpMovingMean[i] = 0;
     }
@@ -91,6 +91,7 @@ void perform_data_operations() {
     float beta = 1.0f-alpha;
     
     uint8_t i;
+    static int *adcSourceValuesPtr = &MB.ADC_M0;
     static int *adcOffsetsPtr = &MB.M0_OFFSET;
     static float *adcCoefsPtr = &MB.M0_Coef;
     static float *adcValuesPtr = &MB.M0_value; 
@@ -99,6 +100,7 @@ void perform_data_operations() {
     static float *rmsSignThreshPtr = &MB.M0_RMS_sign_threshold;
     
     for(i = 0; i < 7; ++i) {
+        adcSourceValuesPtr[i] = adcRawFilter[i];
         long offsetedValue = adcSourceValuesPtr[i]-adcOffsetsPtr[i];
         adcValuesPtr[i] = (offsetedValue)*adcCoefsPtr[i];
         adcExpMovingMean[i] = adcSourceValuesPtr[i]*alpha + adcExpMovingMean[i]*beta;
@@ -170,7 +172,7 @@ void perform_data_operations() {
 }
 
 ADC_DECL_VALUE_FN(channel, value) {
-    adcSourceValuesPtr[channel] = value * RAW_ADC_FILTER_ALPHA + adcSourceValuesPtr[channel]*RAW_ADC_FILTER_BETA;
+    adcRawFilter[channel] = value * RAW_ADC_FILTER_ALPHA + adcRawFilter[channel]*RAW_ADC_FILTER_BETA;
 }
 
 #if COUNT_DI0_IMP_FREQUENCY
