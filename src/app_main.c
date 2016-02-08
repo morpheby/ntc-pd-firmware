@@ -35,8 +35,8 @@ _PERSISTENT static float adcSquareExpMovingMean[7];
 _PERSISTENT static float diImpPeriodeExpMovingMean[4];
 _PERSISTENT static long diImpTime[4];
 
-#define FREQ_ALPHA 0.2
-#define FREQ_BETA 0.8
+#define FREQ_ALPHA 0.1
+#define FREQ_BETA 0.9
 #define RAW_ADC_FILTER_ALPHA 0.8
 #define RAW_ADC_FILTER_BETA 0.2
 #define DI_IMP_TIMEOUT_MS 3000
