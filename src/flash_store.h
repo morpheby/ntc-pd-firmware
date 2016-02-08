@@ -41,6 +41,7 @@ void flash_init();
  *  }
  *
  */
+void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value);
 void flash_set(unsigned char page, unsigned int offset, uint16_t value);
 
 void flash_set_data(unsigned char page, unsigned int startOffset,
