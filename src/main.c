@@ -1,4 +1,7 @@
 /******************************************************************************/
+
+#include "system.h"
+
 /* Files to Include                                                           */
 /******************************************************************************/
 
@@ -51,6 +54,8 @@ unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //
                                                                      DEFAULT_IND_PROFILE};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {0.6f,0.6f,0.6f,0.6f,0.6f,0.6f,0.6f};
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_POWER_COEFS[3] = {1.0f,1.0f,1.0f};
+
+void saveParams();
 
 /******************************************************************************/
 /* Main Program                                                               */
@@ -132,7 +137,7 @@ int16_t main() {
     }
     
     app_init();
-    uint16_t *tmpPtr;
+    
     // Main cycle
     while (1) {             
         display_update(0);
@@ -140,90 +145,11 @@ int16_t main() {
         perform_data_operations();
                                    
         if(MB.FLASH_WRITE == 1) {
-            if(MB.ADDRESS != flash_data_buf_MB_ADDRESS) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_MB_ADDRESS), FLASH_GETOFFSET(&flash_data_buf_MB_ADDRESS),
-                        MB.ADDRESS);                 
-            }
-            if(MB.BAUD_RATE != flash_data_buf_BAUD_RATE) {
-                tmpPtr = &MB.BAUD_RATE;
-                flash_set(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE),
-                        tmpPtr[0]);
-                flash_set(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE)+2,
-                        tmpPtr[1]);                 
-            }
-            for(i = 0; i < 7; ++i) {
-                if(offsetPtr[i] != flash_data_buf_ADC_OFFSET[i])
-                {
-                    // Only perform if the data has changed, spare memory
-                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_OFFSET), FLASH_GETAOFFSET(flash_data_buf_ADC_OFFSET, i),
-                            offsetPtr[i]);
-                }  
-                if(coefPtr[i] != flash_data_buf_ADC_COEF[i])
-                {
-                    tmpPtr = coefPtr+i;
-                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i)+2,
-                            tmpPtr[1]);
-                }    
-                if(rmsSignThresholdPtr[i] != flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i])
-                {
-                    tmpPtr = rmsSignThresholdPtr+i;
-                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i)+2,
-                            tmpPtr[1]);
-                }                   
-            }
-            if(MB.N != flash_data_buf_N) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N), MB.N);                 
-            }
-            if(MB.D_OutInit != flash_data_buf_D_OUT_INIT) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_D_OUT_INIT), FLASH_GETOFFSET(&flash_data_buf_D_OUT_INIT), MB.D_OutInit);                 
-            }
-            for(i = 0; i < 4; ++i) { 
-                if(DICoefPtr[i] != flash_data_buf_DI_FREQ_COEF[i])
-                {
-                    tmpPtr = DICoefPtr+i;
-                    flash_set(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i)+2,
-                            tmpPtr[1]);
-                }                      
-            }
-            if(MB.disk_imp_count != flash_data_buf_DISK_IMP_COUNT) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_DISK_IMP_COUNT), FLASH_GETOFFSET(&flash_data_buf_DISK_IMP_COUNT), MB.disk_imp_count);                 
-            }
-            if(MB.Ind_Delay != flash_data_buf_IND_DELAY) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_IND_DELAY), FLASH_GETOFFSET(&flash_data_buf_IND_DELAY), MB.Ind_Delay);                 
-            }
-            if(MB.PROF_CHANGE_SOURCE != flash_data_buf_PROF_CHANGE_SOURCE) {
-                // Only perform if the data has changed, spare memory
-                flash_set(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE), MB.PROF_CHANGE_SOURCE);                 
-            }
-            for(i = 0; i < 13; ++i) {
-                if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
-                    // Only perform if the data has changed, spare memory
-                    flash_set(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i),
-                            indProfilesPtr[i]);                    
-                }
-            }
-            for(i = 0; i < 3; ++i) { 
-                if(powerCoefsPtr[i] != flash_data_buf_POWER_COEFS[i])
-                {
-                    tmpPtr = powerCoefsPtr+i;
-                    flash_set(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i),
-                            tmpPtr[0]);
-                    flash_set(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i)+2,
-                            tmpPtr[1]);
-                }                      
-            }
-            flash_write();
+            
+            SYSHANDLE hp = high_priority_enter();
+            saveParams();
+            high_priority_exit(hp);
+            
             MB.FLASH_WRITE = 0;
         }
         
@@ -234,5 +160,85 @@ int16_t main() {
                             
         // Clear WDT flag to indicate normal operation
         wdt_clr();
+    }
+}
+void saveParams()
+{
+    uint16_t *tmpPtr;
+    int *offsetPtr = &MB.M0_OFFSET;
+    float *coefPtr = &MB.M0_Coef;
+    float *rmsSignThresholdPtr = &MB.M0_RMS_sign_threshold;
+    float *DICoefPtr = &MB.DI0_ImpFreqCoef;
+    unsigned int *indProfilesPtr = &MB.profile;
+    float *powerCoefsPtr = &MB.P1_coef;
+    
+    int i;
+    
+    if(MB.ADDRESS != flash_data_buf_MB_ADDRESS) {
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_MB_ADDRESS), FLASH_GETOFFSET(&flash_data_buf_MB_ADDRESS),
+                MB.ADDRESS);                 
+        }
+    if(MB.BAUD_RATE != flash_data_buf_BAUD_RATE) {
+        tmpPtr = &MB.BAUD_RATE;
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE),
+                tmpPtr[0]);
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE)+2,
+                tmpPtr[1]);                 
+        }
+    for(i = 0; i < 7; ++i) {
+        if(offsetPtr[i] != flash_data_buf_ADC_OFFSET[i])
+        {
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_OFFSET), FLASH_GETAOFFSET(flash_data_buf_ADC_OFFSET, i),
+                    offsetPtr[i]);
+        }  
+        if(coefPtr[i] != flash_data_buf_ADC_COEF[i])
+        {
+            tmpPtr = coefPtr+i;
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i), tmpPtr[0]);
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i)+2, tmpPtr[1]);
+        }    
+        if(rmsSignThresholdPtr[i] != flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i])
+        {
+            tmpPtr = rmsSignThresholdPtr+i;
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i), tmpPtr[0]);
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i)+2, tmpPtr[1]);
+        }                   
+    }
+    
+    if(MB.N != flash_data_buf_N) {
+            flash_write_direct(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N), MB.N);                 
+    }
+    if(MB.D_OutInit != flash_data_buf_D_OUT_INIT) {
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_D_OUT_INIT), FLASH_GETOFFSET(&flash_data_buf_D_OUT_INIT), MB.D_OutInit);                 
+    }
+    for(i = 0; i < 4; ++i) { 
+        if(DICoefPtr[i] != flash_data_buf_DI_FREQ_COEF[i])
+        {
+            tmpPtr = DICoefPtr+i;
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i), tmpPtr[0]);
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i)+2, tmpPtr[1]);
+        }                      
+    }
+    if(MB.disk_imp_count != flash_data_buf_DISK_IMP_COUNT) {
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_DISK_IMP_COUNT), FLASH_GETOFFSET(&flash_data_buf_DISK_IMP_COUNT), MB.disk_imp_count);                 
+    }
+    if(MB.Ind_Delay != flash_data_buf_IND_DELAY) {
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_IND_DELAY), FLASH_GETOFFSET(&flash_data_buf_IND_DELAY), MB.Ind_Delay);                 
+    }
+    if(MB.PROF_CHANGE_SOURCE != flash_data_buf_PROF_CHANGE_SOURCE) {
+        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE), MB.PROF_CHANGE_SOURCE);                 
+    }
+    for(i = 0; i < 13; ++i) {
+        if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i), indProfilesPtr[i]);                    
+        }
+    }
+    for(i = 0; i < 3; ++i) { 
+        if(powerCoefsPtr[i] != flash_data_buf_POWER_COEFS[i])
+        {
+            tmpPtr = powerCoefsPtr+i;
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i), tmpPtr[0]);
+            flash_write_direct(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i)+2, tmpPtr[1]);
+        }                      
     }
 }

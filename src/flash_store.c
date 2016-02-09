@@ -325,6 +325,13 @@ void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value)
      
     flash_readpage(page, offset);
     
+    // While we will be rewriting page, some parts of program may become invalid
+    // Ensure we are not erasing this exact function
+    if(FLASH_GETPAGE(flash_write_direct) == page &&
+       (FLASH_GETOFFSET(flash_write_direct) ^ dataOffset) < FLASH_PAGE){
+        return;
+    }
+    
     flash_erase_page(page, offset);
     
     int i;
