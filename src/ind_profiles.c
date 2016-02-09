@@ -168,7 +168,7 @@ void displayNumber(uint8_t dispNum, int displayableValue, int displayablePrecisi
         } else {
             dispBuff[pos+i] = ' ';
             if(minusPos == 0) {
-                minusPos = pos+i;
+                minusPos = i;
             }
         }
         displayableValue /= 10;
