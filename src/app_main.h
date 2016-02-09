@@ -18,9 +18,6 @@
 // Use CN module
 #define APP_USE_CN              1
 
-// Use interactive menu
-#define APP_USE_MENU            0
-
 // Use modbus dynamic addressing extensions
 #define APP_USE_MODBUS_EXT      1
 

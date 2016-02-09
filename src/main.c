@@ -84,10 +84,7 @@ int16_t main() {
 
     // Select Internal FRC with PLL
     osc_select(oscBoosted);
-    
-    /* Initialize RTSP */
-    flash_init();
-    
+        
     /* Initialize modbus registers */
     modbus_regs_init();
     
@@ -162,6 +159,13 @@ int16_t main() {
         wdt_clr();
     }
 }
+
+ /* NOTE:
+ *    Flashing operation COMPLETELY locks device for some time. Even software
+ *    resets (including MCLR) will not work while flashing is in progress (not
+ *    even minding interrupts). Ensure user will not power off the device until
+ *    the operation completes.
+ */
 void saveParams()
 {
     uint16_t *tmpPtr;

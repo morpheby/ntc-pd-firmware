@@ -1,6 +1,5 @@
 #include "timing.h"
 #include "ipl-config.h"
-#include "menu.h"
 #include "util.h"
 
 #define MAIN_TIMER_PERIOD_DFLT 65535
@@ -186,7 +185,6 @@ void _ISR_NOPSV _T1Interrupt(void) {
     timing_time_increment();
        
     ind_showValues(); 
-    menu_worker();
     IFS0bits.T1IF = 0;
 }
 

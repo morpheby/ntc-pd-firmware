@@ -23,12 +23,10 @@
 #   define _FLASH_STORE __attribute__((space(auto_psv)))
 #endif
 
-void flash_init();
-
 /*
- * flash_set(page, offset, value)
+ * flash_write_direct(page, offset, value)
  * 
- * Queues write of a value val to the variable, specified
+ * write of a value to the variable, specified
  * by page and offset. Variable shall be declared
  * with _FLASH_STORE.
  * 
@@ -39,34 +37,14 @@ void flash_init();
  *     flash_write();
  *     return 0;
  *  }
- *
- */
-void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value);
-void flash_set(unsigned char page, unsigned int offset, uint16_t value);
-
-void flash_set_data(unsigned char page, unsigned int startOffset,
-        size_t size, unsigned int *data);
-
-/*
- * flash_write()
- *
- * Flashes all queued writes.
- *
- * Return value:
- *   0   -   Operation succeeded
- *  -1   -   Conflicting flashing operation is pending. Fork and wait, or try
- *           again later
- *  -2   -   Error starting flashing operation. Probably runtime
- *           self-programming was blocked in device configuration
- *  -3   -   Unknown reason. Stored data may be invalid
- *
  * NOTE:
  *    Flashing operation COMPLETELY locks device for some time. Even software
  *    resets (including MCLR) will not work while flashing is in progress (not
  *    even minding interrupts). Ensure user will not power off the device until
  *    the operation completes.
  */
-int flash_write();
+
+void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value);
 
 // TBLPAGE and TBLOFFSET instructions support only explicit address
 #define FLASH_GETPAGE(ptr) __builtin_tblpage((ptr))

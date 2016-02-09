@@ -1,6 +1,5 @@
 
 #include "flash_store.h"
-#include "list.h"
 #include "app_connector.h"
 
 /*
@@ -24,38 +23,15 @@
 // marked for this section.
 #define SECURE __attribute__((section(".fixed")))
 
-typedef struct tagFLASHOP {
-    unsigned char pageNum;
-    unsigned int  offset;
-    uint16_t      value;
-} _FlashOp;
-
 typedef struct tagINSTRUCTION {
     uint8_t  highByte;
     uint16_t lowWord;
 } _Instruction;
 
-_PERSISTENT _ListHandle  flashOps;
 
 // Temporary store for page
 uint16_t pageStore[512] __attribute__((space(prog),aligned(2048)));
 _PERSISTENT _Instruction _flash_tmp_instructionHold[64];
-
-void _flashop_free(_FlashOp *op);
-_FlashOp *_flashop_copy(const _FlashOp *op);
-
-_ListHandle _flashop_list_create() {
-    _ListHandle h = list_create();
-    list_set_free(h, (void (*)(void *))_flashop_free);
-    list_set_copy(h, (void *(*)(void * const))_flashop_copy);
-    return h;
-}
-
-void flash_init() {
-    if(reset_is_cold()) {
-        flashOps = _flashop_list_create();
-    }
-}
 
 void SECURE _flash_start() {
     asm volatile(
@@ -83,14 +59,6 @@ void SECURE _flash_preconf_erase() {
     NVMCONbits.WREN = 1;        // Enable write
     NVMCONbits.ERASE = 1;       // Erase
     NVMCONbits.NVMOP = 0b0010;  // Single page erase
-}
-
-void flash_set(unsigned char page, unsigned int offset, uint16_t value) {
-    _FlashOp *operation = gc_malloct(sizeof(_FlashOp));
-    operation->pageNum = page;
-    operation->offset  = offset;
-    operation->value   = value;
-    list_push_back(flashOps, operation);
 }
 
 /* Returns 0 if successful */
@@ -153,16 +121,6 @@ int flash_store_writerow(unsigned int rowNum, _Instruction *row) {
                 FLASH_GETOFFSET(pageStore) + rowNum*128, row);
 }
 
-_Bool on_same_page(const _FlashOp *op1, const _FlashOp *op2) {
-    return op1 && op2 && op1->pageNum == op2->pageNum &&
-            (op1->offset ^ op2->offset) < FLASH_PAGE;
-}
-
-_Bool in_same_row(const _FlashOp *op1, const _FlashOp *op2) {
-    return op1 && op2 && op1->pageNum == op2->pageNum &&
-            (op1->offset ^ op2->offset) < FLASH_ROW;
-}
-
 void flash_readpage(unsigned char page, unsigned int offset) {
     int i;
     SYSHANDLE hp;
@@ -182,139 +140,6 @@ void flash_readpage(unsigned char page, unsigned int offset) {
         }
     high_priority_exit(hp);
 }
-
-/* Return 0 on success and 1 if flashing error has occured */
-int SECURE flash_writepage(_ListHandle pageGroup) {
-    int i, k = 0, opsSize, result = 0;
-    _ListIterator j;
-    _FlashOp op = *(_FlashOp*)list_front(pageGroup),
-            *ops;
-    _Instruction *row = _flash_tmp_instructionHold;
-    
-    unsigned int offset;
-    SYSHANDLE hp;
-
-
-    // While we will be rewriting page, some parts of program may become invalid
-    // Ensure we are not erasing this exact function
-    if(FLASH_GETPAGE(flash_writepage) == op.pageNum &&
-       (FLASH_GETOFFSET(flash_writepage) ^ op.offset) < FLASH_PAGE)
-        return 2;
-
-    // Preload list of changes
-    j = list_begin(pageGroup);
-    do {
-        ++k;
-    } while(list_iterate_fwd(j));
-    list_iterator_free(j);
-
-    ops = gc_malloct(sizeof(_FlashOp)*k);
-
-    k = 0;
-    j = list_begin(pageGroup);
-    do {
-        ops[k++] = *(_FlashOp*) list_iterator_value(j);
-    } while(list_iterate_fwd(j));
-    list_iterator_free(j);
-
-    opsSize = k;
-
-
-    hp = high_priority_enter();
-        // Prepare page
-        flash_erase_page(op.pageNum, op.offset);
-        offset = op.offset & FLASH_PAGE_MASK;
-
-        // Group by row
-        for(i = 0; i < 8; ++i) {
-            // Load row
-            flash_store_readrow(i, row);
-
-            // Apply all operations from that row
-            for(k = 0; k < opsSize; ++k)
-                if((ops[k].offset & FLASH_OFFSET_MASK) / 128 == i)
-                    row[(ops[k].offset & FLASH_ROW_MASK) / 2].lowWord = ops[k].value;
-
-            // Store row
-            if(flash_writerow(op.pageNum, offset+i*128, row)) {
-                result = 1;
-                break;
-            }
-        }
-    high_priority_exit(hp);
-    gc_free(ops);
-
-    return result;
-}
-
-int flash_write() {
-    _ListHandle group = _flashop_list_create();
-    _ListIterator i;
-    _FlashOp *op;
-    int result = 0;
-    
-    SYSHANDLE hp;
-
-    led_on();
-
-    // Group all queued writes by page
-    hp = high_priority_enter();
-        while(!list_is_empty(flashOps)) {
-            // Add first operation
-            op = _flashop_copy(list_front(flashOps));
-            list_pop_front(flashOps);
-            list_push_back(group, op);
-
-            // Add all operations from the same page
-            i = list_begin(flashOps);
-            do {
-                if(on_same_page(list_iterator_value(i), list_front(group))) {
-                    op = _flashop_copy(list_iterator_value(i));
-                    list_remove(i);
-                    list_push_back(group, op);
-                }
-            } while(list_iterate_fwd(i));
-            list_iterator_free(i);
-
-
-            op = list_front(group);
-            flash_readpage(op->pageNum, op->offset); // prepare page
-            // Apply all operations from the group and program device
-            if(flash_writepage(group)) {
-                return 1;
-            }
-
-            // Release resources
-            list_clear(group);
-        }
-    high_priority_exit(hp);
-
-    list_free(group);
-
-    led_off();
-
-    return result;
-}
-
-void _flashop_free(_FlashOp *op) {
-    gc_free(op);
-}
-
-_FlashOp *_flashop_copy(const _FlashOp *op) {
-    _FlashOp *newOp = gc_malloct(sizeof(_FlashOp));
-    *newOp = *op;
-    return newOp;
-}
-
-#else
-
-void flash_init() {}
-void flash_set(unsigned char page, unsigned int offset, uint16_t value) {}
-void flash_set_data(unsigned char page, unsigned int startOffset,
-        size_t size, unsigned int *data) {}
-int flash_write() {}
-
-#endif
 
 void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value)
 {
@@ -347,3 +172,10 @@ void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value)
     
     high_priority_exit(hp);
 }
+
+#else
+
+void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value){}
+
+#endif
+
