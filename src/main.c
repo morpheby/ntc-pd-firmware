@@ -8,7 +8,6 @@
 #include "system.h"        /* System funct/params, like osc/peripheral config */
 #include "oscillators.h"
 #include "uart_base.h"
-#include "flash_store.h"
 #include "wdt.h"
 #include "cn_inputs.h"
 #include "mem_pool.h"
@@ -22,6 +21,7 @@
 #include "D_I_O.h"
 #include "modbus_registers.h"
 #include "ind_profiles.h"
+#include "DEE Emulation 16-bit.h"
 
 
 /******************************************************************************/
@@ -29,32 +29,7 @@
 /******************************************************************************/
 #define DEFAULT_IND_PROFILE 0xFF00
 
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_MB_ADDRESS = DEFAULT_MODBUS_ADDRESS;
-unsigned long int _FLASH_STORE _FLASH_ACCESS flash_data_buf_BAUD_RATE = DEFAULT_UART_BAUDRATE;
-int _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_OFFSET[7] = {0,0,0,0,0,0,0};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_COEF[7] = {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f};
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_N = 200;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_D_OUT_INIT = 0;
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI_FREQ_COEF[4] = {1.0f,1.0f,1.0f,1.0f};
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_DISK_IMP_COUNT = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_DELAY = 25;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_PROF_CHANGE_SOURCE = 0;
-unsigned int _FLASH_STORE _FLASH_ACCESS flash_data_buf_IND_PROFILES[13] = {1, //current profile number
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE,
-                                                                     DEFAULT_IND_PROFILE, 
-                                                                     DEFAULT_IND_PROFILE};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[7] = {0.6f,0.6f,0.6f,0.6f,0.6f,0.6f,0.6f};
-float _FLASH_STORE _FLASH_ACCESS flash_data_buf_POWER_COEFS[3] = {1.0f,1.0f,1.0f};
-
+void loadParams();
 void saveParams();
 
 /******************************************************************************/
@@ -88,8 +63,9 @@ int16_t main() {
     /* Initialize modbus registers */
     modbus_regs_init();
     
+    loadParams();
+    
     /* Initialize UART */
-    MB.BAUD_RATE = flash_data_buf_BAUD_RATE;
     uart_init();
         
     /* Initialize system timing */
@@ -97,42 +73,13 @@ int16_t main() {
             
     ADC_Init(1);
     discrete_init();
-       
-    MB.ADDRESS = flash_data_buf_MB_ADDRESS;
+           
     setModbusAddress(MB.ADDRESS);
     float periode = 10.0/MB.BAUD_RATE*3.5;
     set_mb_silence_timer_periode((unsigned int)periode+1);
     
-    uint8_t i;
-    int *offsetPtr = &MB.M0_OFFSET;
-    float *coefPtr = &MB.M0_Coef;
-    float *rmsSignThresholdPtr = &MB.M0_RMS_sign_threshold;
-    for(i = 0; i < 7; ++i) {
-        offsetPtr[i] = flash_data_buf_ADC_OFFSET[i];
-        coefPtr[i] = flash_data_buf_ADC_COEF[i];
-        rmsSignThresholdPtr[i] = flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i];
-    }
-    
-    MB.N = flash_data_buf_N;
-    MB.D_OutInit = flash_data_buf_D_OUT_INIT;
     MB.D_Out = MB.D_OutInit;
-    MB.disk_imp_count = flash_data_buf_DISK_IMP_COUNT;
-    MB.Ind_Delay = flash_data_buf_IND_DELAY;
-    MB.PROF_CHANGE_SOURCE = flash_data_buf_PROF_CHANGE_SOURCE;
-    
-    float *DICoefPtr = &MB.DI0_ImpFreqCoef;
-    for(i = 0; i < 4; ++i) {
-        DICoefPtr[i] = flash_data_buf_DI_FREQ_COEF[i];
-    }
-    unsigned int *indProfilesPtr = &MB.profile;
-    for(i = 0; i < 13; ++i) {
-        indProfilesPtr[i] = flash_data_buf_IND_PROFILES[i];
-    }
-    float *powerCoefsPtr = &MB.P1_coef;
-    for(i = 0; i < 3; ++i){
-        powerCoefsPtr[i] = flash_data_buf_POWER_COEFS[i];
-    }
-    
+          
     app_init();
     
     // Main cycle
@@ -160,89 +107,193 @@ int16_t main() {
     }
 }
 
- /* NOTE:
- *    Flashing operation COMPLETELY locks device for some time. Even software
- *    resets (including MCLR) will not work while flashing is in progress (not
- *    even minding interrupts). Ensure user will not power off the device until
- *    the operation completes.
- */
+#define FLASH_FIRST_START_FLAG_ADDR 0
+#define FLASH_MB_ADDRESS_ADDR 1
+#define FLASH_BAUD_RATE_ADDR 2
+#define FLASH_ADC_OFFSET_ADDR 4
+#define FLASH_ADC_COEF_ADDR 11
+#define FLASH_N_ADDR 25
+#define FLASH_DOUT_INIT_ADDR 26
+#define FLASH_DI_IMP_FREQ_COEF_ADDR 27
+#define FLASH_DISK_IMP_COUNT_ADDR 35
+#define FLASH_IND_DELAY_ADDR 36
+#define FLASH_PROF_CHANGE_SOURCE_ADDR 37
+#define FLASH_PROFILES_ADDR 38
+#define FLASH_SIGN_THRESH_ADDR 51
+#define FLASH_POWER_COEF_ADDR 65
+
 void saveParams()
 {
-    uint16_t *tmpPtr;
-    int *offsetPtr = &MB.M0_OFFSET;
-    float *coefPtr = &MB.M0_Coef;
-    float *rmsSignThresholdPtr = &MB.M0_RMS_sign_threshold;
-    float *DICoefPtr = &MB.DI0_ImpFreqCoef;
+    int i;
+    int *offsetPtr = &MB.M0_OFFSET;    
+    unsigned int *tmpPtr;
+    
+    DataEEWrite(MB.ADDRESS, FLASH_MB_ADDRESS_ADDR); 
+    
+    tmpPtr = &MB.BAUD_RATE;
+    DataEEWrite(tmpPtr[0], FLASH_BAUD_RATE_ADDR); 
+    DataEEWrite(tmpPtr[1], FLASH_BAUD_RATE_ADDR + 1); 
+    
+    for(i = 0; i < 7; ++i) {
+        DataEEWrite(offsetPtr[i], FLASH_ADC_OFFSET_ADDR + i); 
+        
+        tmpPtr = &MB.M0_Coef;
+        DataEEWrite(tmpPtr[i*2], FLASH_ADC_COEF_ADDR + i*2); 
+        DataEEWrite(tmpPtr[i*2 + 1], FLASH_ADC_COEF_ADDR + i*2 + 1);
+        
+        tmpPtr = &MB.M0_RMS_sign_threshold;        
+        DataEEWrite(tmpPtr[i*2], FLASH_SIGN_THRESH_ADDR + i*2); 
+        DataEEWrite(tmpPtr[i*2 + 1], FLASH_SIGN_THRESH_ADDR + i*2 + 1);        
+    }
+    
+    DataEEWrite(MB.N, FLASH_N_ADDR);
+    DataEEWrite(MB.D_OutInit, FLASH_DOUT_INIT_ADDR);
+    
+    tmpPtr = &MB.DI0_ImpFreqCoef;
+    for(i = 0; i < 4; ++i) {            
+        DataEEWrite(tmpPtr[i*2], FLASH_DI_IMP_FREQ_COEF_ADDR + i*2); 
+        DataEEWrite(tmpPtr[i*2 + 1], FLASH_DI_IMP_FREQ_COEF_ADDR + i*2 + 1);
+    }
+    
+    DataEEWrite(MB.disk_imp_count, FLASH_DISK_IMP_COUNT_ADDR);
+    
+    DataEEWrite(MB.Ind_Delay, FLASH_IND_DELAY_ADDR);
+    
+    DataEEWrite(MB.PROF_CHANGE_SOURCE, FLASH_PROF_CHANGE_SOURCE_ADDR);
+        
     unsigned int *indProfilesPtr = &MB.profile;
-    float *powerCoefsPtr = &MB.P1_coef;
+    DataEEWrite(MB.profile, FLASH_PROFILES_ADDR);
+    for(i = 1; i < 13; ++i) {
+        DataEEWrite(indProfilesPtr[i], FLASH_PROFILES_ADDR + i);
+    }
+    
+    tmpPtr = &MB.P1_coef;
+    for(i = 0; i < 3; ++i){
+        DataEEWrite(tmpPtr[i*2], FLASH_POWER_COEF_ADDR + i*2); 
+        DataEEWrite(tmpPtr[i*2 + 1], FLASH_POWER_COEF_ADDR + i*2 + 1);
+    }
+}
+
+void loadParams() {
+    DataEEInit();
+    
+    unsigned int isFirstStart = DataEERead(FLASH_FIRST_START_FLAG_ADDR);
     
     int i;
+    int *offsetPtr = &MB.M0_OFFSET;
+    float *coefPtr = &MB.M0_Coef;
+    float * RMSSignThreshPtr = &MB.M0_RMS_sign_threshold;
+    unsigned int *tmpPtr;
     
-    if(MB.ADDRESS != flash_data_buf_MB_ADDRESS) {
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_MB_ADDRESS), FLASH_GETOFFSET(&flash_data_buf_MB_ADDRESS),
-                MB.ADDRESS);                 
-        }
-    if(MB.BAUD_RATE != flash_data_buf_BAUD_RATE) {
+    if(isFirstStart) {
+        MB.ADDRESS = DEFAULT_MODBUS_ADDRESS;
+        DataEEWrite(MB.ADDRESS, FLASH_MB_ADDRESS_ADDR); 
+        
+        MB.BAUD_RATE = DEFAULT_UART_BAUDRATE;
         tmpPtr = &MB.BAUD_RATE;
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE),
-                tmpPtr[0]);
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_BAUD_RATE), FLASH_GETOFFSET(&flash_data_buf_BAUD_RATE)+2,
-                tmpPtr[1]);                 
+        DataEEWrite(tmpPtr[0], FLASH_BAUD_RATE_ADDR); 
+        DataEEWrite(tmpPtr[1], FLASH_BAUD_RATE_ADDR + 1); 
+        
+        for(i = 0; i < 7; ++i) {
+            offsetPtr[i] = 0;
+            DataEEWrite(offsetPtr[i], FLASH_ADC_OFFSET_ADDR + i); 
+            coefPtr[i] = 1.0;
+            
+            tmpPtr = &MB.M0_Coef;
+            DataEEWrite(tmpPtr[i*2], FLASH_ADC_COEF_ADDR + i*2); 
+            DataEEWrite(tmpPtr[i*2 + 1], FLASH_ADC_COEF_ADDR + i*2 + 1);
+            
+            tmpPtr = &MB.M0_RMS_sign_threshold; 
+            RMSSignThreshPtr[i] = 0.6f;
+            DataEEWrite(tmpPtr[i*2], FLASH_SIGN_THRESH_ADDR + i*2); 
+            DataEEWrite(tmpPtr[i*2 + 1], FLASH_SIGN_THRESH_ADDR + i*2 + 1);
         }
-    for(i = 0; i < 7; ++i) {
-        if(offsetPtr[i] != flash_data_buf_ADC_OFFSET[i])
-        {
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_OFFSET), FLASH_GETAOFFSET(flash_data_buf_ADC_OFFSET, i),
-                    offsetPtr[i]);
-        }  
-        if(coefPtr[i] != flash_data_buf_ADC_COEF[i])
-        {
-            tmpPtr = coefPtr+i;
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i), tmpPtr[0]);
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_COEF), FLASH_GETAOFFSET(flash_data_buf_ADC_COEF, i)+2, tmpPtr[1]);
-        }    
-        if(rmsSignThresholdPtr[i] != flash_data_buf_ADC_RMS_SIGN_THRESHOLDS[i])
-        {
-            tmpPtr = rmsSignThresholdPtr+i;
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i), tmpPtr[0]);
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS), FLASH_GETAOFFSET(flash_data_buf_ADC_RMS_SIGN_THRESHOLDS, i)+2, tmpPtr[1]);
-        }                   
-    }
-    
-    if(MB.N != flash_data_buf_N) {
-            flash_write_direct(FLASH_GETPAGE(&flash_data_buf_N), FLASH_GETOFFSET(&flash_data_buf_N), MB.N);                 
-    }
-    if(MB.D_OutInit != flash_data_buf_D_OUT_INIT) {
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_D_OUT_INIT), FLASH_GETOFFSET(&flash_data_buf_D_OUT_INIT), MB.D_OutInit);                 
-    }
-    for(i = 0; i < 4; ++i) { 
-        if(DICoefPtr[i] != flash_data_buf_DI_FREQ_COEF[i])
-        {
-            tmpPtr = DICoefPtr+i;
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i), tmpPtr[0]);
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_DI_FREQ_COEF), FLASH_GETAOFFSET(flash_data_buf_DI_FREQ_COEF, i)+2, tmpPtr[1]);
-        }                      
-    }
-    if(MB.disk_imp_count != flash_data_buf_DISK_IMP_COUNT) {
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_DISK_IMP_COUNT), FLASH_GETOFFSET(&flash_data_buf_DISK_IMP_COUNT), MB.disk_imp_count);                 
-    }
-    if(MB.Ind_Delay != flash_data_buf_IND_DELAY) {
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_IND_DELAY), FLASH_GETOFFSET(&flash_data_buf_IND_DELAY), MB.Ind_Delay);                 
-    }
-    if(MB.PROF_CHANGE_SOURCE != flash_data_buf_PROF_CHANGE_SOURCE) {
-        flash_write_direct(FLASH_GETPAGE(&flash_data_buf_PROF_CHANGE_SOURCE), FLASH_GETOFFSET(&flash_data_buf_PROF_CHANGE_SOURCE), MB.PROF_CHANGE_SOURCE);                 
-    }
-    for(i = 0; i < 13; ++i) {
-        if(flash_data_buf_IND_PROFILES[i] != indProfilesPtr[i]) {
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_IND_PROFILES), FLASH_GETAOFFSET(flash_data_buf_IND_PROFILES, i), indProfilesPtr[i]);                    
+        
+        MB.N = 200;
+        DataEEWrite(MB.N, FLASH_N_ADDR);
+        
+        MB.D_OutInit = 0;
+        DataEEWrite(MB.D_OutInit, FLASH_DOUT_INIT_ADDR);
+        
+        float *DICoefPtr = &MB.DI0_ImpFreqCoef;
+        for(i = 0; i < 4; ++i) {
+            DICoefPtr[i] = 1.0;
+            
+            tmpPtr = &MB.DI0_ImpFreqCoef;
+            DataEEWrite(tmpPtr[i*2], FLASH_DI_IMP_FREQ_COEF_ADDR + i*2); 
+            DataEEWrite(tmpPtr[i*2 + 1], FLASH_DI_IMP_FREQ_COEF_ADDR + i*2 + 1);
         }
-    }
-    for(i = 0; i < 3; ++i) { 
-        if(powerCoefsPtr[i] != flash_data_buf_POWER_COEFS[i])
-        {
-            tmpPtr = powerCoefsPtr+i;
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i), tmpPtr[0]);
-            flash_write_direct(FLASH_GETPAGE(flash_data_buf_POWER_COEFS), FLASH_GETAOFFSET(flash_data_buf_POWER_COEFS, i)+2, tmpPtr[1]);
-        }                      
+        
+        MB.disk_imp_count = 0;
+        DataEEWrite(MB.disk_imp_count, FLASH_DISK_IMP_COUNT_ADDR);
+        
+        MB.Ind_Delay = 25;
+        DataEEWrite(MB.Ind_Delay, FLASH_IND_DELAY_ADDR);
+        
+        MB.PROF_CHANGE_SOURCE = 0;
+        DataEEWrite(MB.PROF_CHANGE_SOURCE, FLASH_PROF_CHANGE_SOURCE_ADDR);
+         
+        unsigned int *indProfilesPtr = &MB.profile;
+        MB.profile = 1;
+        DataEEWrite(MB.profile, FLASH_PROFILES_ADDR);
+        for(i = 1; i < 13; ++i) {
+            indProfilesPtr[i] = DEFAULT_IND_PROFILE;
+            DataEEWrite(indProfilesPtr[i], FLASH_PROFILES_ADDR + i);
+        }
+        
+        float *powerCoefsPtr = &MB.P1_coef;
+        tmpPtr = &MB.P1_coef;
+        for(i = 0; i < 3; ++i){
+            powerCoefsPtr[i] = 1.0f;
+            
+            DataEEWrite(tmpPtr[i*2], FLASH_POWER_COEF_ADDR + i*2); 
+            DataEEWrite(tmpPtr[i*2 + 1], FLASH_POWER_COEF_ADDR + i*2 + 1);
+        }
+        
+        DataEEWrite(0, FLASH_FIRST_START_FLAG_ADDR);
+    } else {
+        MB.ADDRESS = DataEERead(FLASH_MB_ADDRESS_ADDR);
+        
+        tmpPtr = &MB.BAUD_RATE;
+        tmpPtr[0] = DataEERead(FLASH_BAUD_RATE_ADDR);
+        tmpPtr[1] = DataEERead(FLASH_BAUD_RATE_ADDR + 1);
+        
+        for(i = 0; i < 7; ++i) {
+           offsetPtr[i] = DataEERead(FLASH_ADC_OFFSET_ADDR + i);
+
+           tmpPtr = &MB.M0_Coef;
+           tmpPtr[i*2] = DataEERead(FLASH_ADC_COEF_ADDR + i*2);
+           tmpPtr[i*2 + 1] = DataEERead(FLASH_ADC_COEF_ADDR + i*2 + 1);
+           
+           tmpPtr = &MB.M0_RMS_sign_threshold;
+           tmpPtr[i*2] = DataEERead(FLASH_SIGN_THRESH_ADDR + i*2);
+           tmpPtr[i*2 + 1] = DataEERead(FLASH_SIGN_THRESH_ADDR + i*2 + 1);
+        }
+        
+        MB.N = DataEERead(FLASH_N_ADDR);
+        MB.D_OutInit = DataEERead(FLASH_DOUT_INIT_ADDR);
+        
+        tmpPtr = &MB.DI0_ImpFreqCoef;
+        for(i = 0; i < 4; ++i) {
+           tmpPtr[i*2] = DataEERead(FLASH_DI_IMP_FREQ_COEF_ADDR + i*2);
+           tmpPtr[i*2 + 1] = DataEERead(FLASH_DI_IMP_FREQ_COEF_ADDR + i*2 + 1);
+        }
+        
+        MB.disk_imp_count = DataEERead(FLASH_DISK_IMP_COUNT_ADDR);
+        
+        MB.Ind_Delay = DataEERead(FLASH_IND_DELAY_ADDR);
+        
+        MB.PROF_CHANGE_SOURCE  = DataEERead(FLASH_PROF_CHANGE_SOURCE_ADDR);
+        
+        unsigned int *indProfilesPtr = &MB.profile;
+        for(i = 0; i < 13; ++i) {
+            indProfilesPtr[i] = DataEERead(FLASH_PROFILES_ADDR + i);
+        }
+        
+        tmpPtr = &MB.P1_coef;
+        for(i = 0; i < 3; ++i){
+            tmpPtr[i*2] = DataEERead(FLASH_POWER_COEF_ADDR + i*2); 
+            tmpPtr[i*2 + 1] = DataEERead(FLASH_POWER_COEF_ADDR + i*2 + 1);
+        }
     }
 }

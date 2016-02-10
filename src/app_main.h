@@ -25,7 +25,7 @@
 // Note that disabling RTSP module here will not free one-page section .fixed
 // in linker script, so if you require some memory, go to the linker script and
 // remove the section after disabling the module
-#define APP_USE_RTSP            1
+#define APP_USE_RTSP            0
 
 // Use LED display extensions (segmentation, rounding, scrolling, string display)
 #define APP_USE_LED_DISP        1
