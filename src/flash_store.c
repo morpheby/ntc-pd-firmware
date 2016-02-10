@@ -159,15 +159,18 @@ void flash_write_direct(unsigned char page, unsigned int offset, uint16_t value)
     
     flash_erase_page(page, offset);
     
+    _Instruction *row = _flash_tmp_instructionHold;
+    
     int i;
     for(i = 0; i < 8; ++i) {
         // Load row
-        flash_store_readrow(i, _flash_tmp_instructionHold);
+        flash_store_readrow(i, row);
         
-        if((dataOffset & FLASH_OFFSET_MASK) / 128 == i)
-                    _flash_tmp_instructionHold[(dataOffset & FLASH_ROW_MASK) / 2].lowWord = value;
+        if((dataOffset & FLASH_OFFSET_MASK) / 128 == i) {
+                    row[(dataOffset & FLASH_ROW_MASK) / 2].lowWord = value;
+        }
 
-        flash_writerow(page, offset+i*128, _flash_tmp_instructionHold);
+        flash_writerow(page, offset+i*128, row);
     }
     
     high_priority_exit(hp);
