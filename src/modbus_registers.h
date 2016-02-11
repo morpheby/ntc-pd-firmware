@@ -16,6 +16,8 @@ int16_t modbus_get_reg_i16(uint8_t regNumber);
 
 #define RAM_START_ADDRESS               0x900
 
+#define FORMAT_STRING_BUF_SIZE 32
+
 struct modbus_t {
     unsigned int ADDRESS;//REG 0
     unsigned long int BAUD_RATE;//REG 1 REG 2
@@ -140,10 +142,18 @@ struct modbus_t {
     
     float P1_coef;// REG 163 REG 164
     float P2_coef;// REG 165 REG 165
-    float P3_coef;// REG 167 REG 168    
+    float P3_coef;// REG 167 REG 168   
+    
+    unsigned int LCD_rows; // REG 169
+    unsigned int LCD_cols; // REG 170
+    unsigned int LCD_buf_size; // REG 171
+    char LCD_FORMAT_STRING_1[FORMAT_STRING_BUF_SIZE]; //REG 172 - REG 187
+    char LCD_FORMAT_STRING_2[FORMAT_STRING_BUF_SIZE]; //REG 188 - REG 203
+    char LCD_FORMAT_STRING_3[FORMAT_STRING_BUF_SIZE]; //REG 204 - REG 219
+    char LCD_FORMAT_STRING_4[FORMAT_STRING_BUF_SIZE]; // REG 220 - REG 235
 };
 
-#define MB_REGS_COUNT 169
+#define MB_REGS_COUNT 236
 
 extern struct modbus_t MB __attribute__ ((address(RAM_START_ADDRESS+0)));
 

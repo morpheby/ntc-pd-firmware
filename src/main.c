@@ -1,5 +1,7 @@
 /******************************************************************************/
 
+#include <string.h>
+
 #include "system.h"
 
 /* Files to Include                                                           */
@@ -79,7 +81,9 @@ int16_t main() {
     set_mb_silence_timer_periode((unsigned int)periode+1);
     
     MB.D_Out = MB.D_OutInit;
-          
+    
+    MB.LCD_buf_size = FORMAT_STRING_BUF_SIZE;
+        
     app_init();
     
     // Main cycle
@@ -121,6 +125,9 @@ int16_t main() {
 #define FLASH_PROFILES_ADDR 38
 #define FLASH_SIGN_THRESH_ADDR 51
 #define FLASH_POWER_COEF_ADDR 65
+#define FLASH_LCD_ROWS_ADDR 71
+#define FLASH_LCD_COLS_ADDR 72
+#define FLASH_LCD_FORMAT_ADDR 73
 
 void saveParams()
 {
@@ -171,6 +178,14 @@ void saveParams()
     for(i = 0; i < 3; ++i){
         DataEEWrite(tmpPtr[i*2], FLASH_POWER_COEF_ADDR + i*2); 
         DataEEWrite(tmpPtr[i*2 + 1], FLASH_POWER_COEF_ADDR + i*2 + 1);
+    }
+    
+    DataEEWrite(MB.LCD_rows, FLASH_LCD_ROWS_ADDR);
+    DataEEWrite(MB.LCD_cols, FLASH_LCD_COLS_ADDR);
+    
+    tmpPtr = &MB.LCD_FORMAT_STRING_1;
+    for(i = 0; i < FORMAT_STRING_BUF_SIZE * 2; ++i) {
+        DataEEWrite(tmpPtr[i],FLASH_LCD_FORMAT_ADDR + i);
     }
 }
 
@@ -250,6 +265,11 @@ void loadParams() {
             DataEEWrite(tmpPtr[i*2 + 1], FLASH_POWER_COEF_ADDR + i*2 + 1);
         }
         
+        MB.LCD_rows = 0;
+        MB.LCD_cols = 0;
+        DataEEWrite(MB.LCD_rows, FLASH_LCD_ROWS_ADDR);
+        DataEEWrite(MB.LCD_cols, FLASH_LCD_COLS_ADDR);
+        
         DataEEWrite(0, FLASH_FIRST_START_FLAG_ADDR);
     } else {
         MB.ADDRESS = DataEERead(FLASH_MB_ADDRESS_ADDR);
@@ -294,6 +314,14 @@ void loadParams() {
         for(i = 0; i < 3; ++i){
             tmpPtr[i*2] = DataEERead(FLASH_POWER_COEF_ADDR + i*2); 
             tmpPtr[i*2 + 1] = DataEERead(FLASH_POWER_COEF_ADDR + i*2 + 1);
+        }
+        
+        MB.LCD_rows = DataEERead(FLASH_LCD_ROWS_ADDR);
+        MB.LCD_cols = DataEERead(FLASH_LCD_COLS_ADDR);
+        
+        tmpPtr = &MB.LCD_FORMAT_STRING_1;
+        for(i = 0; i < FORMAT_STRING_BUF_SIZE * 2; ++i) {
+            tmpPtr[i] = DataEERead(FLASH_LCD_FORMAT_ADDR + i);
         }
     }
 }
