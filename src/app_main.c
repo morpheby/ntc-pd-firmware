@@ -84,7 +84,7 @@ MAIN_DECL_LOOP_FN() {
     long int time = timing_get_time_msecs();
     long int dt = time - last_time;
     
-    if(dt >= 1000) {
+    if(dt >= MB.TERMO_Update_Interval) {
         DS1820_update();
         MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt*MB.DI0_ImpCoef;
         MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt*MB.DI1_ImpCoef;

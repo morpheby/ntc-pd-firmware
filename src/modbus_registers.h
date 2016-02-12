@@ -242,7 +242,9 @@ void modbus_mmap_free();
 #define REG_DI1_ImpCoef         203, f
 #define REG_DI2_ImpCoef         205, f
 
-#define MODBUS_DATA_END        207
+#define REG_TERMO_Update_Interval         207, u16
+
+#define MODBUS_DATA_END        208
 
 #if APP_USE_MODBUS_EXT
 #define REG_Bulk_Size          255, u16
@@ -453,6 +455,8 @@ typedef struct _tagMODBUS_DATA {
             _REG_DEFINE(DI0_ImpCoef);
             _REG_DEFINE(DI1_ImpCoef);
             _REG_DEFINE(DI2_ImpCoef);
+            
+            _REG_DEFINE(TERMO_Update_Interval);
             
             uint16_t __last1;
         };

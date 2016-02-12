@@ -68,11 +68,13 @@ void DS1820_update()
                     DS1820_TX(0xBE);
                     LS_byte = DS1820_RX();
                     MS_byte = DS1820_RX();
+#if IS_9_BIT_SENSOR
                     MS_byte = (MS_byte << 3);
                     MS_byte += (LS_byte >> 5);
                     LS_byte = (LS_byte << 3);
+#endif
                     int8_t temp = (MS_byte << 4) + (LS_byte >> 4);
-                    temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);      
+                    temperature[currentIndex] = (float)(temp) + 0.0625f * (LS_byte & 0b00001111);    
                     currentIndex++;
                 }
                 state = STATE_DEFAULT;

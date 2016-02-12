@@ -47,6 +47,8 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI0_ImpCoef = 1.0/308.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI1_ImpCoef = 1.0/308.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 0.051044776;
 
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_TERMO_Update_Interval = 1000;
+
 int PROF=1;
 char MENU_LEVEL = 0;
 
@@ -140,6 +142,8 @@ int16_t main() {
         ColdTermoIdPtr[i] = flash_data_buf_ColdTermoId[i];
     }
     
+    MB.TERMO_Update_Interval = flash_data_buf_TERMO_Update_Interval;
+    
     // Initialize application-specific module
     app_init();
     
@@ -220,6 +224,11 @@ int16_t main() {
                         tmpPtr[0]);
                 flash_set(FLASH_GETPAGE(&flash_data_buf_DI2_ImpCoef), FLASH_GETOFFSET(&flash_data_buf_DI2_ImpCoef)+2,
                         tmpPtr[1]);
+            }
+            
+            if (flash_data_buf_TERMO_Update_Interval != MB.TERMO_Update_Interval) {
+                flash_set(FLASH_GETPAGE(&flash_data_buf_TERMO_Update_Interval), FLASH_GETOFFSET(&flash_data_buf_TERMO_Update_Interval),
+                        MB.TERMO_Update_Interval);
             }
             
             flash_write();
