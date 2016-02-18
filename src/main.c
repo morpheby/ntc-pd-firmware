@@ -47,7 +47,7 @@ float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI0_ImpCoef = 1.0/308.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI1_ImpCoef = 1.0/308.0f;
 float _FLASH_STORE _FLASH_ACCESS flash_data_buf_DI2_ImpCoef = 0.051044776;
 
-uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_TERMO_Update_Interval = 1000;
+uint16_t _FLASH_STORE _FLASH_ACCESS flash_data_buf_TERMO_Update_Interval = 50;
 
 int PROF=1;
 char MENU_LEVEL = 0;
