@@ -163,7 +163,7 @@ void perform_data_operations() {
     float *impFreqCoef = &MB.DI0_ImpFreqCoef;
 
     for(i = 0; i < 4; ++i) {
-        if(time - diImpTime[0] < DI_IMP_TIMEOUT_MS) {
+        if(time - diImpTime[i] < DI_IMP_TIMEOUT_MS) {
             impFreq[i] = 1.0f/diImpPeriodeExpMovingMean[i]*impFreqCoef[i];
         } else {
             impFreq[i] = 0;
@@ -209,7 +209,7 @@ CNI_DECL_PROC_FN(30, on) {
             if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[1] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[1];
             }
-            diImpTime[0] = time;
+            diImpTime[1] = time;
         }
     }
 }
@@ -228,7 +228,7 @@ CNI_DECL_PROC_FN(10, on) {
             if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[2] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[2];
             }
-            diImpTime[0] = time;
+            diImpTime[2] = time;
         }
     }
 }
@@ -248,7 +248,7 @@ CNI_DECL_PROC_FN(9, on) {
             if(dt < DI_IMP_TIMEOUT_MS) {
                 diImpPeriodeExpMovingMean[3] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[3];
             }
-            diImpTime[0] = time;
+            diImpTime[3] = time;
         }
     }
 }
