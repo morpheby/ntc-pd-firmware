@@ -33,9 +33,13 @@
 _PERSISTENT static Filter *adcInputFilter;
 _PERSISTENT static Filter *squaredFilter;
 
-static unsigned int DI0_counter = 0;
-static unsigned int DI1_counter = 0;
-static unsigned int DI2_counter = 0;
+_PERSISTENT static float diImpPeriodeExpMovingMean[3];
+_PERSISTENT static long diImpTime[3];
+
+#define FREQ_ALPHA 0.1
+#define FREQ_BETA 0.9
+#define DI_IMP_TIMEOUT_MS 3000
+
 static long int last_time;
 
 static bool heaterOn = 0;
@@ -55,6 +59,11 @@ void app_init() {
         ROM[i] = ROM_Storage[i];
     }
     MB.TermoCount = 3;
+    
+    for(i = 0; i < 3; ++i) {
+        diImpPeriodeExpMovingMean[i] = 0;
+        diImpTime[i] = 0;
+    }
 }
 
 MAIN_DECL_LOOP_FN() {
@@ -86,14 +95,28 @@ MAIN_DECL_LOOP_FN() {
     
     if(dt >= MB.TERMO_Update_Interval) {
         DS1820_update();
-        MB.DI0_ImpFrequency = 500.0f*(float)DI0_counter / (float)dt*MB.DI0_ImpCoef;
-        MB.DI1_ImpFrequency = 500.0f*(float)DI1_counter / (float)dt*MB.DI1_ImpCoef;
-        MB.DI2_ImpFrequency = 500.0f*(float)DI2_counter / (float)dt*MB.DI2_ImpCoef;
-        DI0_counter = 0;
-        DI1_counter = 0;
-        DI2_counter = 0;
         last_time = time;
     }
+    
+    if(time - diImpTime[0] < DI_IMP_TIMEOUT_MS) {
+        MB.DI0_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[0]*MB.DI0_ImpCoef;
+    } else {
+        MB.DI0_ImpFrequency = 0;
+    }
+    
+    if(time - diImpTime[1] < DI_IMP_TIMEOUT_MS) {
+        MB.DI1_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[1]*MB.DI1_ImpCoef;
+    } else {
+        MB.DI1_ImpFrequency = 0;
+    }
+    
+    if(time - diImpTime[2] < DI_IMP_TIMEOUT_MS) {
+        MB.DI2_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[2]*MB.DI2_ImpCoef;
+    } else {
+        MB.DI2_ImpFrequency = 0;
+    }
+    
+    
     if(MB.DS1820_TEMP_2 >= MB.T_hot_min + MB.delta_T_hist){
         heaterOn = 0;        
     } else if(MB.DS1820_TEMP_2 <= MB.T_hot_min){
@@ -119,8 +142,15 @@ CNI_DECL_PROC_FN(29, on) {
     static bool prev = 0;
     if(on != prev) 
     {
-        DI0_counter++;    
         prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[0]);
+            if(dt < DI_IMP_TIMEOUT_MS) {
+                diImpPeriodeExpMovingMean[0] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[0];
+            }
+            diImpTime[0] = time;
+        }
     }
 }
 
@@ -128,17 +158,30 @@ CNI_DECL_PROC_FN(29, on) {
 CNI_DECL_PROC_FN(30, on) {
     static bool prev = 0;
     if(on != prev) 
-    {
-        DI1_counter++;  
+    {   
         prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[1]);
+            if(dt < DI_IMP_TIMEOUT_MS) {
+                diImpPeriodeExpMovingMean[1] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[1];
+            }
+            diImpTime[1] = time;
+        }
     }
 }
 //DI2 impulse counter
 CNI_DECL_PROC_FN(10, on) {
     static bool prev = 0;
     if(on != prev) 
-    {
-        DI2_counter++;  
-        prev = on;
+    {   prev = on;
+        if(on) {
+            long time = timing_get_time_msecs();
+            long dt = (time - diImpTime[2]);
+            if(dt < DI_IMP_TIMEOUT_MS) {
+                diImpPeriodeExpMovingMean[2] = dt*0.001 * FREQ_ALPHA + FREQ_BETA * diImpPeriodeExpMovingMean[2];
+            }
+            diImpTime[2] = time;
+        }
     }
 }
