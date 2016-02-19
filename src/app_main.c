@@ -36,9 +36,9 @@ _PERSISTENT static Filter *squaredFilter;
 _PERSISTENT static float diImpPeriodeExpMovingMean[3];
 _PERSISTENT static long diImpTime[3];
 
-#define FREQ_ALPHA 0.1
-#define FREQ_BETA 0.9
-#define DI_IMP_TIMEOUT_MS 3000
+#define FREQ_ALPHA 0.6
+#define FREQ_BETA 0.4
+#define DI_IMP_TIMEOUT_MS 11000
 
 static long int last_time;
 
@@ -98,22 +98,25 @@ MAIN_DECL_LOOP_FN() {
         last_time = time;
     }
     
-    if(time - diImpTime[0] < DI_IMP_TIMEOUT_MS) {
+    if(time - diImpTime[0] < DI_IMP_TIMEOUT_MS && diImpPeriodeExpMovingMean[0] > 0) {
         MB.DI0_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[0]*MB.DI0_ImpCoef;
     } else {
         MB.DI0_ImpFrequency = 0;
+        diImpPeriodeExpMovingMean[0] = 0;
     }
     
-    if(time - diImpTime[1] < DI_IMP_TIMEOUT_MS) {
+    if(time - diImpTime[1] < DI_IMP_TIMEOUT_MS && diImpPeriodeExpMovingMean[1] > 0) {
         MB.DI1_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[1]*MB.DI1_ImpCoef;
     } else {
         MB.DI1_ImpFrequency = 0;
+        diImpPeriodeExpMovingMean[1] = 0;
     }
     
-    if(time - diImpTime[2] < DI_IMP_TIMEOUT_MS) {
+    if(time - diImpTime[2] < DI_IMP_TIMEOUT_MS && diImpPeriodeExpMovingMean[2] > 0) {
         MB.DI2_ImpFrequency = 1.0f/diImpPeriodeExpMovingMean[2]*MB.DI2_ImpCoef;
     } else {
         MB.DI2_ImpFrequency = 0;
+        diImpPeriodeExpMovingMean[2] = 0;
     }
     
     
