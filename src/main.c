@@ -232,8 +232,13 @@ int16_t main() {
             }
             
             flash_write();
-            system_reset();
             MB.FLASH_WR = 0;
+        }
+        
+        if(MB.FLASH_RD == 1)
+        {
+            MB.FLASH_RD = 0;
+            system_reset();
         }
         
         // Perform Modbus protocol processing
