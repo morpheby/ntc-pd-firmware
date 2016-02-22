@@ -88,7 +88,7 @@ int16_t main() {
     
     // Main cycle
     while (1) {             
-        display_update(0);
+      // display_update(0);
         discrete_update();
         perform_data_operations();
                                    

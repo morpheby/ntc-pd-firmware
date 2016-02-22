@@ -185,6 +185,7 @@ void _ISR_NOPSV _T1Interrupt(void) {
     timing_time_increment();
        
     ind_showValues(); 
+    
     IFS0bits.T1IF = 0;
 }
 
@@ -192,6 +193,7 @@ void _ISR_NOPSV _T2Interrupt(void) {
     if(_time_mesuring_started) {
         _mesuerd_time += 0.001;
     }
+    display_update(0);
     IFS0bits.T2IF = 0;
 }
 
